@@ -1,13 +1,15 @@
-#!/usr/bin/python
+#! /usr/bin/env python
+
+from seqsift.utils import DNA_AMBIGUITY_CODES
 
 def global_align(
         seq1,
         seq2,
         similarity_matrix = {
-        ('a', 'a'): 10, ('a', 'g'): -1, ('a', 'c'): -3, ('a', 't'): -4,
-        ('g', 'a'): -1, ('g', 'g'):  7, ('g', 'c'): -5, ('g', 't'): -3,
-        ('c', 'a'): -3, ('c', 'g'): -5, ('c', 'c'):  9, ('c', 't'):  0,
-        ('t', 'a'): -4, ('t', 'g'): -3, ('t', 'c'):  0, ('t', 't'):  8,
+        ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+        ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+        ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+        ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
         },
         gap_cost = -5):
     """
@@ -27,10 +29,10 @@ def computeFMatrix(
         seq1,
         seq2,
         similarity_matrix = {
-        ('a', 'a'): 10, ('a', 'g'): -1, ('a', 'c'): -3, ('a', 't'): -4,
-        ('g', 'a'): -1, ('g', 'g'):  7, ('g', 'c'): -5, ('g', 't'): -3,
-        ('c', 'a'): -3, ('c', 'g'): -5, ('c', 'c'):  9, ('c', 't'):  0,
-        ('t', 'a'): -4, ('t', 'g'): -3, ('t', 'c'):  0, ('t', 't'):  8,
+        ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+        ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+        ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+        ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
         },
         gap_cost = -5):
     """
@@ -47,11 +49,33 @@ def computeFMatrix(
     for i in range(1, nrows):
         for j in range(1, ncols):
             match = fmatrix[i - 1][j - 1] + \
-                    similarity_matrix[seq1[i - 1].lower(), seq2[j - 1].lower()]
+                        get_match_score(
+                                seq1[i - 1].upper(),
+                                seq2[j - 1].upper(),
+                                similarity_matrix)
             deletion = fmatrix[i - 1][j] + gap_cost
             insertion = fmatrix[i][j - 1] + gap_cost
             fmatrix[i][j] = max(match, deletion, insertion)
     return fmatrix
+
+def get_match_score(base1, base2, similarity_matrix):
+    if (base1, base2) in similarity_matrix.keys():
+        return similarity_matrix[base1, base2]
+    elif (base1 in DNA_AMBIGUITY_CODES.keys()) or \
+            (base2 in DNA_AMBIGUITY_CODES.keys()):
+        possible_bases1 = DNA_AMBIGUITY_CODES.get(base1, base1)
+        possible_bases2 = DNA_AMBIGUITY_CODES.get(base2, base2)
+        total_score = 0
+        comparisons = 0
+        for b1 in possible_bases1:
+            for b2 in possible_bases2:
+                total_score += similarity_matrix[b1, b2]
+                comparisons += 1
+        assert comparisons == len(possible_bases1) * len(possible_bases2)
+        return float(total_score)/comparisons
+    else:
+        raise ValueError("'%s' or '%s' was not found " % (base1, base2) + \
+                "in the similarity matrix or ambiguity codes.")
 
 def trace_max_score(
         fmatrix,
@@ -72,9 +96,10 @@ def trace_max_score(
         diagonal_score = fmatrix[i - 1][j - 1]
         up_score = fmatrix[i - 1][j]
         left_score = fmatrix[i][j - 1]
-        if score == diagonal_score + similarity_matrix[
-                seq1[i - 1].lower(),
-                seq2[j - 1].lower()]:
+        if score == diagonal_score + get_match_score(
+                seq1[i - 1].upper(),
+                seq2[j - 1].upper(),
+                similarity_matrix):
             s1 = seq1[i - 1] + s1
             s2 = seq2[j - 1] + s2
             i -= 1
