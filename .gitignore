@@ -1,0 +1,4 @@
+*.pyc
+SeqSift.egg-info*
+.DS_Store
+
