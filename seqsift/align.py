@@ -6,17 +6,17 @@ def global_align(
         seq1,
         seq2,
         similarity_matrix = {
-        ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-        ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-        ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-        ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
+            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
         },
         gap_cost = -5):
     """
     Returns the global pairwise alignment of `seq1` and `seq2` using the
     Needleman-Wunsch algorithm.
     """
-    fmatrix = computeFMatrix(
+    fmatrix = calculate_F_matrix(
             seq1=seq1, seq2=seq2,
             similarity_matrix=similarity_matrix,
             gap_cost=gap_cost)
@@ -25,14 +25,14 @@ def global_align(
             gap_cost=gap_cost)
     return s1, s2
 
-def computeFMatrix(
+def calculate_F_matrix(
         seq1,
         seq2,
         similarity_matrix = {
-        ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-        ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-        ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-        ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
+            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
         },
         gap_cost = -5):
     """
@@ -49,7 +49,7 @@ def computeFMatrix(
     for i in range(1, nrows):
         for j in range(1, ncols):
             match = fmatrix[i - 1][j - 1] + \
-                        get_match_score(
+                        match_score(
                                 seq1[i - 1].upper(),
                                 seq2[j - 1].upper(),
                                 similarity_matrix)
@@ -58,7 +58,7 @@ def computeFMatrix(
             fmatrix[i][j] = max(match, deletion, insertion)
     return fmatrix
 
-def get_match_score(base1, base2, similarity_matrix):
+def match_score(base1, base2, similarity_matrix):
     if (base1, base2) in similarity_matrix.keys():
         return similarity_matrix[base1, base2]
     elif (base1 in DNA_AMBIGUITY_CODES.keys()) or \
@@ -96,7 +96,7 @@ def trace_max_score(
         diagonal_score = fmatrix[i - 1][j - 1]
         up_score = fmatrix[i - 1][j]
         left_score = fmatrix[i][j - 1]
-        if score == diagonal_score + get_match_score(
+        if score == diagonal_score + match_score(
                 seq1[i - 1].upper(),
                 seq2[j - 1].upper(),
                 similarity_matrix):

@@ -19,6 +19,7 @@ A python package for vetting DNA sequence data""",
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,
+      test_suite="seqsift.test",
       install_requires=[
           # -*- Extra requirements: -*-
       ],
