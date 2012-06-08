@@ -1,0 +1,61 @@
+LOCUS       JF314862                 478 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Caiman crocodilus isolate LSUMZ_H-21701 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314862
+VERSION     JF314862.1  GI:354698774
+KEYWORDS    .
+SOURCE      Caiman crocodilus (spectacled caiman)
+  ORGANISM  Caiman crocodilus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Alligatorinae; Caiman.
+REFERENCE   1  (bases 1 to 478)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 478)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..478
+                     /organism="Caiman crocodilus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21701"
+                     /db_xref="taxon:8499"
+                     /collection_date="2006"
+     gene            <1..>478
+                     /gene="AChR"
+     mRNA            join(<1..74,443..>478)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,443..>478)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36627.1"
+                     /db_xref="GI:354698775"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..442
+                     /gene="AChR"
+                     /number=7
+     exon            443..>478
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggctgtgc tcgtctactt
+       61 tctgcctgcc aagggtaacg ctggcaccag gcggctgtgg gactgcctgt gccataggcg
+      121 tgaagagggc aggccatgtg gctgggcaga gggagggaag tgggggacag ccaccgctgg
+      181 gagactggca cctgggccca gtgcccgtca tttccccatc acatgggctt ggggacatgg
+      241 aagccagtcc tgtgggagca gacagacact cccggctgcc gtgtcagtcc ttagggctgg
+      301 ctggactctc tctgcacagc ctcccactgt cagtcccagg accatccatg tcctaggcat
+      361 gtctaggcag agccaggccc tttccaggtg ccctgggacc ccgtctcacg tgtcgatccc
+      421 ctcactctcc acatcctggc agcgggtggg cagaagtgca ccgtctccat caatgtcc
+//
+
