@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+import sys
+import os
 import itertools
 
 DEFAULT_DNA_SIMILARITY_MATRIX = {
@@ -22,7 +24,22 @@ DNA_AMBIGUITY_CODES = {
         'B': ('C', 'G', 'T'),
         'N': ('A', 'C', 'G', 'T')
 }
+
 DNA_REVERSE_AMBIGUITY_CODES = {}
 for k, v in DNA_AMBIGUITY_CODES.iteritems():
     for permutation in itertools.permutations(v):
         DNA_REVERSE_AMBIGUITY_CODES[permutation] = k
+
+VALID_DATA_TYPES = ['dna', 'rna', 'protein', 'aa']
+
+def mkdr(path):
+    """
+    Creates directory `path`, but suppresses error if `path` already exists.
+    """
+    try:
+        os.makedirs(path)
+    except OSError, e:
+        if e.errno == errno.EEXIST:
+            pass
+        else:
+            raise
