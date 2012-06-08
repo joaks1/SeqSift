@@ -74,7 +74,8 @@ def match_score(base1, base2, similarity_matrix):
         assert comparisons == len(possible_bases1) * len(possible_bases2)
         return float(total_score)/comparisons
     else:
-        raise ValueError("'%s' or '%s' was not found " % (base1, base2) + \
+        raise ValueError(
+                "{0!r} or {1!r} was not found ".format(base1, base2) + \
                 "in the similarity matrix or ambiguity codes.")
 
 def trace_max_score(
