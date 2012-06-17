@@ -5,6 +5,7 @@ import os
 import tempfile
 import cPickle
 import contextlib
+import warnings
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO, AlignIO, Entrez
@@ -15,6 +16,8 @@ from seqsift.utils import VALID_DATA_TYPES
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
+warnings.filterwarnings(action="ignore", category=UserWarning,
+        module=r'.*Entrez.*')
 
 class BufferedIter(object):
     def __init__(self, obj_iter):
