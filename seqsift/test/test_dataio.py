@@ -13,7 +13,6 @@ from Bio import SeqIO
 from seqsift.dataio import *
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
-from seqsift.utils import mkdr
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
