@@ -208,3 +208,7 @@ class GlobalAlignTestCase(unittest.TestCase):
                 similarity_matrix=self.similarity_matrix,
                 gap_cost=self.gap_cost)
         self.assertEqual(('ANGT', 'ACGT'), a)
+
+if __name__ == '__main__':
+    unittest.main()
+

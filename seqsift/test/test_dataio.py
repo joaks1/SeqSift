@@ -381,3 +381,6 @@ class FetchGbSeqsTestCase(SeqSiftTestCase):
         seqs2 = SeqIO.parse(self.multi_gb, format='gb',
                 alphabet=IUPAC.ambiguous_dna)
         self.assertSameData(seqs1, seqs2)
+
+if __name__ == '__main__':
+    unittest.main()
