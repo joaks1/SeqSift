@@ -6,7 +6,7 @@ from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-from seqsift.dataio import get_gb_handle, get_seq_iter
+from seqsift.utils.dataio import get_gb_handle, get_seq_iter
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
