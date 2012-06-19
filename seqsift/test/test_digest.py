@@ -4,7 +4,6 @@ import os
 import sys
 import unittest
 import itertools
-import warnings
 
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
