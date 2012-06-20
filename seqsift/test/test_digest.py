@@ -489,5 +489,24 @@ class RecognitionSeqTestCase(unittest.TestCase):
         self.assertTrue(f.three_prime_terminus)
         self.assertEqual(str(f.seq), str(self.ecori.seq)[4:] + 'TTTTTTTTTT')
 
+class DigestSummaryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.ecori = RecognitionSeq(Seq('GAATTC', IUPAC.unambiguous_dna),
+            cut_site = 3,
+            id = 'ecori',
+            name = 'EcoRI',
+            description = 'Recognition sequence of EcoRI restriction enzyme')
+    
+    def test_basic(self):
+        mol = SeqRecord(Seq(str(self.ecori.seq) * 3), id='test')
+        ds = DigestSummary(self.ecori, mol)
+        self.assertIsInstance(ds, DigestSummary)
+        self.assertEqual(ds.recognition_seq, str(self.ecori.seq))
+        self.assertEqual(ds.molecule_id, mol.id)
+        self.assertEqual(ds.molecule_name, mol.name)
+        self.assertEqual(ds.molecule_description, mol.description)
+        self.assertIsInstance(ds.size_distribution, dict)
+        self.assertEqual(ds.size_distribution, {3: 2, 6: 2})
+
 if __name__ == '__main__':
     unittest.main()

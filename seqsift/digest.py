@@ -11,25 +11,6 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
-def digest_from_gb(gi_list, recognition_seq, tmp_files=False):
-    if isinstance(gi_list, str):
-        ids = (i.strip() for i in gi_list.split(','))
-    else:
-        ids = gi_list
-    for gi in ids:
-        file_obj = get_gb_handle(str(gi), db='nuccore', rettype='gb',
-                retmode='text', tmp_file=tmp_files)
-
-def digest_from_file(file_list, recognition_seq):
-    for f in file_list:
-        if isinstance(f, str):
-            file_obj = open(f, 'rU')
-        else:
-            file_obj = f
-        seqs = get_seq_iter(f, format='gb', data_type='dna', ambiguities=True)
-        for seq in seqs:
-            digest_seq(seq, recognition_seq)
-
 class Fragment(SeqRecord):
     def __init__(self, 
                  seq_record,
@@ -225,3 +206,20 @@ class RecognitionSeq(SeqRecord):
 class InvalidRecognitionSeqError(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
+
+class DigestSummary(object):
+    def __init__(self, recognition_seq, seq_record):
+        if isinstance(recognition_seq, str):
+            self.recognition_seq = recognition_seq.upper()
+            rs = RecognitionSeq(recognition_seq)
+        else:
+            rs = recognition_seq
+            self.recognition_seq = str(recognition_seq.seq).upper()
+        self.molecule_id = seq_record.id
+        self.molecule_name = seq_record.name
+        self.molecule_description = seq_record.description
+        self.size_distribution = {}
+        for fragment in rs.digest(seq_record):
+            if len(fragment) not in self.size_distribution.keys():
+                self.size_distribution[len(fragment)] = 0
+            self.size_distribution[len(fragment)] += 1
