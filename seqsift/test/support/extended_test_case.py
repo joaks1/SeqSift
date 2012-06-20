@@ -96,6 +96,15 @@ class SeqSiftTestCase(unittest.TestCase):
         self.assertSameDescriptions(sequences1, sequences2)
         self.assertSameSequences(sequences1, sequences2, aligned=aligned)
 
+    def assertSameMetadata(self, seq1, seq2):
+        self.assertEqual(seq1.id, seq2.id)
+        self.assertEqual(seq1.name, seq2.name)
+        self.assertEqual(seq1.description, seq2.description)
+        self.assertEqual(seq1.letter_annotations, seq2.letter_annotations)
+        self.assertEqual(seq1.annotations, seq2.annotations)
+        self.assertEqual(seq1.features, seq2.features)
+        self.assertEqual(seq1.dbxrefs, seq2.dbxrefs)
+
     def tearDown(self):
         for p in self.test_paths:
             if os.path.exists(p):
