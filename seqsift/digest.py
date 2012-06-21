@@ -218,8 +218,8 @@ class DigestSummary(object):
         self.molecule_id = seq_record.id
         self.molecule_name = seq_record.name
         self.molecule_description = seq_record.description
-        self.size_distribution = {}
+        self.length_distribution = {}
         for fragment in rs.digest(seq_record):
-            if len(fragment) not in self.size_distribution.keys():
-                self.size_distribution[len(fragment)] = 0
-            self.size_distribution[len(fragment)] += 1
+            if len(fragment) not in self.length_distribution.keys():
+                self.length_distribution[len(fragment)] = 0
+            self.length_distribution[len(fragment)] += 1
