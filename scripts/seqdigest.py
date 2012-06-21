@@ -62,7 +62,8 @@ def digest_seq(recognition_seq, seq_record):
          
 def main():
     description = '{name} {version}'.format(**_program_info)
-    usage = "%prog [options] [<GENBANK_FILE1> <GENBANK_FILE2> ...]"
+    usage = ("\n  %prog [options] -s <RECOGNITION_SEQUENCE> [<GENBANK_FILE1> "
+             "<GENBANK_FILE2> ...]")
     parser = OptionParser(usage=usage, description=description,
                           version=_program_info['version'],
                           add_help_option=True)
@@ -91,6 +92,8 @@ def main():
         help="Minimum fragment length to include in count.")
     parser.add_option("--max_length", dest="max_length", type="int",
         help="Maximum fragment length to include in count.")
+    parser.add_option("-o", "--output_dir", dest="output_dir", type="string",
+        help="Path to output directory. Default is './digests/'")
     (options, args) = parser.parse_args()
 
     if options.debugging:
@@ -102,17 +105,28 @@ def main():
     
     if not options.recognition_seq:
         _LOG.error("You must provide a recognition sequence")
-        sys.stderr.write(parser.print_help())
+        sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
     if not options.gi_numbers and len(args) < 1:
         _LOG.error("You must provide a sequence to digest, either via the "
                    "gi number option or sequence file arguments")
-        sys.stderr.write(parser.print_help())
+        sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
-    format=None
     if options.format:
         format = EXTENSIONS[options.format.lower()]
-
+    if not options.output_dir:
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, 'digests'))
+    else:
+        out_dir = os.path.expanduser(os.path.expandvars(options.output_dir))
+    if not os.path.isdir(out_dir):
+        _LOG.error("Output path {0} is not a directory".format(out_dir))
+        sys.exit(1)
+    if options.max_length and options.max_length < options.min_length:
+        _LOG.error(
+                "max_length ({0}) cannot be less than min_length ({1})".format(
+                        options.max_length, options.min_length))
+        sys.exit(1)
+        
     rseq = RecognitionSeq(str(options.recognition_seq))
     gi_list = []
     if options.gi_numbers:
@@ -145,6 +159,60 @@ def main():
                         seq.id))
                 continue
             digests[seq.id] = digest_seq(rseq, seq)
-        
+        f.close()
+
+    _LOG.info('Finished digests!')
+    _LOG.info('Summarizing results...')
+    combined = {}
+    total_count = 0
+    filter_count = 0
+    for id, digest in digests.iteritems():
+        digest_total = 0
+        digest_filter = 0
+        out_file_path = os.path.join(out_dir, 
+                ".".join([digest.molecule_id, 'txt']))
+        out = open(out_file_path, 'w')
+        out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
+        for l in sorted(digest.length_distribution.iterkeys()):
+            f = digest.length_distribution[l]
+            out.write("{0}\t{1}\n".format(l, f))
+            digest_total += f
+            if options.max_length:
+                if l <= options.max_length and l >= options.min_length:
+                    digest_filter += f
+            else:
+                if l >= options.min_length:
+                    digest_filter += f
+            if l not in combined.keys():
+                combined[l] = 0
+            combined[l] += f
+        out.close()
+        _LOG.info('\nMolecule id: {0}\n'.format(digest.molecule_id) +
+                  'Molecule name: {0}\n'.format(digest.molecule_name) +
+                  'Molecule description: {0}\n'.format(
+                        digest.molecule_description) +
+                  '\ttotal fragments: {0}\n'.format(digest_total) +
+                  '\tfragments of length {0}-{1}: {2}\n'.format(
+                        options.min_length,
+                        getattr(options, 'max_length', 'max'),
+                        digest_filter)) +
+                  '\tfragment length distribution written to {0}\n'.format(
+                        out_file_path)
+    out_file_path = os.path.join(out_dir, 'combined.txt')
+    out = open(out_file_path, 'w')
+    out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
+    for l in sorted(combined.iterkeys()):
+        f = combined[l]
+        out.write("{0}\t{1}\n".format(l, f))
+    out.close()
+    _LOG.info('\nSummary over ALL molecules:\n'
+              '\ttotal fragments: {0}\n'.format(total_count) +
+              '\tfragments of length {0}-{1}: {2}\n'.format(
+                    options.min_length,
+                    getattr(options, 'max_length', 'max'),
+                    filter_count)) +
+              '\tfragment length distribution written to {0}\n'.format(
+                    out_file_path)
+
 if __name__ == '__main__':
     main()
