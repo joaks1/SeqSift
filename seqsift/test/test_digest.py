@@ -8,6 +8,7 @@ import itertools
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
+from Bio import SeqIO
 
 from seqsift.digest import *
 from seqsift.test.support import package_paths
@@ -489,6 +490,21 @@ class RecognitionSeqTestCase(unittest.TestCase):
         self.assertTrue(f.three_prime_terminus)
         self.assertEqual(str(f.seq), str(self.ecori.seq)[4:] + 'TTTTTTTTTT')
 
+    def test_simble_gb_seq(self):
+        rs = RecognitionSeq('TAG', 3)
+        fp = package_paths.data_path('JF314863-JF314866.gb')
+        seqs = SeqIO.parse(fp, format='gb', alphabet=IUPAC.ambiguous_dna)
+        s = seqs.next()
+        self.assertEqual(s.name, 'JF314863')
+        fragments = list(rs.digest(s))
+        self.assertEqual(len(fragments), 6)
+        lengths = [117, 172, 62, 10, 10, 102]
+        for i in range(len(fragments)):
+            f = fragments[i]
+            self.assertIsInstance(f, Fragment)
+            self.assertEqual(len(f), lengths[i])
+            
+
 class DigestSummaryTestCase(unittest.TestCase):
     def setUp(self):
         self.ecori = RecognitionSeq(Seq('GAATTC', IUPAC.unambiguous_dna),
@@ -507,6 +523,26 @@ class DigestSummaryTestCase(unittest.TestCase):
         self.assertEqual(ds.molecule_description, mol.description)
         self.assertIsInstance(ds.length_distribution, dict)
         self.assertEqual(ds.length_distribution, {3: 2, 6: 2})
+
+    def test_simble_gb_seq(self):
+        rs = RecognitionSeq('TAG', 3)
+        fp = package_paths.data_path('JF314863-JF314866.gb')
+        seqs = SeqIO.parse(fp, format='gb', alphabet=IUPAC.ambiguous_dna)
+        s = seqs.next()
+        self.assertEqual(s.name, 'JF314863')
+        ds = DigestSummary(rs, s)
+        self.assertIsInstance(ds, DigestSummary)
+        self.assertEqual(ds.recognition_seq, str(rs.seq))
+        self.assertEqual(ds.molecule_id, s.id)
+        self.assertEqual(ds.molecule_name, s.name)
+        self.assertEqual(ds.molecule_description, s.description)
+        self.assertIsInstance(ds.length_distribution, dict)
+        self.assertEqual(ds.length_distribution, {
+                13: 2,
+                65: 1,
+                105: 1,
+                117: 1,
+                175: 1,})
 
 if __name__ == '__main__':
     unittest.main()
