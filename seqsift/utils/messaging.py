@@ -6,31 +6,36 @@ import logging
 
 _LOGGING_LEVEL_ENV_VAR = "SEQSIFT_LOGGING_LEVEL"
 
-def get_logging_level():
-    if _LOGGING_LEVEL_ENV_VAR in os.environ:
-        if os.environ[_LOGGING_LEVEL_ENV_VAR].upper() == "NOTSET":
-            logging_level = logging.NOTSET
-        elif os.environ[_LOGGING_LEVEL_ENV_VAR].upper() == "DEBUG":
-            logging_level = logging.DEBUG
-        elif os.environ[_LOGGING_LEVEL_ENV_VAR].upper() == "INFO":
-            logging_level = logging.INFO
-        elif os.environ[_LOGGING_LEVEL_ENV_VAR].upper() == "WARNING":
-            logging_level = logging.WARNING
-        elif os.environ[_LOGGING_LEVEL_ENV_VAR].upper() == "ERROR":
-            logging_level = logging.ERROR
-        elif os.environ[_LOGGING_LEVEL_ENV_VAR].upper() == "CRITICAL":
-            logging_level = logging.CRITICAL
+def get_logging_level(level=None):
+    if level:
+        if level.upper() == "NOTSET":
+            return logging.NOTSET
+        elif level.upper() == "DEBUG":
+            return logging.DEBUG
+        elif level.upper() == "INFO":
+            return logging.INFO
+        elif level.upper() == "WARNING":
+            return logging.WARNING
+        elif level.upper() == "ERROR":
+            return logging.ERROR
+        elif level.upper() == "CRITICAL":
+            return logging.CRITICAL
         else:
-            logging_level = logging.WARNING
+            return logging.WARNING
     else:
-        logging_level = logging.WARNING
-    return logging_level
+        return logging.WARNING
 
-def get_logger(name = 'seqsift'):
+def get_env_logging_level():
+    return get_logging_level(os.environ.get(_LOGGING_LEVEL_ENV_VAR, None))
+
+def get_logger(name = 'seqsift', level=None):
+    if level:
+        l = get_logging_level(level)
+    else:
+        l = get_env_logging_level()
     log = logging.getLogger(name)
-    level = get_logging_level()
-    log.setLevel(level)
+    log.setLevel(l)
     h = logging.StreamHandler()
-    h.setLevel(level)
+    h.setLevel(l)
     log.addHandler(h)
     return log
