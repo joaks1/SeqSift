@@ -9,6 +9,9 @@ import re
 from seqsift.dataio import BufferedIter
 from seqsift.test.support import package_paths
 from seqsift.utils import mkdr
+from seqsift.utils.messaging import get_logger
+
+_LOG = get_logger(__name__)
 
 class SeqSiftTestCase(unittest.TestCase):
     test_paths = []
@@ -20,8 +23,12 @@ class SeqSiftTestCase(unittest.TestCase):
 
     def getTestFile(self, filename):
         tp = package_paths.output_path(filename)
-        self.test_paths.append(tp)
+        self.appendTestFile(tp)
         return tp
+    
+    def appendTestFile(self, filepath):
+        _LOG.debug("appending {0!r} to test paths".format(filepath))
+        self.test_paths.append(filepath)
 
     def getTestStream(self, filename):
         tp = self.getTestFile(filename)
@@ -108,6 +115,7 @@ class SeqSiftTestCase(unittest.TestCase):
     def tearDown(self):
         for p in self.test_paths:
             if os.path.exists(p):
+                _LOG.debug("removing test path {0!r}".format(p))
                 os.remove(p)
         if self.test_dir and os.path.exists(self.test_dir):
             os.removedirs(self.test_dir)
