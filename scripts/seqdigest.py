@@ -11,8 +11,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
+from seqsift.utils import mkdr
 from seqsift.digest import Fragment, RecognitionSeq, DigestSummary
-from seqsift.utils.dataio import fetch_gb_seqs
+from seqsift.utils.dataio import fetch_gb_seqs, get_seq_iter
 from seqsift.utils.messaging import get_logger
 
 _program_info = {
@@ -26,7 +27,7 @@ _program_info = {
         'WARRANTY. You are free to change and redistribute it in accord with '
         'the GPL. See the GNU General Public License for more details.'),}
 
-_LOG = get_logger(__name__)
+_LOG = get_logger(__name__, 'INFO')
 
 GI_PATTERN = re.compile(r'^\s*(\d+)\s*$')
 GI_RANGE = re.compile(r'^\s*(\d+)\s*-\s*(\d+)\s*$')
@@ -54,12 +55,15 @@ def parse_gi_numbers(string):
                     gi_str.strip()))
     return list(gis)
 
-def digest_seq(recognition_seq, seq_record):
+def digest_seq(recognition_seq, seq_record, extra_length=0,
+               include_overhang=True):
     _LOG.info("Digesting seq {0} with recognition seq {1}...".format(
             seq_record.id, str(recognition_seq.seq)))
-    return DigestSummary(recognition_seq, seq_record)
-        
-         
+    return DigestSummary(recognition_seq=recognition_seq,
+                         seq_record=seq_record,
+                         extra_length=extra_length,
+                         include_overhang=include_overhang)
+               
 def main():
     description = '{name} {version}'.format(**_program_info)
     usage = ("\n  %prog [options] -s <RECOGNITION_SEQUENCE> [<GENBANK_FILE1> "
@@ -67,15 +71,15 @@ def main():
     parser = OptionParser(usage=usage, description=description,
                           version=_program_info['version'],
                           add_help_option=True)
-    parser.add_option("-v", "--verbose", dest="verbose", default=False, 
-        action="store_true",
-        help="Verbose output.")
-    parser.add_option("-d", "--debugging", dest="debugging", default=False, 
-        action="store_true",
-        help="Run in debugging mode.")
     parser.add_option("-s", "--recognition_seq", dest="recognition_seq",
         type="string",
-        help="Recognition sequence of restriction enzyme.")
+        help="Recognition sequence, 5' to 3', of restriction enzyme.")
+    parser.add_option("-c", "--cut_site", dest="cut_site",
+        type="int",
+        help=("One-based index of the last base before the cut site in the "
+              "recognition sequence. E.g., NotI: 5'---GC \ GGCCGC---3' "
+              "has a cut site of 2, and would be passed to this program "
+              "with '-s GCGGCCGC -c 2'."))
     parser.add_option("-g", "--gi_numbers", dest="gi_numbers", 
         type="string",
         help=("GenBank GI numbers. E.g., -g 354698774,354698776-354698779 -OR-"
@@ -88,6 +92,15 @@ def main():
               "translate to 'gb'. This option overrides the default behavior, "
               "in which case, all files must be of the format provided with "
               "this flag."))
+    parser.add_option("-x", "--extra_length", dest="extra_length", type="int",
+        default=0,
+        help=("Extra length (in bases) to add to each fragment. For example, "
+              "you can include the length of oligos ligated to each fragment. "
+              "This length is only added once, so if you want to simulate the "
+              "ligation of oligos to both ends, of each fragment, provide the "
+              "TOTAL length of the oligos ligated to each fragment. Do not "
+              "add length for the overhang left by the restriction enzyme. "
+              "That is handled by the program."))
     parser.add_option("--min_length", dest="min_length", type="int", default=0,
         help="Minimum fragment length to include in count.")
     parser.add_option("--max_length", dest="max_length", type="int",
@@ -95,16 +108,9 @@ def main():
     parser.add_option("-o", "--output_dir", dest="output_dir", type="string",
         help="Path to output directory. Default is './digests/'")
     (options, args) = parser.parse_args()
-
-    if options.debugging:
-        _LOG.setLevel(logging.DEBUG)
-    elif options.verbose and not options.debugging:
-        _LOG.setLevel(logging.INFO)
-    else:
-        _LOG.setLevel(logging.WARNING)
     
-    if not options.recognition_seq:
-        _LOG.error("You must provide a recognition sequence")
+    if not options.recognition_seq or not options.cut_site:
+        _LOG.error("You must provide a recognition sequence and cut site")
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
     if not options.gi_numbers and len(args) < 1:
@@ -116,6 +122,7 @@ def main():
         format = EXTENSIONS[options.format.lower()]
     if not options.output_dir:
         out_dir = os.path.abspath(os.path.join(os.path.curdir, 'digests'))
+        mkdr(out_dir)
     else:
         out_dir = os.path.expanduser(os.path.expandvars(options.output_dir))
     if not os.path.isdir(out_dir):
@@ -126,8 +133,12 @@ def main():
                 "max_length ({0}) cannot be less than min_length ({1})".format(
                         options.max_length, options.min_length))
         sys.exit(1)
+    if options.max_length:
+        ml = str(options.max_length)
+    else:
+        ml = 'max'
         
-    rseq = RecognitionSeq(str(options.recognition_seq))
+    rseq = RecognitionSeq(str(options.recognition_seq), options.cut_site)
     gi_list = []
     if options.gi_numbers:
         gi_list = parse_gi_numbers(options.gi_numbers)
@@ -137,7 +148,7 @@ def main():
         _LOG.info("Downloading gi {0}...".format(gi))
         seq_iter = fetch_gb_seqs(str(gi), data_type='dna')
         for seq in seq_iter:
-            digests[seq.id] = digest_seq(rseq, seq)
+            digests[seq.id] = digest_seq(rseq, seq, options.extra_length)
 
     for file_path in args:
         try:
@@ -158,7 +169,7 @@ def main():
                         "Sequence {0} already digested... skipping!".format(
                         seq.id))
                 continue
-            digests[seq.id] = digest_seq(rseq, seq)
+            digests[seq.id] = digest_seq(rseq, seq, options.extra_length)
         f.close()
 
     _LOG.info('Finished digests!')
@@ -170,7 +181,7 @@ def main():
         digest_total = 0
         digest_filter = 0
         out_file_path = os.path.join(out_dir, 
-                ".".join([digest.molecule_id, 'txt']))
+                ".".join([digest.molecule_name, 'txt']))
         out = open(out_file_path, 'w')
         out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
         for l in sorted(digest.length_distribution.iterkeys()):
@@ -194,10 +205,12 @@ def main():
                   '\ttotal fragments: {0}\n'.format(digest_total) +
                   '\tfragments of length {0}-{1}: {2}\n'.format(
                         options.min_length,
-                        getattr(options, 'max_length', 'max'),
-                        digest_filter)) +
+                        ml,
+                        digest_filter) +
                   '\tfragment length distribution written to {0}\n'.format(
-                        out_file_path)
+                        out_file_path))
+        total_count += digest_total
+        filter_count += digest_filter
     out_file_path = os.path.join(out_dir, 'combined.txt')
     out = open(out_file_path, 'w')
     out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
@@ -209,10 +222,10 @@ def main():
               '\ttotal fragments: {0}\n'.format(total_count) +
               '\tfragments of length {0}-{1}: {2}\n'.format(
                     options.min_length,
-                    getattr(options, 'max_length', 'max'),
-                    filter_count)) +
+                    ml,
+                    filter_count) +
               '\tfragment length distribution written to {0}\n'.format(
-                    out_file_path)
+                    out_file_path))
 
 if __name__ == '__main__':
     main()
