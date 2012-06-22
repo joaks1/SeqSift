@@ -3,6 +3,7 @@
 import sys
 import os
 import itertools
+import errno
 
 DEFAULT_DNA_SIMILARITY_MATRIX = {
         ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
