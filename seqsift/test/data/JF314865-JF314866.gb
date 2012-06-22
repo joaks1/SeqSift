@@ -1,0 +1,121 @@
+LOCUS       JF314865                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus acutus isolate LSUMZ_H-21710 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314865
+VERSION     JF314865.1  GI:354698780
+KEYWORDS    .
+SOURCE      Crocodylus acutus (American crocodile)
+  ORGANISM  Crocodylus acutus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus acutus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21710"
+                     /db_xref="taxon:48399"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36630.1"
+                     /db_xref="GI:354698781"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggtgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtgccgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gcgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314866                 473 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Alligator sinensis isolate LSUMZ_H-7868 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314866
+VERSION     JF314866.1  GI:354698782
+KEYWORDS    .
+SOURCE      Alligator sinensis (Chinese alligator)
+  ORGANISM  Alligator sinensis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Alligatorinae; Alligator.
+REFERENCE   1  (bases 1 to 473)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 473)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..473
+                     /organism="Alligator sinensis"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-7868"
+                     /db_xref="taxon:38654"
+                     /collection_date="2006"
+     gene            <1..>473
+                     /gene="AChR"
+     mRNA            join(<1..74,438..>473)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,438..>473)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36631.1"
+                     /db_xref="GI:354698783"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..437
+                     /gene="AChR"
+                     /number=7
+     exon            438..>473
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggctgtgc tcgtctactt
+       61 tctgcctgcc aagggtaacg ctggcaccag gcggctgtgg gaccacctgt gccataggcg
+      121 tgaagggggc aggctgtgtg gctgggcaga gggaggaagt gggggacagc caccgctggg
+      181 agactggcac ctgggcccac tgcccatcat ttccccatcg catgggcttg gggacatgga
+      241 agccagtcct gtgggagcag acactcctgg ctgccgtgtc agtccctagg gctggctgga
+      301 ctctctctgc acagcctccc actgccagtc ccaggaccat cggtgtccta ggcatgccta
+      361 ggcagagtta ggccctttcc aggtgccctg ggaccccgtc tcatgtgtca atcccctcac
+      421 tctccacatc ctggcagcgg gtgggcagaa gtgcactgtc tccatcaacg tcc
+//
