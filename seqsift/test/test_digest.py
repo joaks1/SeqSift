@@ -523,6 +523,7 @@ class DigestSummaryTestCase(unittest.TestCase):
         self.assertEqual(ds.molecule_description, mol.description)
         self.assertIsInstance(ds.length_distribution, dict)
         self.assertEqual(ds.length_distribution, {3: 2, 6: 2})
+        self.assertEqual(ds.molecule_length, len(mol))
 
     def test_simble_gb_seq(self):
         rs = RecognitionSeq('TAG', 3)
@@ -543,6 +544,7 @@ class DigestSummaryTestCase(unittest.TestCase):
                 105: 1,
                 117: 1,
                 175: 1,})
+        self.assertEqual(ds.molecule_length, len(s))
 
 if __name__ == '__main__':
     unittest.main()

@@ -13,26 +13,6 @@ from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
-sys.path = [package_paths.scripts_path()] + sys.path
-seqdigest = __import__('seqdigest')
-
-class testParseGiNumbersTestCase(unittest.TestCase):
-    def test_empty_string(self):
-        gis = seqdigest.parse_gi_numbers('')
-        self.assertEqual(gis, [])
-    
-    def test_invalid_gis(self):
-        gis = seqdigest.parse_gi_numbers('AA123, 221!#3, 123A34-123C344')
-        self.assertEqual(gis, [])
-
-    def test_invalid_range(self):
-        gis = seqdigest.parse_gi_numbers('1234-1223')
-        self.assertEqual(gis, [])
-    
-    def test_basic(self):
-        gis = seqdigest.parse_gi_numbers('1212, 1234, 2300-2312')
-        self.assertEqual(sorted(gis), [1212, 1234] + range(2300,2313))
-
 
 class SeqDigestTestCase(SeqSiftTestCase):
     DATA_LINE = re.compile(r'^(\d+)\t(\d+)\n$')
@@ -172,6 +152,58 @@ class SeqDigestTestCase(SeqSiftTestCase):
                             '-c', cs,
                             '-g', '354698776,354698778',
                             '-x', '10',
+                            package_paths.data_path('JF314865-JF314866.gb')])
+        results = {}
+        for k in expected.iterkeys():
+            result_file_path = os.path.join(self.test_dir,
+                    ".".join([k, 'txt']))
+            self.appendTestFile(result_file_path)
+            results[k] = self.parse_result_file(result_file_path)
+        self.assertEqual(expected, results)
+
+    def test_accessions(self):
+        expected = {
+                'JF314863': {
+                        13: 2,
+                        65: 1,
+                        105: 1,
+                        117: 1,
+                        175: 1,},
+                'JF314864': {
+                        13: 1,
+                        65: 1,
+                        115: 1,
+                        117: 1,
+                        180: 1,},
+                'JF314865': {
+                        13: 1,
+                        75: 1,
+                        96: 1,
+                        103: 1,
+                        178: 1,},
+                'JF314866': {
+                        13: 2,
+                        65: 1,
+                        105: 1,
+                        117: 1,
+                        175: 1,},
+                'combined' : {
+                        13: 6,
+                        65: 3,
+                        75: 1,
+                        96: 1,
+                        103: 1,
+                        105: 2,
+                        115: 1,
+                        117: 3,
+                        175: 2,
+                        178: 1,
+                        180: 1,}}
+        rs = 'TAG'
+        cs = '3'
+        self.exe_seqdigest(['-s', rs,
+                            '-c', cs,
+                            '-a', 'JF314863,JF314864',
                             package_paths.data_path('JF314865-JF314866.gb')])
         results = {}
         for k in expected.iterkeys():
