@@ -1,0 +1,918 @@
+LOCUS       JF314862                 478 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Caiman crocodilus isolate LSUMZ_H-21701 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314862
+VERSION     JF314862.1  GI:354698774
+KEYWORDS    .
+SOURCE      Caiman crocodilus (spectacled caiman)
+  ORGANISM  Caiman crocodilus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Alligatorinae; Caiman.
+REFERENCE   1  (bases 1 to 478)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 478)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..478
+                     /organism="Caiman crocodilus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21701"
+                     /db_xref="taxon:8499"
+                     /collection_date="2006"
+     gene            <1..>478
+                     /gene="AChR"
+     mRNA            join(<1..74,443..>478)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,443..>478)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36627.1"
+                     /db_xref="GI:354698775"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..442
+                     /gene="AChR"
+                     /number=7
+     exon            443..>478
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggctgtgc tcgtctactt
+       61 tctgcctgcc aagggtaacg ctggcaccag gcggctgtgg gactgcctgt gccataggcg
+      121 tgaagagggc aggccatgtg gctgggcaga gggagggaag tgggggacag ccaccgctgg
+      181 gagactggca cctgggccca gtgcccgtca tttccccatc acatgggctt ggggacatgg
+      241 aagccagtcc tgtgggagca gacagacact cccggctgcc gtgtcagtcc ttagggctgg
+      301 ctggactctc tctgcacagc ctcccactgt cagtcccagg accatccatg tcctaggcat
+      361 gtctaggcag agccaggccc tttccaggtg ccctgggacc ccgtctcacg tgtcgatccc
+      421 ctcactctcc acatcctggc agcgggtggg cagaagtgca ccgtctccat caatgtcc
+//
+
+LOCUS       JF314863                 473 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Alligator sinensis isolate LSUMZ_H-21700 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314863
+VERSION     JF314863.1  GI:354698776
+KEYWORDS    .
+SOURCE      Alligator sinensis (Chinese alligator)
+  ORGANISM  Alligator sinensis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Alligatorinae; Alligator.
+REFERENCE   1  (bases 1 to 473)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 473)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..473
+                     /organism="Alligator sinensis"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21700"
+                     /db_xref="taxon:38654"
+                     /collection_date="2006"
+     gene            <1..>473
+                     /gene="AChR"
+     mRNA            join(<1..74,438..>473)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,438..>473)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36628.1"
+                     /db_xref="GI:354698777"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..437
+                     /gene="AChR"
+                     /number=7
+     exon            438..>473
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggctgtgc tcgtctactt
+       61 tctgcctgcc aagggtaacg ctggcaccag gcggctgtgg gaccacctgt gccataggcg
+      121 tgaagggggc aggctgtgtg gctgggcaga gggaggaagt gggggacagc caccgctggg
+      181 agactggcac ctgggcccac tgcccatcat ttccccatcg catgggcttg gggacatgga
+      241 agccagtcct gtgggagcag acactcctgg ctgccgtgtc agtccctagg gctggctgga
+      301 ctctctctgc acagcctccc actgccagtc ccaggaccat cggtgtccta ggcatgccta
+      361 ggcagagtta ggccctttcc aggtgccctg ggaccccgtc tcatgtgtca atcccctcac
+      421 tctccacatc ctggcagcgg gtgggcagaa gtgcactgtc tccatcaacg tcc
+//
+
+LOCUS       JF314864                 478 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Caiman crocodilus isolate LSUMZ_H-13961 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314864
+VERSION     JF314864.1  GI:354698778
+KEYWORDS    .
+SOURCE      Caiman crocodilus (spectacled caiman)
+  ORGANISM  Caiman crocodilus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Alligatorinae; Caiman.
+REFERENCE   1  (bases 1 to 478)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 478)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..478
+                     /organism="Caiman crocodilus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-13961"
+                     /db_xref="taxon:8499"
+                     /collection_date="2006"
+     gene            <1..>478
+                     /gene="AChR"
+     mRNA            join(<1..74,443..>478)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,443..>478)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36629.1"
+                     /db_xref="GI:354698779"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..442
+                     /gene="AChR"
+                     /number=7
+     exon            443..>478
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggctgtgc tcgtctactt
+       61 tctgcctgcc aagggtaacg ctggcaccag gcggctgtgg gactgcctgt gccataggcg
+      121 tgaagagggc aggccatgtg gctgggcaga gggagggaag tgggggacag ccaccgctgg
+      181 gagactggca cctgggccca gtgcccgtca tttccccatc acatgggctt ggggacatgg
+      241 aagccagtcc tgtgggagca gacagacact cccggctgcc gtgtcagtcc ttagggctgg
+      301 ctggactctc tctgcacagc ctcccactgt cagtcccagg accatccatg tcctaggcat
+      361 gtctaggcag agccaggccc tttccaggtg ccctgggacc ccgtctcacg tgtcgatccc
+      421 ctcactctcc acatcctggc agcgggtggg cagaagtgca ccgtctccat caatgtcc
+//
+
+LOCUS       JF314865                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus acutus isolate LSUMZ_H-21710 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314865
+VERSION     JF314865.1  GI:354698780
+KEYWORDS    .
+SOURCE      Crocodylus acutus (American crocodile)
+  ORGANISM  Crocodylus acutus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus acutus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21710"
+                     /db_xref="taxon:48399"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36630.1"
+                     /db_xref="GI:354698781"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggtgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtgccgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gcgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314866                 473 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Alligator sinensis isolate LSUMZ_H-7868 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314866
+VERSION     JF314866.1  GI:354698782
+KEYWORDS    .
+SOURCE      Alligator sinensis (Chinese alligator)
+  ORGANISM  Alligator sinensis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Alligatorinae; Alligator.
+REFERENCE   1  (bases 1 to 473)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 473)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..473
+                     /organism="Alligator sinensis"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-7868"
+                     /db_xref="taxon:38654"
+                     /collection_date="2006"
+     gene            <1..>473
+                     /gene="AChR"
+     mRNA            join(<1..74,438..>473)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,438..>473)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36631.1"
+                     /db_xref="GI:354698783"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..437
+                     /gene="AChR"
+                     /number=7
+     exon            438..>473
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggctgtgc tcgtctactt
+       61 tctgcctgcc aagggtaacg ctggcaccag gcggctgtgg gaccacctgt gccataggcg
+      121 tgaagggggc aggctgtgtg gctgggcaga gggaggaagt gggggacagc caccgctggg
+      181 agactggcac ctgggcccac tgcccatcat ttccccatcg catgggcttg gggacatgga
+      241 agccagtcct gtgggagcag acactcctgg ctgccgtgtc agtccctagg gctggctgga
+      301 ctctctctgc acagcctccc actgccagtc ccaggaccat cggtgtccta ggcatgccta
+      361 ggcagagtta ggccctttcc aggtgccctg ggaccccgtc tcatgtgtca atcccctcac
+      421 tctccacatc ctggcagcgg gtgggcagaa gtgcactgtc tccatcaacg tcc
+//
+
+LOCUS       JF314867                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Osteolaemus tetraspis isolate LSUMZ_H-6992 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314867
+VERSION     JF314867.1  GI:354698784
+KEYWORDS    .
+SOURCE      Osteolaemus tetraspis (dwarf crocodile)
+  ORGANISM  Osteolaemus tetraspis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Osteolaemus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Osteolaemus tetraspis"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-6992"
+                     /db_xref="taxon:184242"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36632.1"
+                     /db_xref="GI:354698785"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccgctgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtcccgt
+      241 gggagcaggc acctcctggc tgccgtgtcg gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gtgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314868                 492 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Tomistoma schlegelii isolate LSUMZ_H-21763 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314868
+VERSION     JF314868.1  GI:354698786
+KEYWORDS    .
+SOURCE      Tomistoma schlegelii (false gharial)
+  ORGANISM  Tomistoma schlegelii
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Gavialinae; Tomistoma.
+REFERENCE   1  (bases 1 to 492)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 492)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..492
+                     /organism="Tomistoma schlegelii"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21763"
+                     /db_xref="taxon:184245"
+                     /collection_date="2006"
+     gene            <1..>492
+                     /gene="AChR"
+     mRNA            join(<1..74,457..>492)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,457..>492)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36633.1"
+                     /db_xref="GI:354698787"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..456
+                     /gene="AChR"
+                     /number=7
+     exon            457..>492
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ttgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacggccac cgctgggaga ctggcacctc
+      181 ggcccactgc catgtcactt ccctgtcaca cgggcttggg gacatcgaag ccagtcctgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctgtctgca
+      301 cagcctccca ctgccggtcc caggcctggc ggcttcgccg cgatacagcg gacatcaaat
+      361 actcccatcg gtgtctgggg catgcctagg cacagctagg ccctgtccgg gtgccctggg
+      421 acctcatctc atgcatcact ctccacgtcc tggcagcggg tgggcagaag tgcaccgtct
+      481 ccatcaacgt cc
+//
+
+LOCUS       JF314869                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus siamensis isolate LSUMZ_H-6978 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314869
+VERSION     JF314869.1  GI:354698788
+KEYWORDS    .
+SOURCE      Crocodylus siamensis (Siamese crocodile)
+  ORGANISM  Crocodylus siamensis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus siamensis"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-6978"
+                     /db_xref="taxon:68455"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36634.1"
+                     /db_xref="GI:354698789"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaat gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtgccgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gtgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314870                 457 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Mecistops cataphractus isolate LSUMZ_H-21718 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314870
+VERSION     JF314870.1  GI:354698790
+KEYWORDS    .
+SOURCE      Mecistops cataphractus (African slender-snouted crocodile)
+  ORGANISM  Mecistops cataphractus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Mecistops.
+REFERENCE   1  (bases 1 to 457)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 457)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..457
+                     /organism="Mecistops cataphractus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21718"
+                     /db_xref="taxon:184780"
+                     /collection_date="2006"
+     gene            <1..>457
+                     /gene="AChR"
+     mRNA            join(<1..74,422..>457)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,422..>457)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36635.1"
+                     /db_xref="GI:354698791"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..421
+                     /gene="AChR"
+                     /number=7
+     exon            422..>457
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca tcggcgtgaa gggggcaggc
+      121 cgtccgtgtg gctgggcaga gggagggaag tgggggacag ccaccgctgg gagactggca
+      181 ccgcggccca ctgccccgtc acttccccgt cacacgggct tggggacatc gaagccagtc
+      241 ccgtgggagc aggcacctcc cggctgccgt gtcagtccct agggcttggt gggacctctc
+      301 tgcatggcct cccactgccc gtcccaggcc cgtcggtgtc cagggcatgc ctaggcagag
+      361 ctaggccctg tccaggtgcc ctgggacttc atgtcatgcg tcactctcca cgtcctggca
+      421 gcgggtgggc agaagtgcac cgtctccatc aacgtcc
+//
+
+LOCUS       JF314871                 492 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Tomistoma schlegelii isolate LSUMZ_H-21765 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314871
+VERSION     JF314871.1  GI:354698792
+KEYWORDS    .
+SOURCE      Tomistoma schlegelii (false gharial)
+  ORGANISM  Tomistoma schlegelii
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Gavialinae; Tomistoma.
+REFERENCE   1  (bases 1 to 492)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 492)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..492
+                     /organism="Tomistoma schlegelii"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21765"
+                     /db_xref="taxon:184245"
+                     /collection_date="2006"
+     gene            <1..>492
+                     /gene="AChR"
+     mRNA            join(<1..74,457..>492)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,457..>492)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36636.1"
+                     /db_xref="GI:354698793"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..456
+                     /gene="AChR"
+                     /number=7
+     exon            457..>492
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ttgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacggccac cgctgggaga ctggcacctc
+      181 ggcccactgc catgtcactt ccctgtcaca cgggcttggg gacatcgaag ccagtcctgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctgtctgca
+      301 cagcctccca ctgccggtcc caggcccagc ggcttcgccg cgatacagcg gacatcaaat
+      361 agtcccatcg gtgtctgggg catgcctagg cagagctagg ccctgtccgg gtgccctggg
+      421 acctcatctc atacatcact ctccacgtcc tggcagcggg tgggcagaag tgcaccgtct
+      481 ccatcaacgt cc
+//
+
+LOCUS       JF314872                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus johnsoni isolate LSUMZ_H-21726 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314872
+VERSION     JF314872.1  GI:354698794
+KEYWORDS    .
+SOURCE      Crocodylus johnsoni (Johnstone river crocodile)
+  ORGANISM  Crocodylus johnsoni
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus johnsoni"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21726"
+                     /db_xref="taxon:184234"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36637.1"
+                     /db_xref="GI:354698795"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtcccgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gtgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314873                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus intermedius isolate LSUMZ_H-20683 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314873
+VERSION     JF314873.1  GI:354698796
+KEYWORDS    .
+SOURCE      Crocodylus intermedius (Orinoco crocodile)
+  ORGANISM  Crocodylus intermedius
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus intermedius"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-20683"
+                     /db_xref="taxon:184240"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36638.1"
+                     /db_xref="GI:354698797"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtgccgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gtgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314874                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus acutus isolate LSUMZ_H-21711 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314874
+VERSION     JF314874.1  GI:354698798
+KEYWORDS    .
+SOURCE      Crocodylus acutus (American crocodile)
+  ORGANISM  Crocodylus acutus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus acutus"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21711"
+                     /db_xref="taxon:48399"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36639.1"
+                     /db_xref="GI:354698799"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggtgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtgccgt
+      241 gggagcaggc acctcccggc tgcygtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gtgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
+LOCUS       JF314875                 492 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Tomistoma schlegelii isolate LSUMZ_H-21764 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314875
+VERSION     JF314875.1  GI:354698800
+KEYWORDS    .
+SOURCE      Tomistoma schlegelii (false gharial)
+  ORGANISM  Tomistoma schlegelii
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Gavialinae; Tomistoma.
+REFERENCE   1  (bases 1 to 492)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 492)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..492
+                     /organism="Tomistoma schlegelii"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-21764"
+                     /db_xref="taxon:184245"
+                     /collection_date="2006"
+     gene            <1..>492
+                     /gene="AChR"
+     mRNA            join(<1..74,457..>492)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,457..>492)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36640.1"
+                     /db_xref="GI:354698801"
+                     /translation="IINIIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..456
+                     /gene="AChR"
+                     /number=7
+     exon            457..>492
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaac atcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ttgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacggccac cgctgggaga ctggcacctc
+      181 ggcccactgc catgtcactt ccctgtcaca cgggcttggg gacatcgaag ccagtcctgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctgtctgca
+      301 cagcctccca ctgccggtcc caggcccagc ggcttcgycg cgatacagcg gacatcaaat
+      361 agtcccatcg gtgtctgggg catgcctagg cagagctagg ccctgtccgg gtgccctggg
+      421 acctcatctc atrcatcact ctccacgtcc tggcagcggg tgggcagaag tgcaccgtct
+      481 ccatcaacgt cc
+//
+
+LOCUS       JF314876                 453 bp    DNA     linear   VRT 02-NOV-2011
+DEFINITION  Crocodylus siamensis isolate LSUMZ_H-6985 acetocholine receptor
+            gamma-subunit (AChR) gene, exons 7, 8 and partial cds.
+ACCESSION   JF314876
+VERSION     JF314876.1  GI:354698802
+KEYWORDS    .
+SOURCE      Crocodylus siamensis (Siamese crocodile)
+  ORGANISM  Crocodylus siamensis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Archosauria; Crocodylidae; Crocodylinae; Crocodylus.
+REFERENCE   1  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     A time-calibrated species tree of crocodylia reveals a recent
+            radiation of the true crocodiles
+  JOURNAL   Evolution 65 (11), 3285-3297 (2011)
+   PUBMED   22023592
+REFERENCE   2  (bases 1 to 453)
+  AUTHORS   Oaks,J.R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-FEB-2011) Biodiversity Institute and Dept of Ecology
+            and Evolutionary Biology, University of Kansas, Dyche Hall, 1345
+            Jayhawk Blvd, Lawrence, KS 66045, USA
+FEATURES             Location/Qualifiers
+     source          1..453
+                     /organism="Crocodylus siamensis"
+                     /mol_type="genomic DNA"
+                     /isolate="LSUMZ_H-6985"
+                     /db_xref="taxon:68455"
+                     /collection_date="2006"
+     gene            <1..>453
+                     /gene="AChR"
+     mRNA            join(<1..74,418..>453)
+                     /gene="AChR"
+                     /product="acetocholine receptor gamma-subunit"
+     CDS             join(<1..74,418..>453)
+                     /gene="AChR"
+                     /codon_start=2
+                     /product="acetocholine receptor gamma-subunit"
+                     /protein_id="AER36641.1"
+                     /db_xref="GI:354698803"
+                     /translation="IINVIVPCVLISFVAVLVYFLPAKAGGQKCTVSINV"
+     exon            <1..74
+                     /gene="AChR"
+                     /number=7
+     intron          75..417
+                     /gene="AChR"
+                     /number=7
+     exon            418..>453
+                     /gene="AChR"
+                     /number=8
+ORIGIN      
+        1 catcatcaat gtcatcgtgc cctgcgtgct catctccttc gtggccgtgc tcgtctactt
+       61 tctgcccgcc aagggtaacg ctgtgggacc gcgtgtgcca taggcgtgaa gggggcaggc
+      121 cgtgtggctg ggcagaggga gggaagtggg ggacagccac cgctgggaga ctggcaccgc
+      181 ggcccactgc cccgtcactt ccccgtcaca cgggcttggg gacatcgaag ccagtgccgt
+      241 gggagcaggc acctcccggc tgccgtgtca gtccctaggg cttggtggga tctctctgca
+      301 tggcctccca ctgcccgtcc caggcccgtc ggtgtccagg gcatgcctag gcagagctag
+      361 gccctgtcca ggtgccctgg gacttcatgt catgcgtcac tctccacgtc ctggcagcgg
+      421 gtgggcagaa gtgcaccgtc tccatcaacg tcc
+//
+
