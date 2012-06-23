@@ -210,7 +210,7 @@ class InvalidRecognitionSeqError(Exception):
 
 class DigestSummary(object):
     def __init__(self, recognition_seq, seq_record, extra_length=0,
-            include_overhang=True):
+            include_overhang=True, ignore_terminal_fragments=True):
         if isinstance(recognition_seq, str):
             self.recognition_seq = recognition_seq.upper()
             rs = RecognitionSeq(recognition_seq)
@@ -223,6 +223,9 @@ class DigestSummary(object):
         self.molecule_length = len(seq_record.seq)
         self.length_distribution = {}
         for fragment in rs.digest(seq_record):
+            if ignore_terminal_fragments and (fragment.five_prime_terminus or
+                    fragment.three_prime_terminus):
+                continue
             if include_overhang:
                 l = fragment.length + fragment.overhang + extra_length
             else:
