@@ -4,11 +4,9 @@ import sys
 import os
 import tempfile
 import cPickle
-import contextlib
-import warnings
 
 from Bio.Alphabet import IUPAC
-from Bio import SeqIO, AlignIO, Entrez
+from Bio import SeqIO, AlignIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -16,8 +14,6 @@ from seqsift.utils import VALID_DATA_TYPES
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
-warnings.filterwarnings(action="ignore", category=UserWarning,
-        module=r'.*Entrez.*')
 
 class BufferedIter(object):
     def __init__(self, obj_iter):
@@ -138,38 +134,3 @@ def convert_format(in_file, in_format, out_file, out_format, data_type,
             out_format=out_format,
             alphabet=get_state_alphabet(data_type, ambiguities))
     return nseqs
-
-def get_entrez_database(data_type):
-    dt = data_type.lower()
-    if dt == 'dna' or dt == 'rna':
-        return 'nuccore'
-    elif dt == 'protein' or dt == 'aa':
-        return 'protein'
-    else:
-        raise ValueError(
-                "'{0!r}' is not a valid data type. Options:\n\t{1}".format(
-                        data_type, ", ".join(VALID_DATA_TYPES)))
-
-def get_gb_handle(gi_list, db, rettype, retmode='text', tmp_file=False):
-    _LOG.info("fetching genbank ids {0}".format(gi_list))
-    if isinstance(gi_list, str):
-        ids = gi_list
-    else:
-        ids = ",".join(gi_list)
-    if len(gi_list) > 10:
-        post = Entrez.read(Entrez.epost(db=db, id=ids))
-        webenv = post["WebEnv"]
-        query_key = post["QueryKey"]
-        h = Entrez.efetch(db=db, webenv=webenv, query_key=query_key,
-                rettype=rettype, retmode=retmode)
-    else:
-        h = Entrez.efetch(db=db, id=ids, rettype=rettype, retmode=retmode)
-    if tmp_file:
-        return get_tmp_handle(h, rewind=True)
-    else:
-        return h
-
-def fetch_gb_seqs(gi_list, data_type, parse_function=get_seq_iter):
-    db = get_entrez_database(data_type)
-    file_obj = get_gb_handle(gi_list, db=db, rettype='gb', retmode='text')
-    return parse_function(file_obj, format='gb', data_type=data_type)
