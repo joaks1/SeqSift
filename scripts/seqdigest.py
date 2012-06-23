@@ -36,15 +36,58 @@ EXTENSIONS = {'fas': 'fasta',
               'gb': 'gb',
               'genbank': 'gb',}
 
-def digest_seq(recognition_seq, seq_record, extra_length=0,
-               include_overhang=True):
+def digest_seq(recognition_seq,
+               seq_record,
+               out_dir,
+               append_dict,
+               extra_length=0,
+               min_length=0,
+               max_length=None,
+               include_overhang=True,):
+    if max_length:
+        ml = str(max_length)
+    else:
+        ml = 'max'
     _LOG.info("Digesting seq {0} with recognition seq {1}...".format(
             seq_record.id, str(recognition_seq.seq)))
-    return DigestSummary(recognition_seq=recognition_seq,
+    digest = DigestSummary(recognition_seq=recognition_seq,
                          seq_record=seq_record,
                          extra_length=extra_length,
                          include_overhang=include_overhang)
-               
+    digest_total = 0
+    digest_filter = 0
+    out_file_path = os.path.join(out_dir, 
+            ".".join([digest.molecule_name, 'txt']))
+    out = open(out_file_path, 'w')
+    out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
+    for l in sorted(digest.length_distribution.iterkeys()):
+        f = digest.length_distribution[l]
+        out.write("{0}\t{1}\n".format(l, f))
+        digest_total += f
+        if max_length:
+            if l <= max_length and l >= min_length:
+                digest_filter += f
+        else:
+            if l >= min_length:
+                digest_filter += f
+        if l not in append_dict.keys():
+            append_dict[l] = 0
+        append_dict[l] += f
+    out.close()
+    _LOG.info('\nMolecule id: {0}\n'.format(digest.molecule_id) +
+              'Molecule name: {0}\n'.format(digest.molecule_name) +
+              'Molecule description: {0}\n'.format(
+                    digest.molecule_description) +
+              'Molecule length: {0}\n'.format(digest.molecule_length) +
+              '\ttotal fragments: {0}\n'.format(digest_total) +
+              '\tfragments of length {0}-{1}: {2}\n'.format(
+                    min_length,
+                    ml,
+                    digest_filter) +
+              '\tfragment length distribution written to {0}'.format(
+                    out_file_path))
+    return append_dict, digest_total, digest_filter, digest.molecule_length
+
 def main():
     description = '{name} {version}'.format(**_program_info)
     usage = ("\n  %prog [options] -s <RECOGNITION_SEQUENCE> [<GENBANK_FILE1> "
@@ -108,9 +151,9 @@ def main():
         format = EXTENSIONS[options.format.lower()]
     if not options.output_dir:
         out_dir = os.path.abspath(os.path.join(os.path.curdir, 'digests'))
-        mkdr(out_dir)
     else:
         out_dir = os.path.expanduser(os.path.expandvars(options.output_dir))
+    mkdr(out_dir)
     if not os.path.isdir(out_dir):
         _LOG.error("Output path {0} is not a directory".format(out_dir))
         sys.exit(1)
@@ -131,13 +174,28 @@ def main():
     if options.accessions:
         gi_list += parse_accession_numbers(options.accessions)
     
-    digests = {}
+    combined = {}
+    digested = []
+    total_count = 0
+    filter_count = 0
+    total_length = 0
     for gi in gi_list:
         _LOG.info("Downloading gi {0}...".format(gi))
         seq_iter = fetch_gb_seqs(str(gi), data_type='dna')
         for seq in seq_iter:
-            digests[seq.id] = digest_seq(rseq, seq, options.extra_length)
-
+            digested.append(seq.id)
+            combined, count, fcount, mol_length = digest_seq(
+                    recognition_seq = rseq,
+                    seq_record = seq,
+                    out_dir = out_dir,
+                    append_dict = combined,
+                    extra_length = options.extra_length,
+                    min_length = options.min_length,
+                    max_length = options.max_length,
+                    include_overhang = True)
+            total_count += count
+            filter_count += fcount
+            total_length += mol_length
     for file_path in args:
         try:
             f = open(file_path, 'rU')
@@ -152,56 +210,28 @@ def main():
                                 data_type='dna',
                                 ambiguities=True)
         for seq in seq_iter:
-            if seq.id in digests.keys():
+            if seq.id in digested:
                 _LOG.warning(
                         "Sequence {0} already digested... skipping!".format(
                         seq.id))
                 continue
-            digests[seq.id] = digest_seq(rseq, seq, options.extra_length)
+            digested.append(seq.id)
+            combined, count, fcount, mol_length = digest_seq(
+                    recognition_seq = rseq,
+                    seq_record = seq,
+                    out_dir = out_dir,
+                    append_dict = combined,
+                    extra_length = options.extra_length,
+                    min_length = options.min_length,
+                    max_length = options.max_length,
+                    include_overhang = True)
+            total_count += count
+            filter_count += fcount
+            total_length += mol_length
         f.close()
 
     _LOG.info('Finished digests!')
-    _LOG.info('Summarizing results...')
-    combined = {}
-    total_count = 0
-    filter_count = 0
-    total_length = 0
-    for id, digest in digests.iteritems():
-        digest_total = 0
-        digest_filter = 0
-        out_file_path = os.path.join(out_dir, 
-                ".".join([digest.molecule_name, 'txt']))
-        out = open(out_file_path, 'w')
-        out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
-        for l in sorted(digest.length_distribution.iterkeys()):
-            f = digest.length_distribution[l]
-            out.write("{0}\t{1}\n".format(l, f))
-            digest_total += f
-            if options.max_length:
-                if l <= options.max_length and l >= options.min_length:
-                    digest_filter += f
-            else:
-                if l >= options.min_length:
-                    digest_filter += f
-            if l not in combined.keys():
-                combined[l] = 0
-            combined[l] += f
-        out.close()
-        _LOG.info('\nMolecule id: {0}\n'.format(digest.molecule_id) +
-                  'Molecule name: {0}\n'.format(digest.molecule_name) +
-                  'Molecule description: {0}\n'.format(
-                        digest.molecule_description) +
-                  'Molecule length: {0}\n'.format(digest.molecule_length) +
-                  '\ttotal fragments: {0}\n'.format(digest_total) +
-                  '\tfragments of length {0}-{1}: {2}\n'.format(
-                        options.min_length,
-                        ml,
-                        digest_filter) +
-                  '\tfragment length distribution written to {0}'.format(
-                        out_file_path))
-        total_count += digest_total
-        filter_count += digest_filter
-        total_length += digest.molecule_length
+
     out_file_path = os.path.join(out_dir, 'combined.txt')
     out = open(out_file_path, 'w')
     out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
