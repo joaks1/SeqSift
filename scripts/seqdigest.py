@@ -13,7 +13,9 @@ from Bio.Alphabet import IUPAC
 
 from seqsift.utils import mkdr
 from seqsift.digest import Fragment, RecognitionSeq, DigestSummary
-from seqsift.utils.dataio import fetch_gb_seqs, get_seq_iter
+from seqsift.utils.dataio import get_seq_iter
+from seqsift.utils.entrez import (parse_accession_numbers, parse_gi_numbers,
+        fetch_gb_seqs)
 from seqsift.utils.messaging import get_logger
 
 _program_info = {
@@ -29,31 +31,10 @@ _program_info = {
 
 _LOG = get_logger(__name__, 'INFO')
 
-GI_PATTERN = re.compile(r'^\s*(\d+)\s*$')
-GI_RANGE = re.compile(r'^\s*(\d+)\s*-\s*(\d+)\s*$')
 EXTENSIONS = {'fas': 'fasta',
               'fasta': 'fasta',
               'gb': 'gb',
               'genbank': 'gb',}
-
-def parse_gi_numbers(string):
-    gi_list = string.strip().split(',')
-    gis = set()
-    for gi_str in gi_list:
-        m1 = GI_PATTERN.match(gi_str.strip())
-        m2 = GI_RANGE.match(gi_str.strip())
-        if m1:
-            gis.add(int(m1.groups()[0]))
-        elif m2:
-            from_gi, to_gi = m2.groups()
-            if int(from_gi) > int(to_gi):
-                _LOG.warning("gi number range {0!r} is invalid... "
-                             "skipping!".format(gi_str.strip()))
-            gis.update(list(range(int(from_gi), int(to_gi)+1)))
-        else:
-            _LOG.warning("cannot parse gi number(s) {0!r}... skipping!".format(
-                    gi_str.strip()))
-    return list(gis)
 
 def digest_seq(recognition_seq, seq_record, extra_length=0,
                include_overhang=True):
@@ -80,6 +61,11 @@ def main():
               "recognition sequence. E.g., NotI: 5'---GC \ GGCCGC---3' "
               "has a cut site of 2, and would be passed to this program "
               "with '-s GCGGCCGC -c 2'."))
+    parser.add_option("-a", "--accessions", dest="accessions", 
+        type="string",
+        help=("GenBank accession numbers. "
+              "E.g., -g JF314862,JF314864-314866 -OR-"
+              " -g 'JF314862, JF314864-314866'"))
     parser.add_option("-g", "--gi_numbers", dest="gi_numbers", 
         type="string",
         help=("GenBank GI numbers. E.g., -g 354698774,354698776-354698779 -OR-"
@@ -142,6 +128,8 @@ def main():
     gi_list = []
     if options.gi_numbers:
         gi_list = parse_gi_numbers(options.gi_numbers)
+    if options.accessions:
+        gi_list += parse_accession_numbers(options.accessions)
     
     digests = {}
     for gi in gi_list:
@@ -177,6 +165,7 @@ def main():
     combined = {}
     total_count = 0
     filter_count = 0
+    total_length = 0
     for id, digest in digests.iteritems():
         digest_total = 0
         digest_filter = 0
@@ -202,15 +191,17 @@ def main():
                   'Molecule name: {0}\n'.format(digest.molecule_name) +
                   'Molecule description: {0}\n'.format(
                         digest.molecule_description) +
+                  'Molecule length: {0}\n'.format(digest.molecule_length) +
                   '\ttotal fragments: {0}\n'.format(digest_total) +
                   '\tfragments of length {0}-{1}: {2}\n'.format(
                         options.min_length,
                         ml,
                         digest_filter) +
-                  '\tfragment length distribution written to {0}\n'.format(
+                  '\tfragment length distribution written to {0}'.format(
                         out_file_path))
         total_count += digest_total
         filter_count += digest_filter
+        total_length += digest.molecule_length
     out_file_path = os.path.join(out_dir, 'combined.txt')
     out = open(out_file_path, 'w')
     out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
@@ -219,6 +210,7 @@ def main():
         out.write("{0}\t{1}\n".format(l, f))
     out.close()
     _LOG.info('\nSummary over ALL molecules:\n'
+              '\ttotal length: {0}\n'.format(total_length) +
               '\ttotal fragments: {0}\n'.format(total_count) +
               '\tfragments of length {0}-{1}: {2}\n'.format(
                     options.min_length,
