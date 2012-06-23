@@ -75,6 +75,47 @@ class GetEntrezDatabaseTestCase(unittest.TestCase):
         db = get_entrez_database('protein')
         self.assertEqual(db, 'protein')
 
+class ParseMixedGiListTestCase(unittest.TestCase):
+    def setUp(self):
+        self.id_list = ['354698776', '354698778', '354698780', '354698782']
+        self.acc_list = ['JF314863', 'JF314864', 'JF314865', 'JF314866']
+
+    def test_gi_numbers(self):
+        gis, accs = parse_mixed_gi_list(self.id_list)
+        self.assertEqual(accs, [])
+        self.assertEqual(sorted(gis), sorted(self.id_list))
+
+    def test_accession_numbers(self):
+        gis, accs = parse_mixed_gi_list(self.acc_list)
+        self.assertEqual(sorted(accs), sorted(self.acc_list))
+        self.assertEqual(sorted(gis), [])
+
+    def test_mixed_list(self):
+        gis, accs = parse_mixed_gi_list(self.id_list[:2] + self.acc_list[2:])
+        self.assertEqual(sorted(accs), sorted(self.acc_list[2:]))
+        self.assertEqual(sorted(gis), sorted(self.id_list[:2]))
+
+class GetPureGiNumbersTestCase(unittest.TestCase):
+    def setUp(self):
+        self.id_list = ['354698776', '354698778', '354698780', '354698782']
+        self.acc_list = ['JF314863', 'JF314864', 'JF314865', 'JF314866']
+
+    def test_gi_numbers(self):
+        gis = get_pure_gi_numbers(self.id_list)
+        self.assertEqual(sorted(gis), sorted(self.id_list))
+
+    def test_accession_numbers(self):
+        gis = get_pure_gi_numbers(self.acc_list)
+        self.assertEqual(sorted(gis), sorted(self.id_list))
+
+    def test_mixed_list(self):
+        gis = get_pure_gi_numbers(self.id_list[:2] + self.acc_list[2:])
+        self.assertEqual(sorted(gis), sorted(self.id_list))
+
+    def test_mixed_list_overlapping(self):
+        gis = get_pure_gi_numbers(self.id_list + self.acc_list)
+        self.assertEqual(sorted(gis), sorted(self.id_list))
+
 class GetGbHandleTestCase(SeqSiftTestCase):
     def setUp(self):
         self.id = '354698774'
@@ -83,9 +124,28 @@ class GetGbHandleTestCase(SeqSiftTestCase):
         self.singleton_gb = package_paths.data_path('JF314862.gb')
         self.id_list = ['354698776', '354698778', '354698780', '354698782']
         self.acc_list = ['JF314863', 'JF314864', 'JF314865', 'JF314866']
+        self.long_acc_list = [
+                'JF314862',
+                'JF314863',
+                'JF314864',
+                'JF314865',
+                'JF314866',
+                'JF314867',
+                'JF314868',
+                'JF314869',
+                'JF314870',
+                'JF314871',
+                'JF314872',
+                'JF314873',
+                'JF314874',
+                'JF314875',
+                'JF314876',]
         self.ids = ','.join(self.id_list)
         self.multi_fasta = package_paths.data_path('JF314863-JF314866.fasta')
         self.multi_gb = package_paths.data_path('JF314863-JF314866.gb')
+        self.long_multi_fasta = package_paths.data_path(
+                'JF314862-JF314876.fasta')
+        self.long_multi_gb = package_paths.data_path('JF314862-JF314876.gb')
 
     def test_singleton_fasta(self):
         h = get_gb_handle(self.id, db='nuccore', rettype='fasta',
@@ -137,6 +197,24 @@ class GetGbHandleTestCase(SeqSiftTestCase):
             retmode='text', tmp_file=False)
         seqs1 = SeqIO.parse(h, format='gb', alphabet=IUPAC.ambiguous_dna)
         seqs2 = SeqIO.parse(self.multi_gb, format='gb',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameData(seqs1, seqs2)
+        h.close()
+
+    def test_long_accession_gb(self):
+        h = get_gb_handle(self.long_acc_list, db='nuccore', rettype='gb',
+            retmode='text', tmp_file=False)
+        seqs1 = SeqIO.parse(h, format='gb', alphabet=IUPAC.ambiguous_dna)
+        seqs2 = SeqIO.parse(self.long_multi_gb, format='gb',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameData(seqs1, seqs2)
+        h.close()
+
+    def test_long_accession_fasta(self):
+        h = get_gb_handle(self.long_acc_list, db='nuccore', rettype='fasta',
+            retmode='text', tmp_file=False)
+        seqs1 = SeqIO.parse(h, format='fasta', alphabet=IUPAC.ambiguous_dna)
+        seqs2 = SeqIO.parse(self.long_multi_fasta, format='fasta',
                 alphabet=IUPAC.ambiguous_dna)
         self.assertSameData(seqs1, seqs2)
         h.close()
