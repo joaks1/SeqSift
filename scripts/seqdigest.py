@@ -8,6 +8,11 @@ import logging
 import datetime
 from optparse import OptionParser
 
+try:
+    import psutil
+    _PS = True
+except ImportError:
+    _PS = False
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
@@ -137,6 +142,9 @@ def main():
         help="Maximum fragment length to include in count.")
     parser.add_option("-o", "--output_dir", dest="output_dir", type="string",
         help="Path to output directory. Default is './digests/'")
+    parser.add_option("-d", "--debugging", dest="debugging", default=False, 
+        action="store_true",
+        help="Run in debugging mode.")
     (options, args) = parser.parse_args()
     
     if not options.recognition_seq or not options.cut_site:
@@ -167,6 +175,9 @@ def main():
         ml = str(options.max_length)
     else:
         ml = 'max'
+    if options.debugging and _PS:
+        proc = psutil.Process(os.getpid())
+        max_mem = proc.get_memory_info().rss
     
     t_start = datetime.datetime.now()
 
@@ -199,6 +210,8 @@ def main():
             total_count += count
             filter_count += fcount
             total_length += mol_length
+            if options.debugging and _PS:
+                max_mem = max([max_mem, proc.get_memory_info().rss])
     for file_path in args:
         try:
             f = open(file_path, 'rU')
@@ -231,6 +244,8 @@ def main():
             total_count += count
             filter_count += fcount
             total_length += mol_length
+            if options.debugging and _PS:
+                max_mem = max([max_mem, proc.get_memory_info().rss])
         f.close()
 
     _LOG.info('Finished digests!')
@@ -257,6 +272,7 @@ def main():
               'end time: {0}\n'
               'run time: {0}\n'.format(str(t_start), str(t_end), 
                     str(t_end-t_start)))
-    
+    if options.debugging and _PS:
+        _LOG.info('max memory (MB): {0}'.format(float(max_mem)/1048576))
 if __name__ == '__main__':
     main()
