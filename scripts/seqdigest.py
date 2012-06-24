@@ -5,6 +5,7 @@ import sys
 import re
 import itertools
 import logging
+import datetime
 from optparse import OptionParser
 
 from Bio.Seq import Seq
@@ -166,7 +167,9 @@ def main():
         ml = str(options.max_length)
     else:
         ml = 'max'
-        
+    
+    t_start = datetime.datetime.now()
+
     rseq = RecognitionSeq(str(options.recognition_seq), options.cut_site)
     gi_list = []
     if options.gi_numbers:
@@ -249,5 +252,11 @@ def main():
               '\tfragment length distribution written to {0}\n'.format(
                     out_file_path))
 
+    t_end = datetime.datetime.now()
+    _LOG.info('start time: {0}\n'
+              'end time: {0}\n'
+              'run time: {0}\n'.format(str(t_start), str(t_end), 
+                    str(t_end-t_start)))
+    
 if __name__ == '__main__':
     main()
