@@ -150,11 +150,12 @@ class RecognitionSeq(SeqRecord):
                 "overlapping recognition sites.\nThe resulting digest "
                 "will only represent one of the possibly many "
                 "potential outcomes.".format(str(self.seq)))
+        seq_len = len(seq_record.seq)
         start_site = 1
         cut_buffer = 0
         five_prime_terminus = True
         three_prime_terminus = False
-        for i in range(0, len(seq_record.seq) - len(self) + 1):
+        for i in xrange(0, seq_len - len(self) + 1):
             if cut_buffer > 0:
                 cut_buffer -= 1
                 continue
@@ -163,7 +164,7 @@ class RecognitionSeq(SeqRecord):
                     continue
                 if start_site != 1:
                     five_prime_terminus = False
-                if (i + self.cut_site + 1) > len(seq_record.seq):
+                if (i + self.cut_site + 1) > seq_len:
                     three_prime_terminus = True
                     if five_prime_terminus or self.overhang >= 0:
                         ohang = 0
@@ -172,7 +173,7 @@ class RecognitionSeq(SeqRecord):
                     yield Fragment(
                             seq_record = seq_record[start_site - 1:],
                             start_site = start_site,
-                            end_site = len(seq_record.seq),
+                            end_site = seq_len,
                             overhang = ohang,
                             five_prime_terminus = five_prime_terminus,
                             three_prime_terminus = three_prime_terminus)
@@ -199,7 +200,7 @@ class RecognitionSeq(SeqRecord):
                 ohang = abs(self.overhang)
             yield Fragment(seq_record = seq_record[start_site - 1:],
                            start_site = start_site,
-                           end_site = len(seq_record.seq),
+                           end_site = seq_len,
                            overhang = ohang,
                            five_prime_terminus = five_prime_terminus,
                            three_prime_terminus = True)
