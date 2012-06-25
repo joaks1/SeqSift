@@ -151,59 +151,43 @@ class RecognitionSeq(SeqRecord):
                 "will only represent one of the possibly many "
                 "potential outcomes.".format(str(self.seq)))
         seq_len = len(seq_record.seq)
-        start_site = 1
-        cut_buffer = 0
         five_prime_terminus = True
         three_prime_terminus = False
-        for i in xrange(0, seq_len - len(self) + 1):
-            if cut_buffer > 0:
-                cut_buffer -= 1
-                continue
-            if (str(seq_record.seq[i: i + len(self)]).upper() == str(self.seq)):
-                if i == 0 and self.cut_site == 0:
-                    continue
-                if start_site != 1:
-                    five_prime_terminus = False
-                if (i + self.cut_site + 1) > seq_len:
-                    three_prime_terminus = True
-                    if five_prime_terminus or self.overhang >= 0:
-                        ohang = 0
-                    else:
-                        ohang = abs(self.overhang)
-                    yield Fragment(
-                            seq_record = seq_record[start_site - 1:],
-                            start_site = start_site,
-                            end_site = seq_len,
-                            overhang = ohang,
-                            five_prime_terminus = five_prime_terminus,
-                            three_prime_terminus = three_prime_terminus)
-                    break
-                end_site = i + self.cut_site
-                if five_prime_terminus and self.overhang < 0:
+        if self.overhang <= 0:
+            ohang = 0
+        else:
+            ohang = abs(self.overhang)
+        if self.cut_site == 0:
+            increment = 1
+        else:
+            increment = 0
+        i = 0
+        find_i = increment
+        while True:
+            j = seq_record.seq.find(str(self.seq), find_i)
+            if j == -1 or (j + self.cut_site >= seq_len):
+                if five_prime_terminus or self.overhang >= 0:
                     ohang = 0
                 else:
                     ohang = abs(self.overhang)
-                yield Fragment(
-                        seq_record = seq_record[start_site - 1: end_site],
-                        start_site = start_site,
-                        end_site = end_site,
-                        overhang = ohang,
-                        five_prime_terminus = five_prime_terminus,
-                        three_prime_terminus = three_prime_terminus)
-                start_site = i + self.cut_site + 1
-                cut_buffer = self.cut_site - 1
-                five_prime_terminus = False
-        if not three_prime_terminus:
-            if five_prime_terminus or self.overhang >= 0:
-                ohang = 0
-            else:
-                ohang = abs(self.overhang)
-            yield Fragment(seq_record = seq_record[start_site - 1:],
-                           start_site = start_site,
-                           end_site = seq_len,
-                           overhang = ohang,
-                           five_prime_terminus = five_prime_terminus,
-                           three_prime_terminus = True)
+                yield Fragment(seq_record = seq_record[i:],
+                               start_site = i+1,
+                               end_site = seq_len,
+                               overhang = ohang,
+                               five_prime_terminus = five_prime_terminus,
+                               three_prime_terminus = True)
+                break
+            yield Fragment(
+                    seq_record = seq_record[i: j+self.cut_site],
+                    start_site = i+1,
+                    end_site = j+self.cut_site,
+                    overhang = ohang,
+                    five_prime_terminus = five_prime_terminus,
+                    three_prime_terminus = three_prime_terminus)
+            five_prime_terminus = False
+            ohang = abs(self.overhang)
+            find_i = j + self.cut_site + increment
+            i = j + self.cut_site
 
 class InvalidRecognitionSeqError(Exception):
     def __init__(self, *args, **kwargs):
