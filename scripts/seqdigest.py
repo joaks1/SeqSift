@@ -269,8 +269,8 @@ def main():
 
     t_end = datetime.datetime.now()
     _LOG.info('start time: {0}\n'
-              'end time: {0}\n'
-              'run time: {0}\n'.format(str(t_start), str(t_end), 
+              'end time: {1}\n'
+              'run time: {2}\n'.format(str(t_start), str(t_end), 
                     str(t_end-t_start)))
     if options.debugging and _PS:
         _LOG.info('max memory (MB): {0}'.format(float(max_mem)/1048576))
