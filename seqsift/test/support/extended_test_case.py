@@ -6,7 +6,7 @@ import tempfile
 import cPickle
 import re
 
-from seqsift.dataio import BufferedIter
+from seqsift.utils.dataio import BufferedIter
 from seqsift.test.support import package_paths
 from seqsift.utils import mkdr
 from seqsift.utils.messaging import get_logger

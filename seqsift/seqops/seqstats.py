@@ -3,7 +3,7 @@
 import sys
 import os
 
-from seqsift.dataio import BufferedIter
+from seqsift.utils.dataio import BufferedIter
 from seqsift.utils.errors import AlignmentError
 from seqsift.utils.messaging import get_logger
 
