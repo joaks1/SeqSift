@@ -118,6 +118,22 @@ class ReadSeqTestCase(SeqSiftTestCase):
         self.assertEqual(seq.name, 'JF314862')
         self.assertEqual(seq.id, 'JF314862.1')
 
+    def test_guess_format(self):
+        seq = read_seq(self.small_fasta, format=None, data_type='dna')
+        self.assertIsInstance(seq, SeqRecord)
+        self.assertEqual(seq.id, 's1')
+        self.assertEqual(str(seq.seq), 'ACGTGCTATCTATCGTATTTAG')
+        
+        seq = read_seq(self.fasta_path, format=None, data_type='dna')
+        self.assertIsInstance(seq, SeqRecord)
+        self.assertEqual(str(seq.seq), self.seq_str)
+
+        seq = read_seq(self.gb_path, format=None, data_type='dna')
+        self.assertIsInstance(seq, SeqRecord)
+        self.assertEqual(str(seq.seq), self.seq_str)
+        self.assertEqual(seq.name, 'JF314862')
+        self.assertEqual(seq.id, 'JF314862.1')
+
 class GetSeqIterTestCase(SeqSiftTestCase):
     def setUp(self):
         self.gb_path = package_paths.data_path('JF314863-JF314866.gb')
@@ -154,6 +170,11 @@ class GetSeqIterTestCase(SeqSiftTestCase):
         si2 = get_seq_iter(self.fasta_path, format='fasta', data_type='dna')
         self.assertSameSequenceData(si1, si2)
 
+    def test_guess_format(self):
+        si1 = get_seq_iter(self.gb_path, format=None, data_type='dna')
+        si2 = get_seq_iter(self.fasta_path, format=None, data_type='dna')
+        self.assertSameSequenceData(si1, si2)
+
 class GetBufferedSeqIterTestCase(SeqSiftTestCase):
     def setUp(self):
         self.gb_path = package_paths.data_path('JF314863-JF314866.gb')
@@ -164,6 +185,11 @@ class GetBufferedSeqIterTestCase(SeqSiftTestCase):
         s1 = [s for s in self.seqs.iter()]
         s2 = [s for s in self.seqs.iter()]
         self.assertSameData(s1, s2)
+
+    def test_guess_format(self):
+        sequences = get_buffered_seq_iter(self.gb_path)
+        seq_list = [s for s in sequences.iter()]
+        self.assertSameSequences(seq_list, self.seqs)
 
 class GetIndexedSeqIterTestCase(SeqSiftTestCase):
     def setUp(self):
