@@ -86,7 +86,7 @@ class SeqSiftTestCase(unittest.TestCase):
         for seq1 in s1.iter():
             try:
                 seq2 = next(s for s in s2.iter() if s.id == seq1.id)
-            except StopIterations:
+            except StopIteration:
                 fail("failed assertSameSequences:\n"
                      "Sequence id {0!r} of {1!r} not found in {2!r}\n".format(
                         seq1.id, sequences1, sequences2))
