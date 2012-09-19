@@ -14,7 +14,7 @@ def column_frequencies(seq_iter, character_list=['-','?']):
     char_list = [c.lower() for c in character_list]
     column_counts = []
     align_length = None
-    for i, seq_record in enumerate(seqs.iter()):
+    for i, seq_record in enumerate(seqs):
         if align_length == None:
             align_length = len(seq_record)
             column_counts = [0] * align_length

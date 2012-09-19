@@ -49,8 +49,8 @@ class BufferedIterTestCase(SeqSiftTestCase):
                 SeqRecord(Seq('TTTT'), id='t')]
         buffered_iter = BufferedIter(objs)
         for i in range(3):
-            self.assertSameIDs(objs, buffered_iter.iter())
-            self.assertSameSequences(objs, buffered_iter.iter())
+            self.assertSameIDs(objs, buffered_iter)
+            self.assertSameSequences(objs, buffered_iter)
 
 class GetTmpHandleTestCase(unittest.TestCase):
     def setUp(self):
@@ -182,13 +182,13 @@ class GetBufferedSeqIterTestCase(SeqSiftTestCase):
                 data_type='dna')
 
     def test_buffer(self):
-        s1 = [s for s in self.seqs.iter()]
-        s2 = [s for s in self.seqs.iter()]
+        s1 = [s for s in self.seqs]
+        s2 = [s for s in self.seqs]
         self.assertSameData(s1, s2)
 
     def test_guess_format(self):
         sequences = get_buffered_seq_iter(self.gb_path)
-        seq_list = [s for s in sequences.iter()]
+        seq_list = [s for s in sequences]
         self.assertSameSequences(seq_list, self.seqs)
 
 class GetIndexedSeqIterTestCase(SeqSiftTestCase):

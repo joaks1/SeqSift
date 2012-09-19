@@ -25,7 +25,7 @@ def column_filter(seq_iter, character_list=['?','-'], max_frequency=1.0):
     col_freqs, seqs = column_frequencies(seq_iter,
             character_list=character_list)
     cols_to_keep = [p < max_frequency for p in col_freqs]
-    for seq in seqs.iter():
+    for seq in seqs:
         new_seq = itertools.compress(str(seq.seq), cols_to_keep)
         yield copy_seq_metadata(seq, new_seq=''.join(new_seq))
 

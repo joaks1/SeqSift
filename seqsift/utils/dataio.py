@@ -25,7 +25,7 @@ class BufferedIter(object):
         for obj in obj_iter:
             self._pickler.dump(obj)
 
-    def iter(self):
+    def __iter__(self):
         self._tmp.seek(0)
         while True:
             try:

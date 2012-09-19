@@ -83,9 +83,9 @@ class SeqSiftTestCase(unittest.TestCase):
             s2 = sequences2
         else:
             s2 = BufferedIter(sequences2)
-        for seq1 in s1.iter():
+        for seq1 in s1:
             try:
-                seq2 = next(s for s in s2.iter() if s.id == seq1.id)
+                seq2 = next(s for s in s2 if s.id == seq1.id)
             except StopIteration:
                 fail("failed assertSameSequences:\n"
                      "Sequence id {0!r} of {1!r} not found in {2!r}\n".format(
