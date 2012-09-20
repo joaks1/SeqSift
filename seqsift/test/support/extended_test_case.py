@@ -32,7 +32,7 @@ class SeqSiftTestCase(unittest.TestCase):
 
     def getTestStream(self, filename):
         tp = self.getTestFile(filename)
-        return open(tp, 'w')
+        return open(tp, 'w'), tp
 
     def getBufferedIter(self, sequences):
         tmp = tempfile.TemporaryFile()
@@ -69,9 +69,13 @@ class SeqSiftTestCase(unittest.TestCase):
                 sorted([s.description for s in sequences1]),
                 sorted([s.description for s in sequences2]))
 
-    def assertSameSequenceData(self, sequences1, sequences2):
-        seqs1 = [self.remove_gaps(str(s.seq)) for s in sequences1]
-        seqs2 = [self.remove_gaps(str(s.seq)) for s in sequences2]
+    def assertSameSequenceData(self, sequences1, sequences2, aligned=False):
+        if aligned:
+            seqs1 = [str(s.seq) for s in sequences1]
+            seqs2 = [str(s.seq) for s in sequences2]
+        else:
+            seqs1 = [self.remove_gaps(str(s.seq)) for s in sequences1]
+            seqs2 = [self.remove_gaps(str(s.seq)) for s in sequences2]
         self.assertEqual(sorted(seqs1), sorted(seqs2))
 
     def assertSameSequences(self, sequences1, sequences2, aligned=False):
@@ -87,7 +91,7 @@ class SeqSiftTestCase(unittest.TestCase):
             try:
                 seq2 = next(s for s in s2 if s.id == seq1.id)
             except StopIteration:
-                fail("failed assertSameSequences:\n"
+                self.fail("failed assertSameSequences:\n"
                      "Sequence id {0!r} of {1!r} not found in {2!r}\n".format(
                         seq1.id, sequences1, sequences2))
             if aligned:
