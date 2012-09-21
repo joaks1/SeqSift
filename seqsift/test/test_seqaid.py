@@ -22,6 +22,16 @@ class SeqAidTestCase(SeqSiftTestCase):
     def setUp(self):
         self.seqaid = package_paths.scripts_path("seqaid.py")
         self.mkTestDir()        
+        self.simple_alignment = [
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='5')]
+        stream, self.simple_alignment_path = self.getTestStream(
+                'simple_alignment.fasta')
+        SeqIO.write(self.simple_alignment, stream, format='fasta')
+        stream.close()
 
     def exe_seqaid(self, arg_list, return_code=0, stdout=None, stderr=None):
         if isinstance(arg_list, str):
@@ -54,14 +64,9 @@ class SeqAidTestCase(SeqSiftTestCase):
         self.exe_seqaid(['one', 'two', 'three'], return_code=1)
 
     def test_format_conversion(self):
-        seqs = [SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='1'),
-                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='2'),
-                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='3'),
-                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='4'),
-                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='5'),]
         for in_ext, in_format in FILE_FORMATS.iteritems():
             test_stream, test_path = self.getTestStream('simple' + in_ext)
-            SeqIO.write(seqs, test_stream, format=in_format)
+            SeqIO.write(self.simple_alignment, test_stream, format=in_format)
             test_stream.close()
             for out_ext, out_format in FILE_FORMATS.iteritems():
                 if out_ext == in_ext:
@@ -96,6 +101,129 @@ class SeqAidTestCase(SeqSiftTestCase):
                 seqs_out = SeqIO.parse(out_path, format=out_format,
                         alphabet=IUPAC.extended_protein)
                 self.assertSameSequenceData(seqs_in, seqs_out, aligned=True)
+
+    def test_remove_missing_column(self):
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-columns',
+                "--missing-characters='?-'",
+                '--missing-column-proportion=1.0'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-columns',
+                "--missing-characters='a'",
+                '--missing-column-proportion=1.0'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('CGT?', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('CGT-', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('CGT?', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('CGT-', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('CGT?', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+    def test_remove_partial_missing_column(self):
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-columns',
+                "--missing-characters='?'",
+                '--missing-column-proportion=0.6'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-columns',
+                "--missing-characters='-'",
+                '--missing-column-proportion=0.4'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('ACGT', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-columns',
+                "--missing-characters='?'",
+                '--missing-column-proportion=0.61'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameSequences(results, self.simple_alignment, aligned=True)
+
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-columns',
+                "--missing-characters='-'",
+                '--missing-column-proportion=0.41'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameSequences(results, self.simple_alignment, aligned=True)
+
+    def test_remove_row(self):
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-sequences',
+                "--missing-characters='-'",
+                '--missing-sequence-proportion=0.2'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameSequences(results, self.simple_alignment[::2],
+                aligned=True)
+
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-sequences',
+                "--missing-characters='?'",
+                '--missing-sequence-proportion=0.2'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameSequences(results, self.simple_alignment[1::2],
+                aligned=True)
+
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-missing-sequences',
+                "--missing-characters='?'",
+                '--missing-sequence-proportion=0.201'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertSameSequences(results, self.simple_alignment,
+                aligned=True)
 
 if __name__ == '__main__':
     unittest.main()

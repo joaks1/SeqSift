@@ -173,7 +173,7 @@ def main():
     if options.remove_missing_columns:
         seqs = column_filter(seqs,
                 character_list = list(options.missing_characters),
-                max_frequency = option.missing_column_proportion)
+                max_frequency = options.missing_column_proportion)
 
     SeqIO.write(seqs,
                 handle = out_file_path,
