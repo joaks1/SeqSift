@@ -4,6 +4,7 @@ import os
 import sys
 import unittest
 import subprocess
+import copy
 import re
 
 from Bio.Seq import Seq
@@ -23,15 +24,23 @@ class SeqAidTestCase(SeqSiftTestCase):
         self.seqaid = package_paths.scripts_path("seqaid.py")
         self.mkTestDir()        
         self.simple_alignment = [
-                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='1'),
-                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='2'),
-                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='3'),
-                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='4'),
-                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='5')]
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='1',
+                        letter_annotations={'phred_quality': [1,1,1,1,1]}),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='2',
+                        letter_annotations={'phred_quality': [1,1,1,1,1]}),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='3',
+                        letter_annotations={'phred_quality': [1,1,1,1,1]}),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='4',
+                        letter_annotations={'phred_quality': [1,1,1,1,1]}),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='5',
+                        letter_annotations={'phred_quality': [1,1,1,1,1]})]
         stream, self.simple_alignment_path = self.getTestStream(
                 'simple_alignment.fasta')
         SeqIO.write(self.simple_alignment, stream, format='fasta')
         stream.close()
+        self.from_formats = copy.deepcopy(FILE_FORMATS)
+        self.to_formats = {
+                k: v for k, v in FILE_FORMATS.iteritems() if v != 'fastq'}
 
     def exe_seqaid(self, arg_list, return_code=0, stdout=None, stderr=None):
         if isinstance(arg_list, str):
@@ -64,11 +73,11 @@ class SeqAidTestCase(SeqSiftTestCase):
         self.exe_seqaid(['one', 'two', 'three'], return_code=1)
 
     def test_format_conversion(self):
-        for in_ext, in_format in FILE_FORMATS.iteritems():
+        for in_ext, in_format in self.from_formats.iteritems():
             test_stream, test_path = self.getTestStream('simple' + in_ext)
             SeqIO.write(self.simple_alignment, test_stream, format=in_format)
             test_stream.close()
-            for out_ext, out_format in FILE_FORMATS.iteritems():
+            for out_ext, out_format in self.to_formats.iteritems():
                 if out_ext == in_ext:
                     continue
                 out_path = self.getTestFile(test_path.replace(in_ext, out_ext))
@@ -88,7 +97,7 @@ class SeqAidTestCase(SeqSiftTestCase):
             else:
                 in_format = in_ext.replace('.', '')
             in_path = package_paths.data_path(filename)
-            for out_ext, out_format in FILE_FORMATS.iteritems():
+            for out_ext, out_format in self.to_formats.iteritems():
                 if out_ext == in_ext:
                     continue
                 if out_format == 'genbank':
