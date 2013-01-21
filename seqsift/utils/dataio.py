@@ -121,7 +121,7 @@ def get_indexed_seq_iter(file_path, format=None, data_type='dna',
 
 def get_seq_dict(file_obj, format=None, data_type='dna', ambiguities=True):
     """
-    Returns a dict of SeqRecords from a sequenc file.  This loads all the
+    Returns a dict of SeqRecords from a sequence file.  This loads all the
     sequences in the file into memory. This is efficient for small sequence
     files, but may cause memory issues with large files.
     """
