@@ -102,10 +102,18 @@ class SeqSiftTestCase(unittest.TestCase):
                         self.remove_gaps(str(seq2.seq)))
 
     def assertSameData(self, sequences1, sequences2, aligned=False):
-        self.assertSameIDs(sequences1, sequences2)
-        self.assertSameNames(sequences1, sequences2)
-        self.assertSameDescriptions(sequences1, sequences2)
-        self.assertSameSequences(sequences1, sequences2, aligned=aligned)
+        if isinstance(sequences1, BufferedIter):
+            s1 = sequences1
+        else:
+            s1 = BufferedIter(sequences1)
+        if isinstance(sequences2, BufferedIter):
+            s2 = sequences2
+        else:
+            s2 = BufferedIter(sequences2)
+        self.assertSameIDs(s1, s2)
+        self.assertSameNames(s1, s2)
+        self.assertSameDescriptions(s1, s2)
+        self.assertSameSequences(s1, s2, aligned=aligned)
 
     def assertSameMetadata(self, seq1, seq2):
         self.assertEqual(seq1.id, seq2.id)
