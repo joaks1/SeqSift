@@ -28,4 +28,6 @@ def column_frequencies(seq_iter, character_list=['-','?']):
     column_freqs = [count / float(i + 1) for count in column_counts]
     return column_freqs, seqs
     
+def get_differences(seq1, seq2):
+    pass
 
