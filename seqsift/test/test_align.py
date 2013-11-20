@@ -2,7 +2,8 @@
 
 import unittest
 
-from seqsift.align import *
+from seqsift.align import (match_score, calculate_F_matrix, trace_max_score,
+        global_align)
 
 class MatchScoreTestCase(unittest.TestCase):
     def setUp(self):

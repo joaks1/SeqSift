@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
-from seqsift.utils import DNA_AMBIGUITY_CODES
+from seqsift.utils.alphabets import DnaAlphabet
+
+DNA_AMBIGUITY_CODES = DnaAlphabet().residue_ambiguity_codes
 
 def global_align(
         seq1,
