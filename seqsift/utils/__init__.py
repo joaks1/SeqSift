@@ -2,6 +2,7 @@
 
 import sys
 import os
+import random
 import errno
 
 from seqsift.utils.errors import FileExtensionError
@@ -83,4 +84,6 @@ def mkdr(path):
             pass
         else:
             raise
+
+GLOBAL_RNG = random.Random()
 
