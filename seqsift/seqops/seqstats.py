@@ -2,8 +2,10 @@
 
 import sys
 import os
+import itertools
 
 from seqsift.align import global_align
+from seqsift.utils import functions
 from seqsift.utils.dataio import BufferedIter
 from seqsift.utils.errors import AlignmentError
 from seqsift.utils.alphabets import DnaAlphabet
@@ -29,27 +31,128 @@ def column_frequencies(seq_iter, character_list=['-','?']):
                 column_counts[j] += 1
     column_freqs = [count / float(i + 1) for count in column_counts]
     return column_freqs, seqs
-    
-def distance(seq1, seq2,
-        aligned = False,
-        ignore_gaps = True,
-        alphabet = None,
-        similarity_matrix = {
-            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
-        },
-        gap_cost = -5):
-    diffs, l  = get_differences(seq1 = seq1, seq2 = seq2,
-            aligned = aligned,
-            ignore_gaps = ignore_gaps,
-            alphabet = alphabet,
-            similarity_matrix = similarity_matrix,
-            gap_cost = gap_cost)
-    return len(diffs)
 
-def per_site_distance(seq1, seq2,
+def summarize_distances(seq_iter,
+        sample_size = 0,
+        per_site = True,
+        aligned = False,
+        ignore_gaps = True,
+        alphabet = None,
+        similarity_matrix = {
+            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
+        },
+        gap_cost = -5,
+        rng = None):
+    iter_func = pairwise_distance_iter
+    if sample_size > 0:
+        distance_iter = sample_distance_iter(
+                seq_iter = seq_iter,
+                sample_size = sample_size,
+                aligned = aligned,
+                ignore_gaps = ignore_gaps,
+                per_site = per_site,
+                alphabet = alphabet,
+                similarity_matrix = similarity_matrix,
+                gap_cost = gap_cost,
+                rng = rng)
+    else:
+        distance_iter = pairwise_distance_iter(
+                seq_iter = seq_iter,
+                aligned = aligned,
+                ignore_gaps = ignore_gaps,
+                per_site = per_site,
+                alphabet = alphabet,
+                similarity_matrix = similarity_matrix,
+                gap_cost = gap_cost)
+    for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+        # need object that summarizes distances on fly, and need one
+        # instance per seq
+        # populate dict of seq name to summary and return
+        pass
+
+def pairwise_distance_iter(seq_iter,
+        per_site = True,
+        aligned = False,
+        ignore_gaps = True,
+        alphabet = None,
+        similarity_matrix = {
+            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
+        },
+        gap_cost = -5):
+    seqs = BufferedIter(seq_iter)
+    for seq1, seq2 in itertools.combinations(seqs, 2):
+        d = distance(
+                seq1 = str(seq1.seq),
+                seq2 = str(seq2.seq),
+                per_site = per_site,
+                aligned = aligned,
+                ignore_gaps = ignore_gaps,
+                alphabet = alphabet,
+                similarity_matrix = similarity_matrix,
+                gap_cost = gap_cost)
+        drc = distance(
+                seq1 = str(seq1.seq.reverse_complement()),
+                seq2 = str(seq2.seq),
+                per_site = per_site,
+                aligned = aligned,
+                ignore_gaps = ignore_gaps,
+                alphabet = alphabet,
+                similarity_matrix = similarity_matrix,
+                gap_cost = gap_cost)
+        yield seq1, seq2, d, drc
+
+def sample_distance_iter(seq_iter,
+        sample_size,
+        aligned = False,
+        ignore_gaps = True,
+        per_site = True,
+        alphabet = None,
+        similarity_matrix = {
+            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
+            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
+            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
+            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
+        },
+        gap_cost = -5,
+        rng = None):
+    seqs = BufferedIter(seq_iter)
+    seqs_to_sample = BufferedIter(seqs)
+    for seq1 in seqs:
+        samples = functions.sample_iter(iterable = seqs_to_sample,
+                sample_size = sample_size,
+                exclude = [seq1],
+                exclude_attribute = 'id',
+                rng = rng)
+        for seq2 in samples:
+            assert seq1.id != seq2.id
+            d = distance(
+                    seq1 = str(seq1.seq),
+                    seq2 = str(seq2.seq),
+                    per_site = per_site,
+                    aligned = aligned,
+                    ignore_gaps = ignore_gaps,
+                    alphabet = alphabet,
+                    similarity_matrix = similarity_matrix,
+                    gap_cost = gap_cost)
+            drc = distance(
+                    seq1 = str(seq1.seq.reverse_complement()),
+                    seq2 = str(seq2.seq),
+                    per_site = per_site,
+                    aligned = aligned,
+                    ignore_gaps = ignore_gaps,
+                    alphabet = alphabet,
+                    similarity_matrix = similarity_matrix,
+                    gap_cost = gap_cost)
+            yield seq1, seq2, d, drc
+
+def distance(seq1, seq2,
+        per_site = True,
         aligned = False,
         ignore_gaps = True,
         alphabet = None,
@@ -66,7 +169,9 @@ def per_site_distance(seq1, seq2,
             alphabet = alphabet,
             similarity_matrix = similarity_matrix,
             gap_cost = gap_cost)
-    return len(diffs) / float(l)
+    if per_site:
+        return len(diffs) / float(l)
+    return len(diffs)
 
 def get_differences(seq1, seq2,
         aligned = False,

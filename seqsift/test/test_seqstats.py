@@ -17,43 +17,162 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+class PairwiseDistanceIterTestCase(unittest.TestCase):
+    def setUp(self):
+        self.seqs = [
+                SeqRecord(Seq('A--CGT'), id='1'),
+                SeqRecord(Seq('G--CGT'), id='2'),
+                SeqRecord(Seq('A--TAT'), id='3')]
+        self.expected = {}
+        self.expected['1'] = {'2': 1, '3': 2}
+        self.expected['2'] = {'1': 1, '3': 3}
+        self.expected['3'] = {'1': 2, '2': 3}
+
+    def test_aligned(self):
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = False,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 2)
+
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = True,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 6.0,
+                    d)
+        self.assertEqual(i, 2)
+
+    def test_unaligned(self):
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 2)
+
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = True,
+                aligned = False,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
+                    d)
+        self.assertEqual(i, 2)
+
+class SampleDistanceIterTestCase(unittest.TestCase):
+    def setUp(self):
+        self.seqs = [
+                SeqRecord(Seq('A--CGT'), id='1'),
+                SeqRecord(Seq('G--CGT'), id='2'),
+                SeqRecord(Seq('A--TAT'), id='3')]
+        self.expected = {}
+        self.expected['1'] = {'2': 1, '3': 2}
+        self.expected['2'] = {'1': 1, '3': 3}
+        self.expected['3'] = {'1': 2, '2': 3}
+
+    def test_aligned(self):
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = False,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 5)
+
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = True,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 6.0,
+                    d)
+        self.assertEqual(i, 5)
+
+    def test_unaligned(self):
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 5)
+
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = True,
+                aligned = False,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
+                    d)
+        self.assertEqual(i, 5)
+
 class DistanceTestCase(unittest.TestCase):
     def test_aligned(self):
         seq1 = 'AC--GTNAC-TYATR'
         seq2 = 'ACN-GTAAC--CATT'
-        d = seqstats.distance(seq1, seq2, aligned = True)
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = True)
         self.assertEqual(d, 1)
-        dps = seqstats.per_site_distance(seq1, seq2, aligned = True)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = True)
         self.assertAlmostEqual(dps, 1 / float(15))
 
-        d = seqstats.distance(seq1, seq2, aligned = True, ignore_gaps = False)
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = True,
+                ignore_gaps = False)
         self.assertEqual(d, 3)
-        dps = seqstats.per_site_distance(seq1, seq2, aligned = True,
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = True,
                 ignore_gaps = False)
         self.assertAlmostEqual(dps, 3 / float(15))
 
     def test_unaligned(self):
         seq1 = 'AC--GTNAC-TYATR'
         seq2 = 'ACN-GTAAC--CATT'
-        d = seqstats.distance(seq1, seq2, aligned = False,
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
                 ignore_gaps = False)
         self.assertEqual(d, 3)
-        dps = seqstats.per_site_distance(seq1, seq2, aligned = False,
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
                 ignore_gaps = False)
         self.assertAlmostEqual(dps, 3 / float(13))
 
         seq1 = 'ATCCGT'
         seq2 = 'ACCGT'
-        d = seqstats.distance(seq1, seq2, aligned = False,
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
                 ignore_gaps = True)
         self.assertEqual(d, 0)
-        dps = seqstats.per_site_distance(seq1, seq2, aligned = False,
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
                 ignore_gaps = True)
         self.assertEqual(dps, 0.0)
-        d = seqstats.distance(seq1, seq2, aligned = False,
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
                 ignore_gaps = False)
         self.assertEqual(d, 1)
-        dps = seqstats.per_site_distance(seq1, seq2, aligned = False,
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
                 ignore_gaps = False)
         self.assertEqual(dps, 1 / float(6))
 
