@@ -75,7 +75,7 @@ def read_seq(file_obj, format=None, data_type='dna', ambiguities=True):
     """
     if format == None:
         format = FILE_FORMATS.get_format_from_file_object(file_obj)
-    _LOG.info("reading sequence from {0!r}.".format(file_obj))
+    _LOG.debug("reading sequence from {0!r}.".format(file_obj))
     return SeqIO.read(file_obj,
             format=format,
             alphabet=get_state_alphabet(data_type, ambiguities))
@@ -86,7 +86,7 @@ def get_seq_iter(file_obj, format=None, data_type='dna', ambiguities=True):
     """
     if format == None:
         format = FILE_FORMATS.get_format_from_file_object(file_obj)
-    _LOG.info("parsing SeqRecord iterator from {0!r}".format(file_obj))
+    _LOG.debug("parsing SeqRecord iterator from {0!r}".format(file_obj))
     return SeqIO.parse(file_obj,
             format=format,
             alphabet=get_state_alphabet(data_type, ambiguities))
@@ -112,7 +112,7 @@ def get_indexed_seq_iter(file_path, format=None, data_type='dna',
     """
     if format == None:
         format = FILE_FORMATS.get_format_from_file_object(file_path)
-    _LOG.info("parsing indexed SeqRecord iterator from {0!r}.".format(
+    _LOG.debug("parsing indexed SeqRecord iterator from {0!r}.".format(
             file_path))
     return SeqIO.index(file_path,
             format=format,
@@ -141,7 +141,7 @@ def convert_format(in_file, out_file,
         in_format = FILE_FORMATS.get_format_from_file_object(in_file)
     if out_format == None:
         out_format = FILE_FORMATS.get_format_from_file_object(out_file)
-    _LOG.info("converting {in_format}-formatted file {in_file!r} to "
+    _LOG.debug("converting {in_format}-formatted file {in_file!r} to "
               "{out_format}-formatted file {out_file!r}.".format(
                     in_file=in_file,
                     in_format=in_format,
