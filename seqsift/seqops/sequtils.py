@@ -18,3 +18,7 @@ def copy_seq_metadata(seq_record, new_seq=''):
             features = seq_record.features,
             dbxrefs = seq_record.dbxrefs)
 
+def get_reverse_complement(seq_record):
+    return copy_seq_metadata(seq_record,
+            new_seq = str(seq_record.seq.reverse_complement()))
+
