@@ -49,3 +49,34 @@ def mkdr(path):
         else:
             raise
 
+def get_new_path(path, max_attempts = 1000):
+    path = os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
+    if not os.path.exists(path):
+        f = open(path, 'w')
+        f.close()
+        return path
+    attempt = 0
+    while True:
+        p = '-'.join([path, str(attempt)])
+        if not os.path.exists(p):
+            f = open(p, 'w')
+            f.close()
+            return p
+        if attempt >= max_attempts:
+            raise Exception('failed to get unique path')
+        attempt += 1
+
+def is_executable(path):
+    return os.path.isfile(path) and os.access(path, os.X_OK)
+
+def which(exe):
+    if is_executable(exe):
+        return exe
+    name = os.path.basename(exe)
+    for p in os.environ['PATH'].split(os.pathsep):
+        p = p.strip('"')
+        exe_path = os.path.join(p, name)
+        if is_executable(exe_path):
+            return exe_path
+    return None
+

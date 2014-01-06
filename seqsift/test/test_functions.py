@@ -57,5 +57,23 @@ class TestSampleIter(unittest.TestCase):
         for f in freqs:
             self.assertAlmostEqual(f, 1/float(8), 2)
 
+class GetNewPathTestCase(SeqSiftTestCase):
+    def setUp(self):
+        self.unique = os.path.join(self.temp_fs.base_dir, 
+                self.temp_fs.token_id + '-blah.txt')
+
+    def test_unique(self):
+        p = functions.get_new_path(self.unique)
+        self.assertEqual(p, self.unique)
+        self.assertTrue(os.path.exists(p))
+
+    def test_exists(self):
+        f = open(self.unique, 'w')
+        f.close()
+        p = functions.get_new_path(self.unique)
+        new_p = self.unique + '-0'
+        self.assertEqual(p, new_p)
+        self.assertTrue(os.path.exists(p))
+
 if __name__ == '__main__':
     unittest.main()
