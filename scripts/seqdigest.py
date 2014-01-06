@@ -17,7 +17,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
-from seqsift.utils import mkdr
+from seqsift.utils.functions import mkdr
 from seqsift.digest import Fragment, RecognitionSeq, DigestSummary
 from seqsift.utils.dataio import get_seq_iter
 from seqsift.utils.entrez import (parse_accession_numbers, parse_gi_numbers,

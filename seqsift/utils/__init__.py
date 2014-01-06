@@ -73,17 +73,5 @@ DEFAULT_DNA_SIMILARITY_MATRIX = {
 
 VALID_DATA_TYPES = ['dna', 'rna', 'protein', 'aa']
 
-def mkdr(path):
-    """
-    Creates directory `path`, but suppresses error if `path` already exists.
-    """
-    try:
-        os.makedirs(path)
-    except OSError, e:
-        if e.errno == errno.EEXIST:
-            pass
-        else:
-            raise
-
 GLOBAL_RNG = random.Random()
 

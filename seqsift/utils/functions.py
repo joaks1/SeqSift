@@ -36,4 +36,16 @@ def sample_iter(iterable, sample_size, exclude = [], exclude_attribute = None,
         if r < sample_size:
             samples[r] = el
     return samples
-    
+
+def mkdr(path):
+    """
+    Creates directory `path`, but suppresses error if `path` already exists.
+    """
+    try:
+        os.makedirs(path)
+    except OSError, e:
+        if e.errno == errno.EEXIST:
+            pass
+        else:
+            raise
+
