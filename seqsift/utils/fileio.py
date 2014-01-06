@@ -2,6 +2,7 @@
 
 import os
 import sys
+import tempfile
 from gzip import GzipFile
 
 from seqsift.utils.messaging import get_logger
@@ -118,4 +119,13 @@ class OpenFile(object):
 
     def fileno(self):
         return self.file_stream.fileno()
+
+class TemporaryFilePath(object):
+    def __enter__(self):
+        fd, self.temp_path = tempfile.mkstemp()
+        os.close(fd)
+        return self.temp_path
+
+    def __exit__(self, type, value, traceback):
+        os.remove(self.temp_path)
 
