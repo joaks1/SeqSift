@@ -137,8 +137,8 @@ class SampleDistanceIterTestCase(unittest.TestCase):
 
 class DistanceTestCase(unittest.TestCase):
     def test_aligned(self):
-        seq1 = 'AC--GTNAC-TYATR'
-        seq2 = 'ACN-GTAAC--CATT'
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = True)
         self.assertEqual(d, 1)
         dps = seqstats.distance(seq1, seq2, per_site = True, aligned = True)
@@ -152,8 +152,8 @@ class DistanceTestCase(unittest.TestCase):
         self.assertAlmostEqual(dps, 3 / float(15))
 
     def test_unaligned(self):
-        seq1 = 'AC--GTNAC-TYATR'
-        seq2 = 'ACN-GTAAC--CATT'
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
                 ignore_gaps = False)
         self.assertEqual(d, 3)
@@ -161,8 +161,8 @@ class DistanceTestCase(unittest.TestCase):
                 ignore_gaps = False)
         self.assertAlmostEqual(dps, 3 / float(13))
 
-        seq1 = 'ATCCGT'
-        seq2 = 'ACCGT'
+        seq1 = SeqRecord(Seq('ATCCGT'), id='1')
+        seq2 = SeqRecord(Seq('ACCGT'), id='2')
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
                 ignore_gaps = True)
         self.assertEqual(d, 0)
@@ -178,8 +178,8 @@ class DistanceTestCase(unittest.TestCase):
 
 class GetDifferencesTestCase(unittest.TestCase):
     def test_align_error(self):
-        seq1 = 'ACGT'
-        seq2 = 'TACGT'
+        seq1 = SeqRecord(Seq('ACGT'), id='1')
+        seq2 = SeqRecord(Seq('TACGT'), id='2')
         self.assertRaises(seqstats.AlignmentError, seqstats.get_differences, seq1, seq2,
                 True)
         diffs, l = seqstats.get_differences(seq1, seq2)
@@ -191,8 +191,8 @@ class GetDifferencesTestCase(unittest.TestCase):
         self.assertEqual(l, 5)
 
     def test_aligned(self):
-        seq1 = 'AC--GTNAC-TYATR'
-        seq2 = 'ACN-GTAAC--CATT'
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
         e = {14:('R', 'T')}
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = True)
         self.assertEqual(diffs, e)
@@ -206,8 +206,8 @@ class GetDifferencesTestCase(unittest.TestCase):
         self.assertEqual(l, 15)
 
     def test_unaligned(self):
-        seq1 = 'AC--GTNAC-TYATR'
-        seq2 = 'ACN-GTAAC--CATT'
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
                 ignore_gaps = False)
         e = {12: ('R', 'T'),
@@ -216,8 +216,8 @@ class GetDifferencesTestCase(unittest.TestCase):
         self.assertEqual(diffs, e)
         self.assertEqual(l, 13)
 
-        seq1 = 'ATCCGT'
-        seq2 = 'ACCGT'
+        seq1 = SeqRecord(Seq('ATCCGT'), id='1')
+        seq2 = SeqRecord(Seq('ACCGT'), id='2')
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
                 ignore_gaps = True)
         self.assertEqual(diffs, {})

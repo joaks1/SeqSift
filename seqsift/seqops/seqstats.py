@@ -4,11 +4,12 @@ import sys
 import os
 import itertools
 
-from seqsift.align import global_align
-from seqsift.utils import functions
+from seqsift.align import align
+from seqsift.utils import functions, stats
 from seqsift.utils.dataio import BufferedIter
 from seqsift.utils.errors import AlignmentError
 from seqsift.utils.alphabets import DnaAlphabet
+from seqsift.seqops.sequtils import get_reverse_complement
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -38,13 +39,6 @@ def summarize_distances(seq_iter,
         aligned = False,
         ignore_gaps = True,
         alphabet = None,
-        similarity_matrix = {
-            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
-        },
-        gap_cost = -5,
         rng = None):
     iter_func = pairwise_distance_iter
     if sample_size > 0:
@@ -55,8 +49,6 @@ def summarize_distances(seq_iter,
                 ignore_gaps = ignore_gaps,
                 per_site = per_site,
                 alphabet = alphabet,
-                similarity_matrix = similarity_matrix,
-                gap_cost = gap_cost,
                 rng = rng)
     else:
         distance_iter = pairwise_distance_iter(
@@ -64,10 +56,8 @@ def summarize_distances(seq_iter,
                 aligned = aligned,
                 ignore_gaps = ignore_gaps,
                 per_site = per_site,
-                alphabet = alphabet,
-                similarity_matrix = similarity_matrix,
-                gap_cost = gap_cost)
-    d = {}
+                alphabet = alphabet)
+    distances = {}
     rev_comp_errors = []
     for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
         if drc < d:
@@ -75,53 +65,42 @@ def summarize_distances(seq_iter,
                     '{1}'.format(seq1.id, seq2.id))
             rev_comp_errors.append((seq1.id, seq2.id, d, drc))
         if sample_size > 0:
-            if not d.has_key(seq1.id):
-                d[seq1.id] = stats.SampleSummarizer(samples = [d])
+            if not distances.has_key(seq1.id):
+                distances[seq1.id] = stats.SampleSummarizer(samples = [d])
                 continue
-            d[seq1.id].add_sample(d)
+            distances[seq1.id].add_sample(d)
         else:
-            if not d.has_key(seq1.id):
-                d[seq1.id] = stats.SampleSummarizer(samples = [d])
+            if not distances.has_key(seq1.id):
+                distances[seq1.id] = stats.SampleSummarizer(samples = [d])
             else:
-                d[seq1.id].add_sample(d)
-            if not d.has_key(seq2.id):
-                d[seq2.id] = stats.SampleSummarizer(samples = [d])
+                distances[seq1.id].add_sample(d)
+            if not distances.has_key(seq2.id):
+                distances[seq2.id] = stats.SampleSummarizer(samples = [d])
             else:
-                d[seq2.id].add_sample(d)
-    return d, rev_comp_errors
+                distances[seq2.id].add_sample(d)
+    return distances, rev_comp_errors
 
 def pairwise_distance_iter(seq_iter,
         per_site = True,
         aligned = False,
         ignore_gaps = True,
-        alphabet = None,
-        similarity_matrix = {
-            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
-        },
-        gap_cost = -5):
+        alphabet = None):
     seqs = BufferedIter(seq_iter)
     for seq1, seq2 in itertools.combinations(seqs, 2):
         d = distance(
-                seq1 = str(seq1.seq),
-                seq2 = str(seq2.seq),
+                seq1 = seq1,
+                seq2 = seq2,
                 per_site = per_site,
                 aligned = aligned,
                 ignore_gaps = ignore_gaps,
-                alphabet = alphabet,
-                similarity_matrix = similarity_matrix,
-                gap_cost = gap_cost)
+                alphabet = alphabet)
         drc = distance(
-                seq1 = str(seq1.seq.reverse_complement()),
-                seq2 = str(seq2.seq),
+                seq1 = get_reverse_complement(seq1),
+                seq2 = seq2,
                 per_site = per_site,
                 aligned = aligned,
                 ignore_gaps = ignore_gaps,
-                alphabet = alphabet,
-                similarity_matrix = similarity_matrix,
-                gap_cost = gap_cost)
+                alphabet = alphabet)
         yield seq1, seq2, d, drc
 
 def sample_distance_iter(seq_iter,
@@ -130,13 +109,6 @@ def sample_distance_iter(seq_iter,
         ignore_gaps = True,
         per_site = True,
         alphabet = None,
-        similarity_matrix = {
-            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
-        },
-        gap_cost = -5,
         rng = None):
     seqs = BufferedIter(seq_iter)
     seqs_to_sample = BufferedIter(seqs)
@@ -149,43 +121,30 @@ def sample_distance_iter(seq_iter,
         for seq2 in samples:
             assert seq1.id != seq2.id
             d = distance(
-                    seq1 = str(seq1.seq),
-                    seq2 = str(seq2.seq),
+                    seq1 = seq1,
+                    seq2 = seq2,
                     per_site = per_site,
                     aligned = aligned,
                     ignore_gaps = ignore_gaps,
-                    alphabet = alphabet,
-                    similarity_matrix = similarity_matrix,
-                    gap_cost = gap_cost)
+                    alphabet = alphabet)
             drc = distance(
-                    seq1 = str(seq1.seq.reverse_complement()),
-                    seq2 = str(seq2.seq),
+                    seq1 = get_reverse_complement(seq1),
+                    seq2 = seq2,
                     per_site = per_site,
                     aligned = aligned,
                     ignore_gaps = ignore_gaps,
-                    alphabet = alphabet,
-                    similarity_matrix = similarity_matrix,
-                    gap_cost = gap_cost)
+                    alphabet = alphabet)
             yield seq1, seq2, d, drc
 
 def distance(seq1, seq2,
         per_site = True,
         aligned = False,
         ignore_gaps = True,
-        alphabet = None,
-        similarity_matrix = {
-            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
-        },
-        gap_cost = -5):
+        alphabet = None):
     diffs, l  = get_differences(seq1 = seq1, seq2 = seq2,
             aligned = aligned,
             ignore_gaps = ignore_gaps,
-            alphabet = alphabet,
-            similarity_matrix = similarity_matrix,
-            gap_cost = gap_cost)
+            alphabet = alphabet)
     if per_site:
         return len(diffs) / float(l)
     return len(diffs)
@@ -193,22 +152,11 @@ def distance(seq1, seq2,
 def get_differences(seq1, seq2,
         aligned = False,
         ignore_gaps = True,
-        alphabet = None,
-        similarity_matrix = {
-            ('A', 'A'): 10, ('A', 'G'): -1, ('A', 'C'): -3, ('A', 'T'): -4,
-            ('G', 'A'): -1, ('G', 'G'):  7, ('G', 'C'): -5, ('G', 'T'): -3,
-            ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
-            ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
-        },
-        gap_cost = -5):
+        alphabet = None):
     if not alphabet:
         alphabet = DnaAlphabet()
     if not aligned:
-        seq1, seq2 = global_align(
-                [x for x in seq1 if x != alphabet.gap],
-                [x for x in seq2 if x != alphabet.gap],
-                similarity_matrix = similarity_matrix,
-                gap_cost = gap_cost)
+        seq1, seq2 = align(seq1, seq2)
     if len(seq1) != len(seq2):
         raise AlignmentError('Sequences are not aligned')
     residue_codes = alphabet.all_residue_codes
