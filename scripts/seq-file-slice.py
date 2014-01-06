@@ -74,13 +74,9 @@ def main_cli():
             type = str,
             choices = FILE_FORMATS.supported_formats,
             help = ('The desired format of the output sequence file. Valid '
-                    'options include: {0}. By default, if an output file path '
-                    'is provided, the format is guessed based on the extension '
-                    'of this file. However, this option will always take '
-                    'precedence over the file extension. Either this option or '
-                    'an output file path with an extension is required; if '
-                    'neither are provided the program will exit with an '
-                    'error.'.format(', '.join(FILE_FORMATS.supported_formats))))
+                    'options include: {0}. By default, output files will use '
+                    'the same format as the input file(s)'.format(
+                            ', '.join(FILE_FORMATS.supported_formats))))
     parser.add_argument('-d', '--data-type',
             type = str,
             choices = VALID_DATA_TYPES,
@@ -106,48 +102,29 @@ def main_cli():
 
     args = parser.parse_args()
 
-    
-    if not args.to_format:
-        args.to_format = FILE_FORMATS.get_format_from_file_object(
+    if not args.from_format:
+        args.from_format = FILE_FORMATS.get_format_from_file_object(
                 args.input_files[0])
-    if not args.to_format:
-        _LOG.error("Could not determine output format.\n"
-                   "You must either provide the output format\n"
-                   "using the '--to' option or have a recognized\n"
+    if not args.from_format:
+        _LOG.error("Could not determine input format.\n"
+                   "You must either provide the input format\n"
+                   "using the '--from' option or have a recognizable\n"
                    "file extension on the first input file.\n"
                    "Here are the supported file extensions:\n{0}".format(
                         str(FILE_FORMATS)))
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
+    if not args.to_format:
+        args.to_format = args.from_format
+
+    _LOG.error('Sorry, this script is not fully implemented yet')
+    sys.stderr.write(str(parser.print_help()))
+    sys.exit(1)
 
     for fp in args.input_files:
-        with open(fp, 'w')
-    if len(opt_dict) == 0:
-        convert_format(in_file = in_file_path,
-                       out_file = out_file_path,
-                       in_format = in_format,
-                       out_format = out_format,
-                       data_type = data_type)
-        sys.exit(0)
-
-    seqs = get_buffered_seq_iter(in_file_path,
-            format = in_format,
-            data_type = data_type)
-
-    if options.remove_missing_sequences:
-        seqs = row_filter(seqs,
-                character_list = list(options.missing_characters),
-                max_frequency = options.missing_sequence_proportion)
-
-    if options.remove_missing_columns:
-        seqs = column_filter(seqs,
-                character_list = list(options.missing_characters),
-                max_frequency = options.missing_column_proportion)
-
-    SeqIO.write(seqs,
-                handle = out_file_path,
-                format = out_format)
+        with open(fp, 'w'):
+            pass
 
 if __name__ == '__main__':
-    main()
+    main_cli()
 
