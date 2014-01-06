@@ -67,11 +67,28 @@ def summarize_distances(seq_iter,
                 alphabet = alphabet,
                 similarity_matrix = similarity_matrix,
                 gap_cost = gap_cost)
+    d = {}
+    rev_comp_errors = []
     for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
-        # need object that summarizes distances on fly, and need one
-        # instance per seq
-        # populate dict of seq name to summary and return
-        pass
+        if drc < d:
+            _LOG.warning('reverse complement of {0} is more similar to '
+                    '{1}'.format(seq1.id, seq2.id))
+            rev_comp_errors.append((seq1.id, seq2.id, d, drc))
+        if sample_size > 0:
+            if not d.has_key(seq1.id):
+                d[seq1.id] = stats.SampleSummarizer(samples = [d])
+                continue
+            d[seq1.id].add_sample(d)
+        else:
+            if not d.has_key(seq1.id):
+                d[seq1.id] = stats.SampleSummarizer(samples = [d])
+            else:
+                d[seq1.id].add_sample(d)
+            if not d.has_key(seq2.id):
+                d[seq2.id] = stats.SampleSummarizer(samples = [d])
+            else:
+                d[seq2.id].add_sample(d)
+    return d, rev_comp_errors
 
 def pairwise_distance_iter(seq_iter,
         per_site = True,
