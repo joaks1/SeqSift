@@ -1,8 +1,42 @@
 #! /usr/bin/env python
 
+import os
+from cStringIO import StringIO
+
+from Bio.Align.Applications import MafftCommandline
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+
 from seqsift.utils.alphabets import DnaAlphabet
+from seqsift.utils.fileio import TemporaryFilePath, OpenFile
+from seqsift.utils import functions, dataio
+from seqsift.seqops import sequtils
 
 DNA_AMBIGUITY_CODES = DnaAlphabet().residue_ambiguity_codes
+
+def align(seq_record1, seq_record2):
+    """
+    Returns the pairwise alignment of `SeqRecord` `seq_record1` and
+    `seq_record2`.  If the alignment program executable `mafft` is in the path,
+    it is used to align the SeqRecord instances. If `mafft` cannot be found the
+    (much slower) built-in `global_align` function is used.
+    """
+    mafft = functions.which('mafft')
+    if not mafft:
+        seq1, seq2 = global_align(seq_record1, seq_record2)
+        s1 = sequtils.copy_seq_metadata(seq_record1, seq1)
+        s2 = sequtils.copy_seq_metadata(seq_record2, seq2)
+        return s1, s2
+    with TemporaryFilePath() as tmp_path:
+        with OpenFile(tmp_path, 'w') as tmp:
+            for sr in [seq_record1, seq_record2]:
+                tmp.write(sr.format('fasta'))
+        mafft_command = MafftCommandline(mafft, input = tmp_path, auto = True)
+        stdout, stderr = mafft_command()
+        seqs = list(dataio.get_seq_iter(StringIO(stdout), format='fasta'))
+    assert len(seqs) == 2
+    sequences = dict(zip([s.id for s in seqs], seqs))
+    return sequences[seq_record1.id], sequences[seq_record2.id]
 
 def global_align(
         seq1,
@@ -13,18 +47,22 @@ def global_align(
             ('C', 'A'): -3, ('C', 'G'): -5, ('C', 'C'):  9, ('C', 'T'):  0,
             ('T', 'A'): -4, ('T', 'G'): -3, ('T', 'C'):  0, ('T', 'T'):  8,
         },
-        gap_cost = -5):
+        gap_cost = -5,
+        gap_char = '-'):
     """
     Returns the global pairwise alignment of `seq1` and `seq2` using the
     Needleman-Wunsch algorithm.
     """
+    seq1 = [x for x in seq1 if x != gap_char]
+    seq2 = [x for x in seq2 if x != gap_char]
     fmatrix = calculate_F_matrix(
             seq1=seq1, seq2=seq2,
             similarity_matrix=similarity_matrix,
             gap_cost=gap_cost)
     s1, s2 = trace_max_score(fmatrix=fmatrix, seq1=seq1, seq2=seq2,
             similarity_matrix=similarity_matrix,
-            gap_cost=gap_cost)
+            gap_cost=gap_cost,
+            gap_char=gap_char)
     return s1, s2
 
 def calculate_F_matrix(
@@ -85,7 +123,8 @@ def trace_max_score(
         seq1,
         seq2,
         similarity_matrix,
-        gap_cost):
+        gap_cost,
+        gap_char = '-'):
     """
     Returns the global pairwise alignment of `seq1` and `seq2` using the
     Needleman-Wunsch algorithm, given the `fmatrix`.
@@ -109,20 +148,20 @@ def trace_max_score(
             j -= 1
         elif score == up_score + gap_cost:
             s1 = seq1[i - 1] + s1
-            s2 = '-' + s2
+            s2 = gap_char + s2
             i -= 1
         elif score == left_score + gap_cost:
-            s1 = '-' + s1
+            s1 = gap_char + s1
             s2 = seq2[j - 1] + s2
             j -= 1
         else:
             raise Exception("Error in tracing F Matrix.")
     while i > 0:
         s1 = seq1[i - 1] + s1
-        s2 = '-' + s2
+        s2 = gap_char + s2
         i -= 1
     while j > 0:
-        s1 = '-' + s1
+        s1 = gap_char + s1
         s2 = seq2[j - 1] + s2
         j -= 1
     return s1, s2
