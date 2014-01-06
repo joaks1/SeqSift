@@ -5,6 +5,7 @@ import sys
 import unittest
 
 from seqsift.utils import functions
+from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
