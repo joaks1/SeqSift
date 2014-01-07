@@ -22,3 +22,8 @@ def get_reverse_complement(seq_record):
     return copy_seq_metadata(seq_record,
             new_seq = str(seq_record.seq.reverse_complement()))
 
+
+def get_without_gaps(seq_record):
+    return copy_seq_metadata(seq_record,
+            new_seq = ''.join([x for x in str(seq_record.seq) if x != '-']))
+
