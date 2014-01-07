@@ -127,5 +127,6 @@ class TemporaryFilePath(object):
         return self.temp_path
 
     def __exit__(self, type, value, traceback):
-        os.remove(self.temp_path)
+        if os.path.exists(self.temp_path):
+            os.remove(self.temp_path)
 
