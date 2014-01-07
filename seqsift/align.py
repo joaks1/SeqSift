@@ -1,42 +1,85 @@
 #! /usr/bin/env python
 
 import os
+import shutil
 from cStringIO import StringIO
 
-from Bio.Align.Applications import MafftCommandline
+from Bio.Align.Applications import MafftCommandline, MuscleCommandline
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 from seqsift.utils.alphabets import DnaAlphabet
-from seqsift.utils.fileio import TemporaryFilePath, OpenFile
-from seqsift.utils import functions, dataio
+from seqsift.utils.fileio import TemporaryFilePath, OpenFile, expand_path
+from seqsift.utils import functions, dataio, errors
 from seqsift.seqops import sequtils
+from seqsift.utils.messaging import get_logger
+
+_LOG = get_logger(__name__)
 
 DNA_AMBIGUITY_CODES = DnaAlphabet().residue_ambiguity_codes
 
-def align(seq_record1, seq_record2):
+def align(seq_iter, tools = ['mafft', 'muscle'], out_path = None):
     """
-    Returns the pairwise alignment of `SeqRecord` `seq_record1` and
-    `seq_record2`.  If the alignment program executable `mafft` is in the path,
-    it is used to align the SeqRecord instances. If `mafft` cannot be found the
-    (much slower) built-in `global_align` function is used.
+    Returns BufferedIter of aligned sequences in `seq_iter`. The
+    `tools` argument should be a prioritized list of options for the external
+    alignment program to use. For example, if `['mafft', 'muscle']` is
+    specified (the default), mafft will be used if the executable is found in
+    PATH. If mafft cannot be found, it will try to use muscle. If none of the
+    listed programs can be found (or if the argument is an empty list or None),
+    the (much slower) built-in `global_align` function is used.
     """
-    mafft = functions.which('mafft')
-    if not mafft:
+    aligner = get_aligner(tools = tools, out_path = out_path)
+    if not aligner:
+        raise errors.ExternalToolNotFoundError('No alignment tools found '
+                'to perform multiple sequence alignment')
+    return aligner.align(seq_iter)
+
+def align_pair(seq_record1, seq_record2, tools = ['mafft', 'muscle']):
+    """
+    Returns the aligned copies of `SeqRecord` `seq_record1` and `seq_record2`.
+    The `tools` argument should be a prioritized list of options for the
+    external alignment program to use. For example, if `['mafft', 'muscle']` is
+    specified (the default), mafft will be used if the executable is found in
+    PATH. If mafft cannot be found, it will try to use muscle. If none of the
+    listed programs can be found (or if the argument is an empty list or None),
+    the (much slower) built-in `global_align` function is used.
+    """
+    aligner = get_aligner(tools = tools)
+    if not aligner:
+        if tools:
+            _LOG.warning('WARNING: external alignment tools not found; '
+                    'using (slow) built-in alignment function.')
         seq1, seq2 = global_align(seq_record1, seq_record2)
         s1 = sequtils.copy_seq_metadata(seq_record1, seq1)
         s2 = sequtils.copy_seq_metadata(seq_record2, seq2)
         return s1, s2
-    with TemporaryFilePath() as tmp_path:
-        with OpenFile(tmp_path, 'w') as tmp:
-            for sr in [seq_record1, seq_record2]:
-                tmp.write(sr.format('fasta'))
-        mafft_command = MafftCommandline(mafft, input = tmp_path, auto = True)
-        stdout, stderr = mafft_command()
-        seqs = list(dataio.get_seq_iter(StringIO(stdout), format='fasta'))
+    seqs = list(aligner.align([seq_record1, seq_record2]))
+    print seqs[0].seq
+    print seqs[1].seq
     assert len(seqs) == 2
     sequences = dict(zip([s.id for s in seqs], seqs))
     return sequences[seq_record1.id], sequences[seq_record2.id]
+
+def get_aligner(tools = ['mafft', 'muscle'], out_path = None):
+    tool_dict = {}
+    if tools:
+        tool_dict = dict(zip([os.path.basename(t).lower() for t in tools],
+                tools))
+    for tool, exe in tool_dict.iteritems():
+        if tool == 'mafft':
+            try:
+                return MafftAligner(exe = exe, out_path = out_path)
+            except errors.ExternalToolNotFoundError as e:
+                _LOG.warning('WARNING: mafft is not available')
+        elif tool == 'muscle':
+            try:
+                return MuscleAligner(exe = exe, out_path = out_path)
+            except errors.ExternalToolNotFoundError as e:
+                _LOG.warning('WARNING: muscle is not available')
+        else:
+            _LOG.warning('WARNING: {0} is not a supported alignment '
+                    'tool'.format(tool))
+    return None
 
 def global_align(
         seq1,
@@ -165,3 +208,79 @@ def trace_max_score(
         s2 = seq2[j - 1] + s2
         j -= 1
     return s1, s2
+
+class MafftAligner(object):
+    count = 0
+    def __init__(self, exe = 'mafft', out_path = None, **kwargs):
+        self.__class__.count += 1
+        self.name = self.__class__.__name__ + '-' + str(self.count)
+        self.exe = functions.which(exe)
+        if not self.exe:
+            raise errors.ExternalToolNotFoundError(
+                    'Cannot find mafft executable')
+        _LOG.info('{0}: Using exe {1!r}'.format(self.name, self.exe))
+        self.kwargs = kwargs
+        if self.kwargs.has_key('input'):
+            raise ValueError('MafftAligner does not accept the keyword '
+                    'argument `input`.')
+        if not self.kwargs:
+            self.kwargs = {'auto': True}
+        self.out_path = out_path
+        self.cmd = None
+    
+    def align(self, seq_iter):
+        with TemporaryFilePath() as tmp_path:
+            with OpenFile(tmp_path, 'w') as tmp:
+                for seq in seq_iter:
+                    tmp.write(seq.format('fasta'))
+            self.kwargs['input'] = tmp_path
+            mafft_command = MafftCommandline(self.exe, **self.kwargs)
+            self.cmd = str(mafft_command)
+            _LOG.debug('{0}: Executing command {1!r}'.format(self.name,
+                    self.cmd))
+            stdout, stderr = mafft_command()
+            if self.out_path:
+                self.out_path = functions.get_new_path(self.out_path)
+                with OpenFile(self.out_path, 'w') as out:
+                    out.write(stdout)
+        return dataio.get_buffered_seq_iter(StringIO(stdout), format='fasta')
+
+class MuscleAligner(object):
+    count = 0
+    def __init__(self, exe = 'muscle', out_path = None, **kwargs):
+        self.__class__.count += 1
+        self.name = self.__class__.__name__ + '-' + str(self.count)
+        self.exe = functions.which(exe)
+        if not self.exe:
+            raise errors.ExternalToolNotFoundError(
+                    'Cannot find muscle executable')
+        _LOG.info('{0}: Using exe {1!r}'.format(self.name, self.exe))
+        self.kwargs = kwargs
+        if self.kwargs.has_key('input') or self.kwargs.has_key('out'):
+            raise ValueError('MuscleAligner does not accept keyword '
+                    'arguments `input`/`out`.')
+        if out_path:
+            out_path = expand_path(out_path)
+        self.out_path = out_path
+        self.cmd = None
+    
+    def align(self, seq_iter):
+        with TemporaryFilePath() as in_path:
+            with OpenFile(in_path, 'w') as tmp:
+                for seq in seq_iter:
+                    tmp.write(seq.format('fasta'))
+            self.kwargs['input'] = in_path
+            with TemporaryFilePath() as tmp_out_path:
+                self.kwargs['out'] = tmp_out_path
+                muscle_command = MuscleCommandline(self.exe, **self.kwargs)
+                self.cmd = str(muscle_command)
+                _LOG.debug('{0}: Executing command {1!r}'.format(self.name,
+                        self.cmd))
+                stdout, stderr = muscle_command()
+                results = dataio.get_buffered_seq_iter(tmp_out_path,
+                        format='fasta')
+                if self.out_path:
+                    self.out_path = functions.get_new_path(self.out_path)
+                    shutil.mv(tmp_out_path, self.out_path)
+        return results
+
