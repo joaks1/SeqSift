@@ -60,8 +60,8 @@ class TestSampleIter(unittest.TestCase):
 
 class GetNewPathTestCase(SeqSiftTestCase):
     def setUp(self):
-        self.unique = os.path.join(self.temp_fs.base_dir, 
-                self.temp_fs.token_id + '-blah.txt')
+        self.mkTestDir()
+        self.unique = self.getTestFile('blah.txt')
 
     def test_unique(self):
         p = functions.get_new_path(self.unique)
@@ -75,6 +75,7 @@ class GetNewPathTestCase(SeqSiftTestCase):
         new_p = self.unique + '-0'
         self.assertEqual(p, new_p)
         self.assertTrue(os.path.exists(p))
+        self.appendTestFile(new_p)
 
 if __name__ == '__main__':
     unittest.main()
