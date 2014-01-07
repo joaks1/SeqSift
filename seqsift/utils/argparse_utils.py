@@ -4,7 +4,7 @@ import os
 import argparse
 
 from seqsift.utils.fileio import expand_path
-from seqsift.utils import is_executable
+from seqsift.utils.functions import is_executable
 
 def arg_is_path(path):
     try:
