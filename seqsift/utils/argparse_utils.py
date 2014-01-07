@@ -4,6 +4,7 @@ import os
 import argparse
 
 from seqsift.utils.fileio import expand_path
+from seqsift.utils import is_executable
 
 def arg_is_path(path):
     try:
@@ -29,6 +30,15 @@ def arg_is_dir(path):
             raise
     except:
         msg = '{0!r} is not a directory'.format(path)
+        raise argparse.ArgumentTypeError(msg)
+    return expand_path(path)
+
+def arg_is_executable(path):
+    try:
+        if not is_executable(path):
+            raise
+    except:
+        msg = '{0!r} is not an executable'.format(path)
         raise argparse.ArgumentTypeError(msg)
     return expand_path(path)
 
