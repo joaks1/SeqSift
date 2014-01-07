@@ -54,18 +54,15 @@ def align_pair(seq_record1, seq_record2, tools = ['mafft', 'muscle']):
         s2 = sequtils.copy_seq_metadata(seq_record2, seq2)
         return s1, s2
     seqs = list(aligner.align([seq_record1, seq_record2]))
-    print seqs[0].seq
-    print seqs[1].seq
     assert len(seqs) == 2
     sequences = dict(zip([s.id for s in seqs], seqs))
     return sequences[seq_record1.id], sequences[seq_record2.id]
 
 def get_aligner(tools = ['mafft', 'muscle'], out_path = None):
-    tool_dict = {}
+    tool_tups = []
     if tools:
-        tool_dict = dict(zip([os.path.basename(t).lower() for t in tools],
-                tools))
-    for tool, exe in tool_dict.iteritems():
+        tool_tups = [(os.path.basename(t).lower(), t) for t in tools]
+    for tool, exe in tool_tups:
         if tool == 'mafft':
             try:
                 return MafftAligner(exe = exe, out_path = out_path)
@@ -218,7 +215,7 @@ class MafftAligner(object):
         if not self.exe:
             raise errors.ExternalToolNotFoundError(
                     'Cannot find mafft executable')
-        _LOG.info('{0}: Using exe {1!r}'.format(self.name, self.exe))
+        _LOG.debug('{0}: Using exe {1!r}'.format(self.name, self.exe))
         self.kwargs = kwargs
         if self.kwargs.has_key('input'):
             raise ValueError('MafftAligner does not accept the keyword '
@@ -254,7 +251,7 @@ class MuscleAligner(object):
         if not self.exe:
             raise errors.ExternalToolNotFoundError(
                     'Cannot find muscle executable')
-        _LOG.info('{0}: Using exe {1!r}'.format(self.name, self.exe))
+        _LOG.debug('{0}: Using exe {1!r}'.format(self.name, self.exe))
         self.kwargs = kwargs
         if self.kwargs.has_key('input') or self.kwargs.has_key('out'):
             raise ValueError('MuscleAligner does not accept keyword '
@@ -281,6 +278,6 @@ class MuscleAligner(object):
                         format='fasta')
                 if self.out_path:
                     self.out_path = functions.get_new_path(self.out_path)
-                    shutil.mv(tmp_out_path, self.out_path)
+                    shutil.move(tmp_out_path, self.out_path)
         return results
 
