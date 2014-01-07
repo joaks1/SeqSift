@@ -49,6 +49,21 @@ def main_cli():
             help = ('Treat input sequences as aligned. I.e., do not perform '
                     'pairwise alignment before calculating distances between '
                     'sequences.'))
+    parser.add_argument('--msa',
+            action = 'store_true',
+            help = ('Perform a full multiple sequence alignemnt prior to '
+                    'comparing sequences. The default is to align each '
+                    'pair of sequences being compared. This option is '
+                    'overruled by the `-a`/`--aligned` option, which prevents '
+                    'any aligning of the sequences. If this option is used '
+                    'the resulting alignment is written to file.'))
+    parser.add_argument('--aligner',
+            type = argparse_utils.arg_is_executable,
+            help = ('Path to alignment program executable to use for aligning. '
+                    'The default is to look for mafft and then muscle in PATH, '
+                    'and if neither are found use the (slow) built-in '
+                    'function. The aligner is not used if the `-a`/`--aligned` '
+                    'option is specified.'))
     parser.add_argument('--format',
             dest = 'input_format',
             type = str,
@@ -127,9 +142,16 @@ def main_cli():
                         str(FILE_FORMATS)))
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
+    
+    aligner_tools = ['mafft', 'muscle']
+    if args.aligner:
+        aligner_tools = [args.aligner]
 
     if not args.output_dir:
         args.output_dir = os.path.dirname(args.input_file)
+
+    full_alignment_out_path = os.path.join(
+                args.output_dir, 'seqvet-msa.txt')
 
     ##########################################################################
     ## heavy lifting
@@ -143,7 +165,10 @@ def main_cli():
             sample_size = args.num_samples,
             per_site = False,
             aligned = args.aligned,
-            ignore_gaps = True)
+            ignore_gaps = True,
+            do_full_alignment = args.msa,
+            full_alignment_out_path = full_alignment_out_path,
+            aligner_tools = aligner_tools)
     log.info('Done!')
 
     log.info('Writing mean distances to file...')
