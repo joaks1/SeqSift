@@ -3,6 +3,7 @@
 import sys
 import os
 import random
+import errno
 
 from seqsift.utils import GLOBAL_RNG
 

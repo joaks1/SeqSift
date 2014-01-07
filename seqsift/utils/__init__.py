@@ -3,7 +3,6 @@
 import sys
 import os
 import random
-import errno
 
 from seqsift.utils.errors import FileExtensionError
 
