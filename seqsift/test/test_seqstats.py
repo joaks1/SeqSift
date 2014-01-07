@@ -11,11 +11,132 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
 from seqsift.seqops import seqstats
+from seqsift.utils import functions, errors
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
+
+class TestSummarizeDistancesTestCase(unittest.TestCase):
+    def setUp(self):
+        self.seqs = [
+                SeqRecord(Seq('CCA--CGTAA'), id='1'),
+                SeqRecord(Seq('CCG--CGTAA'), id='2'),
+                SeqRecord(Seq('CCA--TATAA'), id='3')]
+        self.expected_means = {'1': 1.5,
+                               '2': 2.0,
+                               '3': 2.5}
+        self.expected_maxs = {'1': 2,
+                               '2': 3,
+                               '3': 3}
+    def test_aligned(self):
+        d, e = seqstats.summarize_distances(self.seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = True,
+                ignore_gaps = True)
+        self.assertEqual(e, [])
+        self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
+        for k in d.iterkeys():
+            self.assertEqual(d[k].maximum, self.expected_maxs[k])
+            self.assertAlmostEqual(d[k].mean, self.expected_means[k])
+
+    def test_unaligned(self):
+        d, e = seqstats.summarize_distances(self.seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = None)
+        self.assertEqual(e, [])
+        self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
+        for k in d.iterkeys():
+            self.assertEqual(d[k].maximum, self.expected_maxs[k])
+            self.assertAlmostEqual(d[k].mean, self.expected_means[k])
+
+    def test_unaligned_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        d, e = seqstats.summarize_distances(self.seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['mafft'])
+        self.assertEqual(e, [])
+        self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
+        for k in d.iterkeys():
+            self.assertEqual(d[k].maximum, self.expected_maxs[k])
+            self.assertAlmostEqual(d[k].mean, self.expected_means[k])
+
+    def test_unaligned_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        d, e = seqstats.summarize_distances(self.seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['muscle'])
+        self.assertEqual(e, [])
+        self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
+        for k in d.iterkeys():
+            self.assertEqual(d[k].maximum, self.expected_maxs[k])
+            self.assertAlmostEqual(d[k].mean, self.expected_means[k])
+
+    def test_full_alignment_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        d, e = seqstats.summarize_distances(self.seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = True,
+                aligner_tools = ['mafft'])
+        self.assertEqual(e, [])
+        self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
+        for k in d.iterkeys():
+            self.assertEqual(d[k].maximum, self.expected_maxs[k])
+            self.assertAlmostEqual(d[k].mean, self.expected_means[k])
+
+    def test_full_alignment_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        d, e = seqstats.summarize_distances(self.seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = True,
+                aligner_tools = ['muscle'])
+        self.assertEqual(e, [])
+        self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
+        for k in d.iterkeys():
+            self.assertEqual(d[k].maximum, self.expected_maxs[k])
+            self.assertAlmostEqual(d[k].mean, self.expected_means[k])
+
+    def test_full_alignment_error(self):
+        self.assertRaises(errors.ExternalToolNotFoundError,
+                seqstats.summarize_distances,
+                self.seqs,
+                0,
+                False,
+                False,
+                True,
+                None,
+                True,
+                None,
+                None,
+                None)
 
 class PairwiseDistanceIterTestCase(unittest.TestCase):
     def setUp(self):
@@ -56,7 +177,8 @@ class PairwiseDistanceIterTestCase(unittest.TestCase):
                 seq_iter = self.seqs,
                 per_site = False,
                 aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
         for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
             self.assertEqual(
                     self.expected[seq1.id][seq2.id],
@@ -67,7 +189,64 @@ class PairwiseDistanceIterTestCase(unittest.TestCase):
                 seq_iter = self.seqs,
                 per_site = True,
                 aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
+                    d)
+        self.assertEqual(i, 2)
+
+    def test_unaligned_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 2)
+
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = True,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
+                    d)
+        self.assertEqual(i, 2)
+
+    def test_unaligned_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 2)
+
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = True,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
         for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
             self.assertAlmostEqual(
                     self.expected[seq1.id][seq2.id] / 4.0,
@@ -116,7 +295,8 @@ class SampleDistanceIterTestCase(unittest.TestCase):
                 sample_size = 2,
                 per_site = False,
                 aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
         for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
             self.assertEqual(
                     self.expected[seq1.id][seq2.id],
@@ -128,7 +308,68 @@ class SampleDistanceIterTestCase(unittest.TestCase):
                 sample_size = 2,
                 per_site = True,
                 aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
+                    d)
+        self.assertEqual(i, 5)
+
+    def test_unaligned_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 5)
+
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = True,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
+                    d)
+        self.assertEqual(i, 5)
+
+    def test_unaligned_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(
+                    self.expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 5)
+
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = True,
+                aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
         for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
             self.assertAlmostEqual(
                     self.expected[seq1.id][seq2.id] / 4.0,
@@ -155,32 +396,111 @@ class DistanceTestCase(unittest.TestCase):
         seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
         seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
-                ignore_gaps = False)
+                ignore_gaps = False,
+                aligner_tools = None)
         self.assertEqual(d, 3)
         dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
-                ignore_gaps = False)
+                ignore_gaps = False,
+                aligner_tools = None)
         self.assertAlmostEqual(dps, 3 / float(13))
 
         seq1 = SeqRecord(Seq('ATCCGT'), id='1')
         seq2 = SeqRecord(Seq('ACCGT'), id='2')
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
         self.assertEqual(d, 0)
         dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
         self.assertEqual(dps, 0.0)
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
-                ignore_gaps = False)
+                ignore_gaps = False,
+                aligner_tools = None)
         self.assertEqual(d, 1)
         dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
-                ignore_gaps = False)
+                ignore_gaps = False,
+                aligner_tools = None)
+        self.assertEqual(dps, 1 / float(6))
+
+    def test_unaligned_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
+        # 'ACGTNACTYATR'
+        # 'ACNGTAACCATT'
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        self.assertEqual(d, 4)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        self.assertAlmostEqual(dps, 4 / float(12))
+
+        seq1 = SeqRecord(Seq('ATCCGT'), id='1')
+        seq2 = SeqRecord(Seq('ACCGT'), id='2')
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        self.assertEqual(d, 0)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        self.assertEqual(dps, 0.0)
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        self.assertEqual(d, 1)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        self.assertEqual(dps, 1 / float(6))
+
+    def test_unaligned_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
+        # 'ACGTNACTYATR'
+        # 'ACNGTAACCATT'
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
+        self.assertEqual(d, 4)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
+        self.assertAlmostEqual(dps, 4 / float(12))
+
+        seq1 = SeqRecord(Seq('ATCCGT'), id='1')
+        seq2 = SeqRecord(Seq('ACCGT'), id='2')
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
+        self.assertEqual(d, 0)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
+        self.assertEqual(dps, 0.0)
+        d = seqstats.distance(seq1, seq2, per_site = False, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
+        self.assertEqual(d, 1)
+        dps = seqstats.distance(seq1, seq2, per_site = True, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
         self.assertEqual(dps, 1 / float(6))
 
 class GetDifferencesTestCase(unittest.TestCase):
     def test_align_error(self):
         seq1 = SeqRecord(Seq('ACGT'), id='1')
         seq2 = SeqRecord(Seq('TACGT'), id='2')
-        self.assertRaises(seqstats.AlignmentError, seqstats.get_differences, seq1, seq2,
+        self.assertRaises(seqstats.AlignmentError, seqstats.get_differences,
+                seq1, seq2,
                 True)
         diffs, l = seqstats.get_differences(seq1, seq2)
         self.assertEqual(diffs, {})
@@ -209,7 +529,8 @@ class GetDifferencesTestCase(unittest.TestCase):
         seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
         seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
-                ignore_gaps = False)
+                ignore_gaps = False,
+                aligner_tools = None)
         e = {12: ('R', 'T'),
              2:  ('-', 'N'),
              8: ('T', '-')}
@@ -219,11 +540,75 @@ class GetDifferencesTestCase(unittest.TestCase):
         seq1 = SeqRecord(Seq('ATCCGT'), id='1')
         seq2 = SeqRecord(Seq('ACCGT'), id='2')
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
-                ignore_gaps = True)
+                ignore_gaps = True,
+                aligner_tools = None)
         self.assertEqual(diffs, {})
         self.assertEqual(l, 6)
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
-                ignore_gaps = False)
+                ignore_gaps = False,
+                aligner_tools = None)
+        self.assertEqual(diffs, {1: ('T', '-')})
+        self.assertEqual(l, 6)
+
+    def test_unaligned_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
+        # 'ACGTNACTYATR'
+        # 'ACNGTAACCATT'
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        e = {11: ('R', 'T'),
+             3:  ('T', 'G'),
+             6:  ('C', 'A'),
+             7:  ('T', 'C')}
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 12)
+
+        seq1 = SeqRecord(Seq('ATCCGT'), id='1')
+        seq2 = SeqRecord(Seq('ACCGT'), id='2')
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        self.assertEqual(diffs, {})
+        self.assertEqual(l, 6)
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        self.assertEqual(diffs, {1: ('T', '-')})
+        self.assertEqual(l, 6)
+
+    def test_unaligned_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
+        # 'ACGTNACTYATR'
+        # 'ACNGTAACCATT'
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
+        e = {11: ('R', 'T'),
+             3:  ('T', 'G'),
+             6:  ('C', 'A'),
+             7:  ('T', 'C')}
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 12)
+
+        seq1 = SeqRecord(Seq('ATCCGT'), id='1')
+        seq2 = SeqRecord(Seq('ACCGT'), id='2')
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
+        self.assertEqual(diffs, {})
+        self.assertEqual(l, 6)
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
         self.assertEqual(diffs, {1: ('T', '-')})
         self.assertEqual(l, 6)
 

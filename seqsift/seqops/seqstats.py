@@ -4,7 +4,7 @@ import sys
 import os
 import itertools
 
-from seqsift.align import align
+from seqsift.align import align, align_pair
 from seqsift.utils import functions, stats
 from seqsift.utils.dataio import BufferedIter
 from seqsift.utils.errors import AlignmentError
@@ -39,8 +39,15 @@ def summarize_distances(seq_iter,
         aligned = False,
         ignore_gaps = True,
         alphabet = None,
+        do_full_alignment = False,
+        full_alignment_out_path = None,
+        aligner_tools = ['mafft', 'muscle'],
         rng = None):
-    iter_func = pairwise_distance_iter
+    if ((not aligned) and (do_full_alignment)):
+        seq_iter = align(seq_iter,
+                tools = aligner_tools,
+                out_path = full_alignment_out_path)
+        aligned = True
     if sample_size > 0:
         distance_iter = sample_distance_iter(
                 seq_iter = seq_iter,
@@ -49,6 +56,7 @@ def summarize_distances(seq_iter,
                 ignore_gaps = ignore_gaps,
                 per_site = per_site,
                 alphabet = alphabet,
+                aligner_tools = aligner_tools,
                 rng = rng)
     else:
         distance_iter = pairwise_distance_iter(
@@ -56,7 +64,8 @@ def summarize_distances(seq_iter,
                 aligned = aligned,
                 ignore_gaps = ignore_gaps,
                 per_site = per_site,
-                alphabet = alphabet)
+                alphabet = alphabet,
+                aligner_tools = aligner_tools)
     distances = {}
     rev_comp_errors = []
     for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
@@ -84,7 +93,8 @@ def pairwise_distance_iter(seq_iter,
         per_site = True,
         aligned = False,
         ignore_gaps = True,
-        alphabet = None):
+        alphabet = None,
+        aligner_tools = ['mafft', 'muscle']):
     seqs = BufferedIter(seq_iter)
     for seq1, seq2 in itertools.combinations(seqs, 2):
         d = distance(
@@ -93,14 +103,16 @@ def pairwise_distance_iter(seq_iter,
                 per_site = per_site,
                 aligned = aligned,
                 ignore_gaps = ignore_gaps,
-                alphabet = alphabet)
+                alphabet = alphabet,
+                aligner_tools = aligner_tools)
         drc = distance(
                 seq1 = get_reverse_complement(seq1),
                 seq2 = seq2,
                 per_site = per_site,
                 aligned = aligned,
                 ignore_gaps = ignore_gaps,
-                alphabet = alphabet)
+                alphabet = alphabet,
+                aligner_tools = aligner_tools)
         yield seq1, seq2, d, drc
 
 def sample_distance_iter(seq_iter,
@@ -109,6 +121,7 @@ def sample_distance_iter(seq_iter,
         ignore_gaps = True,
         per_site = True,
         alphabet = None,
+        aligner_tools = ['mafft', 'muscle'],
         rng = None):
     seqs = BufferedIter(seq_iter)
     seqs_to_sample = BufferedIter(seqs)
@@ -126,25 +139,29 @@ def sample_distance_iter(seq_iter,
                     per_site = per_site,
                     aligned = aligned,
                     ignore_gaps = ignore_gaps,
-                    alphabet = alphabet)
+                    alphabet = alphabet,
+                    aligner_tools = aligner_tools)
             drc = distance(
                     seq1 = get_reverse_complement(seq1),
                     seq2 = seq2,
                     per_site = per_site,
                     aligned = aligned,
                     ignore_gaps = ignore_gaps,
-                    alphabet = alphabet)
+                    alphabet = alphabet,
+                    aligner_tools = aligner_tools)
             yield seq1, seq2, d, drc
 
 def distance(seq1, seq2,
         per_site = True,
         aligned = False,
         ignore_gaps = True,
-        alphabet = None):
+        alphabet = None,
+        aligner_tools = ['mafft', 'muscle']):
     diffs, l  = get_differences(seq1 = seq1, seq2 = seq2,
             aligned = aligned,
             ignore_gaps = ignore_gaps,
-            alphabet = alphabet)
+            alphabet = alphabet,
+            aligner_tools = aligner_tools)
     if per_site:
         return len(diffs) / float(l)
     return len(diffs)
@@ -152,11 +169,12 @@ def distance(seq1, seq2,
 def get_differences(seq1, seq2,
         aligned = False,
         ignore_gaps = True,
-        alphabet = None):
+        alphabet = None,
+        aligner_tools = ['mafft', 'muscle']):
     if not alphabet:
         alphabet = DnaAlphabet()
     if not aligned:
-        seq1, seq2 = align(seq1, seq2)
+        seq1, seq2 = align_pair(seq1, seq2, aligner_tools)
     if len(seq1) != len(seq2):
         raise AlignmentError('Sequences are not aligned')
     residue_codes = alphabet.all_residue_codes
