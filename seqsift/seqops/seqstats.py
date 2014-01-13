@@ -3,6 +3,7 @@
 import sys
 import os
 import itertools
+import datetime
 
 from seqsift.align import align, align_pair
 from seqsift.utils import functions, stats
@@ -42,7 +43,8 @@ def summarize_distances(seq_iter,
         do_full_alignment = False,
         full_alignment_out_path = None,
         aligner_tools = ['mafft', 'muscle'],
-        rng = None):
+        rng = None,
+        log_frequency = 0):
     if ((not aligned) and (do_full_alignment)):
         seq_iter = align(seq_iter,
                 tools = aligner_tools,
@@ -69,6 +71,10 @@ def summarize_distances(seq_iter,
     distances = {}
     rev_comp_errors = []
     for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+        if (log_frequency > 0) and (((i + 1) % log_frequency) == 0):
+            _LOG.info('{0}: Calulating distance for comparison {1}...'.format(
+                    datetime.datetime.now(),
+                    (i + 1)))
         if drc < d:
             _LOG.warning('reverse complement of {0} is more similar to '
                     '{1}'.format(seq1.id, seq2.id))

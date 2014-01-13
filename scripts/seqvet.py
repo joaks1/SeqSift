@@ -91,9 +91,14 @@ def main_cli():
             help = ('Random number seed to use for the analysis. This option '
                     'is only revelant if a number greater than 0 is specified '
                     'for the `-n/--num-samples` option.'))
+    parser.add_argument('--log-frequency',
+            type = argparse_utils.arg_is_nonnegative_int,
+            default = 1000,
+            help = ('The frequency at which to log progress. Default is to log '
+                    'every 1000 sequence comparisons.'))
     parser.add_argument('--quiet',
             action = 'store_true',
-            help = 'Run with verbose messaging.')
+            help = 'Run without verbose messaging.')
     parser.add_argument('--debug',
             action = 'store_true',
             help = 'Run in debugging mode.')
@@ -168,7 +173,8 @@ def main_cli():
             ignore_gaps = True,
             do_full_alignment = args.msa,
             full_alignment_out_path = full_alignment_out_path,
-            aligner_tools = aligner_tools)
+            aligner_tools = aligner_tools,
+            log_frequency = args.log_frequency)
     log.info('Done!')
 
     log.info('Writing mean distances to file...')
