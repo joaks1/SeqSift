@@ -115,7 +115,7 @@ def pairwise_distance_iter(seq_iter,
                 seq1 = get_reverse_complement(seq1),
                 seq2 = seq2,
                 per_site = per_site,
-                aligned = aligned,
+                aligned = False,
                 ignore_gaps = ignore_gaps,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
