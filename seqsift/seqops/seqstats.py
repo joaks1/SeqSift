@@ -42,10 +42,13 @@ def summarize_distances(seq_iter,
         do_full_alignment = False,
         full_alignment_out_path = None,
         aligner_tools = ['mafft', 'muscle'],
+        full_aligner_tools = None,
         rng = None):
     if ((not aligned) and (do_full_alignment)):
+        if not full_aligner_tools:
+            full_aligner_tools = aligner_tools
         seq_iter = align(seq_iter,
-                tools = aligner_tools,
+                tools = full_aligner_tools,
                 out_path = full_alignment_out_path)
         aligned = True
     if sample_size > 0:
