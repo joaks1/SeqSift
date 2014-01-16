@@ -167,7 +167,7 @@ def main_cli():
         aligner_tools = [args.aligner]
     full_aligner_tools = ['mafft', 'muscle']
     if args.msa_aligner:
-        full_aligner_tools = args.msa_aligner
+        full_aligner_tools = [args.msa_aligner]
 
     if not args.output_dir:
         args.output_dir = os.path.dirname(args.input_file)
