@@ -42,3 +42,12 @@ def arg_is_executable(path):
         raise argparse.ArgumentTypeError(msg)
     return expand_path(path)
 
+def arg_is_nonnegative_int(i):
+    try:
+        if int(i) < 0:
+            raise
+    except:
+        msg = '{0!r} is not a non-negative integer'.format(i)
+        raise argparse.ArgumentTypeError(msg)
+    return int(i)
+
