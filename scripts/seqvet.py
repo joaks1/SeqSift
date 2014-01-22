@@ -48,22 +48,36 @@ def main_cli():
             action = 'store_true',
             help = ('Treat input sequences as aligned. I.e., do not perform '
                     'pairwise alignment before calculating distances between '
-                    'sequences.'))
+                    'sequences (except when calculating distances for reverse '
+                    'and complemented sequences).'))
+    parser.add_argument('--aligner',
+            type = argparse_utils.arg_is_executable,
+            help = ('Path to alignment program executable to use for pairwise'
+                    'alignments of sequences. '
+                    'The default is to look for muscle and then mafft in PATH, '
+                    'and if neither are found use the (slow) built-in '
+                    'function. Even if the `-a`/`--aligned` option is '
+                    'specified, the aligner will still be used for pairwise '
+                    'alignments when calculating distances of reverse and '
+                    'complemented sequences.'))
     parser.add_argument('--msa',
             action = 'store_true',
             help = ('Perform a full multiple sequence alignemnt prior to '
                     'comparing sequences. The default is to align each '
                     'pair of sequences being compared. This option is '
-                    'overruled by the `-a`/`--aligned` option, which prevents '
-                    'any aligning of the sequences. If this option is used '
+                    'overruled by the `-a`/`--aligned` option. '
+                    'If this option is used '
                     'the resulting alignment is written to file.'))
-    parser.add_argument('--aligner',
+    parser.add_argument('--msa-aligner',
             type = argparse_utils.arg_is_executable,
-            help = ('Path to alignment program executable to use for aligning. '
+            help = ('Path to alignment program executable to use for full '
+                    'multiple sequence alignment. '
                     'The default is to look for mafft and then muscle in PATH, '
-                    'and if neither are found use the (slow) built-in '
-                    'function. The aligner is not used if the `-a`/`--aligned` '
-                    'option is specified.'))
+                    'and if neither are found the program will exit with an '
+                    'error message. If you do not have mafft or muscle '
+                    'you cannot use this option. '
+                    'This option is only used if the `-a`/`--aligned` option '
+                    'is not specified, and the `--msa` option is specified.'))
     parser.add_argument('--format',
             dest = 'input_format',
             type = str,
@@ -148,9 +162,12 @@ def main_cli():
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
     
-    aligner_tools = ['mafft', 'muscle']
+    aligner_tools = ['muscle', 'mafft']
     if args.aligner:
         aligner_tools = [args.aligner]
+    full_aligner_tools = ['mafft', 'muscle']
+    if args.msa_aligner:
+        full_aligner_tools = [args.msa_aligner]
 
     if not args.output_dir:
         args.output_dir = os.path.dirname(args.input_file)
@@ -174,6 +191,7 @@ def main_cli():
             do_full_alignment = args.msa,
             full_alignment_out_path = full_alignment_out_path,
             aligner_tools = aligner_tools,
+            full_aligner_tools = full_aligner_tools,
             log_frequency = args.log_frequency)
     log.info('Done!')
 
