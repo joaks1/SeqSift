@@ -11,6 +11,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
 from seqsift.seqops import seqstats
+from seqsift.utils import dataio
 from seqsift.utils import functions, errors
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
@@ -30,6 +31,9 @@ class TestSummarizeDistancesTestCase(unittest.TestCase):
         self.expected_maxs = {'1': 2,
                                '2': 3,
                                '3': 3}
+        self.rc_path = package_paths.data_path('primates-rev-comp-error.fasta')
+
+
     def test_aligned(self):
         d, e = seqstats.summarize_distances(self.seqs,
                 sample_size = 0,
@@ -137,6 +141,108 @@ class TestSummarizeDistancesTestCase(unittest.TestCase):
                 None,
                 None,
                 None)
+
+    def test_rev_comp_error_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['muscle'],
+                full_aligner_tools = None)
+        self.assertEqual(len(e), 11)
+        for rce in e:
+            self.assertTrue('Homo_sapiens' in rce)
+
+    def test_rev_comp_error_muscle_sample(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 5,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['muscle'],
+                full_aligner_tools = None)
+        self.assertTrue(len(e) >= 5)
+        for rce in e:
+            self.assertTrue('Homo_sapiens' in rce)
+
+    def test_rev_comp_error_muscle_full(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = True,
+                aligner_tools = ['muscle'],
+                full_aligner_tools = ['muscle'])
+        self.assertEqual(len(e), 11)
+        for rce in e:
+            self.assertTrue('Homo_sapiens' in rce)
+
+    def test_rev_comp_error_mafft(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['mafft'],
+                full_aligner_tools = None)
+        self.assertEqual(len(e), 11)
+        for rce in e:
+            self.assertTrue('Homo_sapiens' in rce)
+
+    def test_rev_comp_error_mafft_sample(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 5,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['mafft'],
+                full_aligner_tools = None)
+        self.assertTrue(len(e) >= 5)
+        for rce in e:
+            self.assertTrue('Homo_sapiens' in rce)
+
+    def test_rev_comp_error_mafft_full(self):
+        if not functions.which('mafft'):
+            _LOG.warning('mafft not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 0,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = True,
+                aligner_tools = ['mafft'],
+                full_aligner_tools = ['mafft'])
+        self.assertEqual(len(e), 11)
+        for rce in e:
+            self.assertTrue('Homo_sapiens' in rce)
 
 class PairwiseDistanceIterTestCase(unittest.TestCase):
     def setUp(self):
