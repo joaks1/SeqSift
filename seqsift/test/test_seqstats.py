@@ -32,6 +32,9 @@ class TestSummarizeDistancesTestCase(unittest.TestCase):
                                '2': 3,
                                '3': 3}
         self.rc_path = package_paths.data_path('primates-rev-comp-error.fasta')
+        self.gappy_path = package_paths.data_path('melittobia-its1.fasta')
+        self.rc_gappy_path = package_paths.data_path(
+                'melittobia-its1-rev-comp-error.fasta')
 
 
     def test_aligned(self):
@@ -243,6 +246,38 @@ class TestSummarizeDistancesTestCase(unittest.TestCase):
         self.assertEqual(len(e), 11)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+
+    def test_rev_comp_gappy_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.gappy_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 5,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['muscle'],
+                full_aligner_tools = None)
+        self.assertTrue(len(e) < 1)
+
+    def test_rev_comp_error_gappy_muscle(self):
+        if not functions.which('muscle'):
+            _LOG.warning('muscle not found... skipping tests.')
+            return
+        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_gappy_path)
+        d, e = seqstats.summarize_distances(self.rc_seqs,
+                sample_size = 5,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                do_full_alignment = False,
+                aligner_tools = ['muscle'],
+                full_aligner_tools = None)
+        self.assertTrue(len(e) >= 5)
+        for rce in e:
+            self.assertTrue('JF924943_Dibrachys_pelos' in rce)
 
 class PairwiseDistanceIterTestCase(unittest.TestCase):
     def setUp(self):
