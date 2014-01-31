@@ -6,27 +6,23 @@ from string import maketrans
 
 from Bio.SeqRecord import SeqRecord
 
-from seqsift.seqops.sequtils import copy_seq_metadata
+from seqsift.seqops import sequtils 
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
 def translate_seqs(seq_iter,
         gap_characters=['-'],
-        table='Standard',
-        stop_symbol='*',
-        to_stop=False,
-        cds=False):
+        **kwargs):
     '''
     Translates DNA or RNA sequences into amino acid sequences.
 
-    This functions calls the Seq.translate method of biopython and returns a
-    generator function of resulting amino acid sequences.
+    This function returns a generator that yields a copy of each input sequence
+    translated into an amino acid sequence (all `gap_characters` are removed
+    from the sequence prior to translation). `kwargs` are keyword arguments
+    that are passed to the Seq.translate method of biopython to translate each
+    sequence. Below is biopython's description of valid keyword arguments:
 
-    The arguments are passed direclty to Seq.translate. Below is biopython's
-    description of the arguments.
-
-    Arguments:
      - table - Which codon table to use?  This can be either a name
                (string), an NCBI identifier (integer), or a CodonTable
                object (useful for non-standard genetic codes).  This
@@ -48,12 +44,7 @@ def translate_seqs(seq_iter,
              If these tests fail, an exception is raised.
     '''
     for s in remove_gaps(seq_iter, gap_characters=gap_characters):
-        yield SeqRecord(
-                seq = s.seq.translate(table=table, stop_symbol=stop_symbol,
-                        to_stop=to_stop, cds=cds),
-                id = s.id,
-                name = s.name,
-                description = s.description)
+        yield sequtils.get_translation(seq_record = s, **kwargs)
 
 def remove_gaps(seq_iter, gap_characters=['-']):
     gap_chars = ''.join(gap_characters)
@@ -74,6 +65,6 @@ def seq_mod(seq_iter,
     if len(from_chars) > 0:
         table = maketrans(from_chars, to_chars)
     for seq in seq_iter:
-        yield copy_seq_metadata(seq,
+        yield sequtils.copy_seq_metadata(seq,
                 new_seq=str(seq.seq).translate(table, del_chars))
 
