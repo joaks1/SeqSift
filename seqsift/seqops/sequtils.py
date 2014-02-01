@@ -53,7 +53,9 @@ def get_longest_reading_frames(seq_record, table = "Standard",
                 table = table,
                 to_stop = False)
         fragments = str(p.seq).split('*')
-        if (len(fragments) == 1) and (not allow_partial):
+        if (not allow_partial) and (not str(p.seq).endswith('*')):
+            fragments.pop(-1)
+        if len(fragments) < 1:
             continue
         stop_index = i
         start_offset = 0
@@ -70,6 +72,8 @@ def get_longest_reading_frames(seq_record, table = "Standard",
                 rf = copy_seq_metadata(seq_record,
                             new_seq = seq_record.seq[
                                     (start_index + start_offset): stop_index])
+                if len(rf.seq) < 1:
+                    continue
                 if len(lrf) < 1:
                     lrf = [rf]
                     continue
