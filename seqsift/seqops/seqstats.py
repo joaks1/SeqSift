@@ -10,7 +10,7 @@ from seqsift.utils import functions, stats
 from seqsift.utils.dataio import BufferedIter
 from seqsift.utils.errors import AlignmentError
 from seqsift.utils.alphabets import DnaAlphabet
-from seqsift.seqops.sequtils import get_reverse_complement
+from seqsift.seqops import sequtils 
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -106,7 +106,7 @@ def pairwise_distance_iter(seq_iter,
         aligner_tools = ['mafft', 'muscle']):
     seqs = BufferedIter(seq_iter)
     for seq1, seq2 in itertools.combinations(seqs, 2):
-        d = distance(
+        d, drc = get_distances(
                 seq1 = seq1,
                 seq2 = seq2,
                 per_site = per_site,
@@ -114,21 +114,13 @@ def pairwise_distance_iter(seq_iter,
                 ignore_gaps = ignore_gaps,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
-        drc = distance(
-                seq1 = get_reverse_complement(seq1),
-                seq2 = seq2,
-                per_site = per_site,
-                aligned = False,
-                ignore_gaps = ignore_gaps,
-                alphabet = alphabet,
-                aligner_tools = aligner_tools)
         yield seq1, seq2, d, drc
 
 def sample_distance_iter(seq_iter,
         sample_size,
+        per_site = True,
         aligned = False,
         ignore_gaps = True,
-        per_site = True,
         alphabet = None,
         aligner_tools = ['mafft', 'muscle'],
         rng = None):
@@ -142,7 +134,7 @@ def sample_distance_iter(seq_iter,
                 rng = rng)
         for seq2 in samples:
             assert seq1.id != seq2.id
-            d = distance(
+            d, drc = get_distances(
                     seq1 = seq1,
                     seq2 = seq2,
                     per_site = per_site,
@@ -150,15 +142,31 @@ def sample_distance_iter(seq_iter,
                     ignore_gaps = ignore_gaps,
                     alphabet = alphabet,
                     aligner_tools = aligner_tools)
-            drc = distance(
-                    seq1 = get_reverse_complement(seq1),
-                    seq2 = seq2,
-                    per_site = per_site,
-                    aligned = False,
-                    ignore_gaps = ignore_gaps,
-                    alphabet = alphabet,
-                    aligner_tools = aligner_tools)
             yield seq1, seq2, d, drc
+
+def get_distances(seq1, seq2,
+        per_site = True,
+        aligned = False,
+        ignore_gaps = True,
+        alphabet = None,
+        aligner_tools = ['mafft', 'muscle']):
+        d = distance(
+                seq1 = seq1,
+                seq2 = seq2,
+                per_site = per_site,
+                aligned = aligned,
+                ignore_gaps = ignore_gaps,
+                alphabet = alphabet,
+                aligner_tools = aligner_tools)
+        drc = distance(
+                seq1 = sequtils.get_reverse_complement(seq1),
+                seq2 = seq2,
+                per_site = per_site,
+                aligned = False,
+                ignore_gaps = ignore_gaps,
+                alphabet = alphabet,
+                aligner_tools = aligner_tools)
+        return d, drc
 
 def distance(seq1, seq2,
         per_site = True,
