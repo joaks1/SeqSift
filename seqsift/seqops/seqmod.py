@@ -6,10 +6,53 @@ from string import maketrans
 
 from Bio.SeqRecord import SeqRecord
 
-from seqsift.seqops import sequtils 
+from seqsift.seqops import sequtils
+from seqsift.seqops import seqstats
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
+
+def reverse_complement_to_first_seq(seq_iter,
+        per_site = True,
+        aligned = False,
+        ignore_gaps = True,
+        alphabet = None,
+        aligner_tools = ['mafft', 'muscle'],
+        log_frequency = 0):
+    seq1 = None
+    for i, seq2 in enumerate(seq_iter):
+        if i == 0:
+            seq1 = seq2
+            yield seq2
+            continue
+        d, drc = seqstats.get_distances(
+                seq1 = seq1,
+                seq2 = seq2,
+                per_site = per_site,
+                aligned = aligned,
+                ignore_gaps = ignore_gaps,
+                alphabet = alphabet,
+                aligner_tools = aligner_tools)
+        if drc < d:
+            yield sequtils.get_reverse_complement(seq2)
+            continue
+        yield seq2
+
+def reverse_complement_to_longest_reading_frame(seq_iter,
+        gap_characters=['-'],
+        table = "Standard"):
+    for s in remove_gaps(seq_iter, gap_characters=gap_characters):
+        rc = sequtils.get_reverse_complement(s)
+        p1 = sequtils.get_translation(seq_record = s,
+                table = table,
+                to_stop = True)
+        p2 = sequtils.get_translation(seq_record = rc,
+                table = table,
+                to_stop = True)
+        if len(p2.seq) > len(p1.seq):
+            yield rc
+        else:
+            yield s
 
 def translate_seqs(seq_iter,
         gap_characters=['-'],

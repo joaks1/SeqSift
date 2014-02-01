@@ -17,6 +17,40 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+class ReverseComplementToFirstSeqTestCase(SeqSiftTestCase):
+    def test_simple(self):
+        seqs = [
+                SeqRecord(Seq('ATTACGT'), id='1'),
+                SeqRecord(Seq('ATTACGT'), id='2'),
+                SeqRecord(Seq('ACGTAAT'), id='3'),
+                SeqRecord(Seq('ATTACGT'), id='4'),
+                ]
+        exp = [
+                SeqRecord(Seq('ATTACGT'), id='1'),
+                SeqRecord(Seq('ATTACGT'), id='2'),
+                SeqRecord(Seq('ATTACGT'), id='3'),
+                SeqRecord(Seq('ATTACGT'), id='4'),
+                ]
+        new_seqs = seqmod.reverse_complement_to_first_seq(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
+class ReverseComplementToLongestReadingFrame(SeqSiftTestCase):
+    def test_simple(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGACTA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTCACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('TAGTCAGTTGGTCAT', IUPAC.ambiguous_dna), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('ATGACCAACTGACTA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTCACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ATGACCAACTGACTA', IUPAC.ambiguous_dna), id='3'),
+                ]
+        new_seqs = seqmod.reverse_complement_to_longest_reading_frame(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
 class SeqModTestCase(SeqSiftTestCase):
     def setUp(self):
         self.seqs = [
