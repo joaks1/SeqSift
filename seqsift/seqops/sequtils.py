@@ -42,3 +42,42 @@ def get_translation(seq_record, **kwargs):
     return copy_seq_metadata(seq_record,
             new_seq = s.translate(**kwargs))
 
+def get_longest_reading_frames(seq_record, table = "Standard",
+        allow_partial = True,
+        require_start_after_stop = True):
+    lrf = []
+    for i in range(3):
+        p = get_translation(
+                copy_seq_metadata(
+                        seq_record, new_seq = seq_record.seq[i:]),
+                table = table,
+                to_stop = False)
+        fragments = str(p.seq).split('*')
+        if (len(fragments) == 1) and (not allow_partial):
+            continue
+        stop_index = i
+        start_offset = 0
+        for j, f in enumerate(fragments):
+            start_index = stop_index
+            stop_index += (3 * len(f)) + 3
+            if len(f) < 1:
+                continue
+            if (not allow_partial) or (require_start_after_stop and (j > 0)):
+                start_offset = 3 * f.find('M')
+                if start_offset < 0:
+                    continue
+            if stop_index > (start_index + start_offset):
+                rf = copy_seq_metadata(seq_record,
+                            new_seq = seq_record.seq[
+                                    (start_index + start_offset): stop_index])
+                if len(lrf) < 1:
+                    lrf = [rf]
+                    continue
+                if len(rf.seq) == len(lrf[0].seq):
+                    lrf.append(rf)
+                    continue
+                if len(rf.seq) > len(lrf[0].seq):
+                    lrf = [rf]
+                    continue
+    return lrf
+
