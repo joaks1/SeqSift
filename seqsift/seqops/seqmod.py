@@ -40,16 +40,24 @@ def reverse_complement_to_first_seq(seq_iter,
 
 def reverse_complement_to_longest_reading_frame(seq_iter,
         gap_characters=['-'],
-        table = "Standard"):
+        table = "Standard",
+        allow_partial = True,
+        require_start_after_stop = True):
     for s in remove_gaps(seq_iter, gap_characters=gap_characters):
         rc = sequtils.get_reverse_complement(s)
-        p1 = sequtils.get_translation(seq_record = s,
+        p1 = sequtils.get_longest_reading_frames(seq_record = s,
                 table = table,
-                to_stop = True)
-        p2 = sequtils.get_translation(seq_record = rc,
+                allow_partial = allow_partial,
+                require_start_after_stop = require_start_after_stop)
+        p2 = sequtils.get_longest_reading_frames(seq_record = rc,
                 table = table,
-                to_stop = True)
-        if len(p2.seq) > len(p1.seq):
+                allow_partial = allow_partial,
+                require_start_after_stop = require_start_after_stop)
+        if len(p2) == 0:
+            yield s
+        elif len(p1) == 0:
+            yield rc
+        elif len(p2[0].seq) > len(p1[0].seq):
             yield rc
         else:
             yield s

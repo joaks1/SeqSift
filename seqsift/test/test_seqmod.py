@@ -38,14 +38,14 @@ class ReverseComplementToFirstSeqTestCase(SeqSiftTestCase):
 class ReverseComplementToLongestReadingFrame(SeqSiftTestCase):
     def test_simple(self):
         seqs = [
-                SeqRecord(Seq('ATGACCAACTGACTA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTCACTA', IUPAC.ambiguous_dna), id='1'),
                 SeqRecord(Seq('ATGACCAACTCACAC', IUPAC.ambiguous_dna), id='2'),
-                SeqRecord(Seq('TAGTCAGTTGGTCAT', IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('TAGTAAGTTGGTCAT', IUPAC.ambiguous_dna), id='3'),
                 ]
         exp = [
-                SeqRecord(Seq('ATGACCAACTGACTA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTCACTA', IUPAC.ambiguous_dna), id='1'),
                 SeqRecord(Seq('ATGACCAACTCACAC', IUPAC.ambiguous_dna), id='2'),
-                SeqRecord(Seq('ATGACCAACTGACTA', IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ATGACCAACTTACTA', IUPAC.ambiguous_dna), id='3'),
                 ]
         new_seqs = seqmod.reverse_complement_to_longest_reading_frame(seqs)
         self.assertIsInstance(new_seqs, types.GeneratorType)
