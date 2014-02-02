@@ -17,6 +17,24 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+class ReverseComplementTestCase(SeqSiftTestCase):
+    def test_simple(self):
+        seqs = [
+                SeqRecord(Seq('AAATTACGGG'), id='1'),
+                SeqRecord(Seq('TAATTACGGG'), id='2'),
+                SeqRecord(Seq('CAATTACGGG'), id='3'),
+                SeqRecord(Seq('GAATTACGGG'), id='4'),
+                ]
+        exp = [
+                SeqRecord(Seq('CCCGTAATTT'), id='1'),
+                SeqRecord(Seq('CCCGTAATTA'), id='2'),
+                SeqRecord(Seq('CCCGTAATTG'), id='3'),
+                SeqRecord(Seq('CCCGTAATTC'), id='4'),
+                ]
+        new_seqs = seqmod.reverse_complement(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
 class ReverseComplementToFirstSeqTestCase(SeqSiftTestCase):
     def test_simple(self):
         seqs = [

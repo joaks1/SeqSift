@@ -12,6 +12,10 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+def reverse_complement(seq_iter):
+    for s in seq_iter:
+        yield sequtils.get_reverse_complement(s)
+
 def reverse_complement_to_first_seq(seq_iter,
         per_site = True,
         aligned = False,
@@ -25,6 +29,10 @@ def reverse_complement_to_first_seq(seq_iter,
             seq1 = seq2
             yield seq2
             continue
+        if (log_frequency > 0) and (((i + 1) % log_frequency) == 0):
+            _LOG.info('{0}: Checking reverse complement of seq {1}...'.format(
+                    datetime.datetime.now(),
+                    (i + 1)))
         d, drc = seqstats.get_distances(
                 seq1 = seq1,
                 seq2 = seq2,
@@ -42,8 +50,13 @@ def reverse_complement_to_longest_reading_frame(seq_iter,
         gap_characters=['-'],
         table = "Standard",
         allow_partial = True,
-        require_start_after_stop = True):
-    for s in remove_gaps(seq_iter, gap_characters=gap_characters):
+        require_start_after_stop = True,
+        log_frequency = 0):
+    for i, s in enumerate(remove_gaps(seq_iter, gap_characters=gap_characters)):
+        if (log_frequency > 0) and (((i + 1) % log_frequency) == 0):
+            _LOG.info('{0}: Checking reverse complement of seq {1}...'.format(
+                    datetime.datetime.now(),
+                    (i + 1)))
         rc = sequtils.get_reverse_complement(s)
         p1 = sequtils.get_longest_reading_frames(seq_record = s,
                 table = table,
