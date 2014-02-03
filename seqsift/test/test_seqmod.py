@@ -52,6 +52,25 @@ class ReverseComplementToFirstSeqTestCase(SeqSiftTestCase):
         new_seqs = seqmod.reverse_complement_to_first_seq(seqs)
         self.assertIsInstance(new_seqs, types.GeneratorType)
         self.assertSameData(new_seqs, exp)
+    
+    def test_ambiguity(self):
+        seqs = [
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('AAGG?CCGC', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('AAGG?CCGG', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGG?CCTT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='5'),
+                ]
+        exp = [
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('AAGG?CCGC', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('AAGG?CCGG', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('AAGG?CCGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='5'),
+                ]
+        new_seqs = seqmod.reverse_complement_to_first_seq(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
 
 class ReverseComplementToLongestReadingFrame(SeqSiftTestCase):
     def test_simple(self):
