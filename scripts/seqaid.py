@@ -2,14 +2,10 @@
 
 import os
 import sys
+from Bio import SeqIO
 from optparse import OptionParser, OptionGroup
 
-from Bio import SeqIO
-from seqsift.seqops import seqmod
-from seqsift.seqops.seqfilter import column_filter, row_filter
-from seqsift.utils.dataio import get_buffered_seq_iter, convert_format
 from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES
-from seqsift.utils.messaging import get_logger
 
 _program_info = {
     'name': 'seqaid',
@@ -21,8 +17,6 @@ _program_info = {
         'License in the hope that it will be useful, but WITHOUT ANY '
         'WARRANTY. You are free to change and redistribute it in accord with '
         'the GPL. See the GNU General Public License for more details.'),}
-
-_LOG = get_logger(__name__, 'INFO')
 
 def main():
     description = '{name} {version}'.format(**_program_info)
@@ -152,7 +146,40 @@ def main():
                 'The default is to start reading frame at next start codon '
                 'after a stop codon. This option might be useful for exons.'))
     parser.add_option_group(translation_opts)
+
+    messaging_opts = OptionGroup(parser, 'Messaging Options',
+            ('These options control verbosity of messaging.'))
+    messaging_opts.add_option('--quiet',
+            action = 'store_true',
+            help = 'Run without verbose messaging.')
+    messaging_opts.add_option('--debug',
+            action = 'store_true',
+            help = 'Run in debugging mode.')
+    parser.add_option_group(messaging_opts)
+
     (options, args) = parser.parse_args()
+
+    ##########################################################################
+    ## set up logging
+
+    from seqsift.utils.messaging import get_logger, LOGGING_LEVEL_ENV_VAR
+
+    os.environ[LOGGING_LEVEL_ENV_VAR] = "INFO"
+    if options.quiet:
+        os.environ[LOGGING_LEVEL_ENV_VAR] = "WARNING"
+    if options.debug:
+        os.environ[LOGGING_LEVEL_ENV_VAR] = "DEBUG"
+    log = get_logger(name = __name__)
+
+    ##########################################################################
+    ## package imports
+
+    from seqsift.seqops import seqmod
+    from seqsift.seqops.seqfilter import column_filter, row_filter
+    from seqsift.utils.dataio import get_buffered_seq_iter, convert_format
+
+    ##########################################################################
+    ## handle args
     
     if len(args) == 1:
         in_file_path = args[0]
@@ -161,13 +188,13 @@ def main():
         in_file_path = args[0]
         out_file_path = args[1]
     elif len(args) > 2:
-        _LOG.error("Too many arguments. Expecting at most 2 arguments:\n"
+        log.error("Too many arguments. Expecting at most 2 arguments:\n"
                    "The path to the input file (required), and the path to\n"
                    "output file (optional; defaults to standard output).")
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
     elif len(args) < 1:
-        _LOG.error("Too few arguments. Expecting at least 1 argument:\n"
+        log.error("Too few arguments. Expecting at least 1 argument:\n"
                    "the path to the input file.")
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
@@ -179,7 +206,7 @@ def main():
     else:
         in_format = FILE_FORMATS.get_format_from_file_object(in_file_path)
     if not in_format:
-        _LOG.error("Could not determine format of input file.\n"
+        log.error("Could not determine format of input file.\n"
                    "You must either provide the format of the input file\n"
                    "using the '--from-format' option or have a recognized\n"
                    "file extension on the input file. Here are the supported\n"
@@ -192,7 +219,7 @@ def main():
     else:
         out_format = FILE_FORMATS.get_format_from_file_object(out_file_path)
     if not out_format:
-        _LOG.error("Could not determine format of output file.\n"
+        log.error("Could not determine format of output file.\n"
                    "You must either provide the format of the output file\n"
                    "using the '--to-format' option or have a recognized\n"
                    "file extension on the output file. Here are the supported\n"
@@ -212,7 +239,7 @@ def main():
 
     if ((options.rev_comp or options.fix_rev_comp_by) and
             (data_type.lower() not in ['dna', 'rna'])):
-        _LOG.error("You have selected an option for reverse complementing\n"
+        log.error("You have selected an option for reverse complementing\n"
                    "sequences but the data type is not DNA or RNA.")
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
@@ -232,10 +259,10 @@ def main():
                 max_frequency = options.missing_column_proportion)
 
     if options.rev_comp:
-        _LOG.info('Reverse complementing all sequences...')
+        log.info('Reverse complementing all sequences...')
         seqs = seqmod.reverse_complement(seqs)
     elif options.fix_rev_comp_by == 'first':
-        _LOG.info('Reverse complementing to match first sequence...')
+        log.info('Reverse complementing to match first sequence...')
         seqs = seqmod.reverse_complement_to_first_seq(seqs,
                 per_site = False,
                 aligned = False,
@@ -244,7 +271,7 @@ def main():
                 aligner_tools = ['muscle', 'mafft'],
                 log_frequency = 100)
     elif options.fix_rev_comp_by == 'read':
-        _LOG.info('Reverse complementing to longest reading frame...')
+        log.info('Reverse complementing to longest reading frame...')
         seqs = seqmod.reverse_complement_to_longest_reading_frame(seqs,
                 gap_characters=['-'],
                 table = options.table,
