@@ -2,6 +2,7 @@
 
 import sys
 import os
+import datetime
 from string import maketrans
 
 from Bio.SeqRecord import SeqRecord
