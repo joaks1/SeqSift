@@ -234,5 +234,135 @@ class SeqAidTestCase(SeqSiftTestCase):
         self.assertSameSequences(results, self.simple_alignment,
                 aligned=True)
 
+    def test_rev_comp(self):
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--rev-comp'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('?ACGT', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('-ACGT', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('?ACGT', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('-ACGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('?ACGT', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+    def test_rev_comp_simple(self):
+        seqs = [
+                SeqRecord(Seq('AATT?CCGA', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('AATT?CCGC', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('AATT?CCGG', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('AATT?CCGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('AATT?CCGA', alphabet=IUPAC.ambiguous_dna), id='5'),
+                ]
+        stream, seqs_path = self.getTestStream(
+                'seqs.fasta')
+        SeqIO.write(seqs, stream, format='fasta')
+        stream.close()
+
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                seqs_path,
+                out_path,
+                '--rev-comp'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('TCGG?AATT', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('GCGG?AATT', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('CCGG?AATT', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGG?AATT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('TCGG?AATT', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+    def test_remove_column_and_rev_comp(self):
+        seqs = [
+                SeqRecord(Seq('AATT?CCGA', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('AATT?CCGC', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('AATT?CCGG', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('AATT?CCGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('AATT?CCGA', alphabet=IUPAC.ambiguous_dna), id='5'),
+                ]
+        stream, seqs_path = self.getTestStream(
+                'seqs.fasta')
+        SeqIO.write(seqs, stream, format='fasta')
+        stream.close()
+
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                seqs_path,
+                out_path,
+                '--rev-comp',
+                '--remove-missing-columns',
+                "--missing-characters='?-'",
+                '--missing-column-proportion=1.0'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('TCGGAATT', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('GCGGAATT', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('CCGGAATT', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGGAATT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('TCGGAATT', alphabet=IUPAC.ambiguous_dna), id='5')]
+        self.assertSameSequences(results, expected, aligned=True)
+
+    def test_rev_comp_to_first(self):
+        seqs = [
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('AAGG?CCGC', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('AAGG?CCGG', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('ACGG?CCTT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='5'),
+                ]
+        stream, seqs_path = self.getTestStream(
+                'seqs.fasta')
+        SeqIO.write(seqs, stream, format='fasta')
+        stream.close()
+
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                seqs_path,
+                out_path,
+                '--fix-rev-comp-by=first'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('AAGG?CCGC', alphabet=IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('AAGG?CCGG', alphabet=IUPAC.ambiguous_dna), id='3'),
+                SeqRecord(Seq('AAGG?CCGT', alphabet=IUPAC.ambiguous_dna), id='4'),
+                SeqRecord(Seq('AAGG?CCGA', alphabet=IUPAC.ambiguous_dna), id='5'),
+                ]
+        self.assertSameSequences(results, expected, aligned=True)
+
+    def test_rev_comp_to_longest_read(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTCACTA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTCACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('TAGTAAGTTGGTCAT', IUPAC.ambiguous_dna), id='3'),
+                ]
+        stream, seqs_path = self.getTestStream(
+                'seqs.fasta')
+        SeqIO.write(seqs, stream, format='fasta')
+        stream.close()
+
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                seqs_path,
+                out_path,
+                '--fix-rev-comp-by=read',
+                '--allow-partial'])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('ATGACCAACTCACTA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTCACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ATGACCAACTTACTA', IUPAC.ambiguous_dna), id='3'),
+                ]
+        self.assertSameSequences(results, expected, aligned=True)
+
 if __name__ == '__main__':
     unittest.main()

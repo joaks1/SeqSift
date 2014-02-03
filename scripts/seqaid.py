@@ -5,6 +5,7 @@ import sys
 from optparse import OptionParser, OptionGroup
 
 from Bio import SeqIO
+from seqsift.seqops import seqmod
 from seqsift.seqops.seqfilter import column_filter, row_filter
 from seqsift.utils.dataio import get_buffered_seq_iter, convert_format
 from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES
@@ -103,6 +104,54 @@ def main():
                   "--remove-missing-columns and --remove-missing-sequences "
                   "options. The default is '?-'."))
     parser.add_option_group(filter_opts)
+
+    rev_comp_opts = OptionGroup(parser, 'Reverse Complement Options',
+            'These options are for reverse complementing sequences.')
+    rev_comp_opts.add_option('--rev-comp',
+            dest='rev_comp',
+            default = False,
+            action = 'store_true',
+            help=("Reverse complement all sequences. This option overrides "
+                  "all other reverse-complement options."))
+    rev_comp_opts.add_option('--fix-rev-comp-by',
+            dest='fix_rev_comp_by',
+            type = 'choice',
+            choices = ['first', 'read'],
+            help=("Try to correct reverse complement errors. "
+                  "Options include 'first' and 'read'. If 'first' is "
+                  "specified, sequences are returned in their orientation "
+                  "that minimizes distance from the first sequence. "
+                  "If 'read' is used, sequences are returned in their "
+                  "orientation that has the longest read frame "
+                  "(see 'Translation Options' for controlling translation "
+                  "of reading frames)."))
+    parser.add_option_group(rev_comp_opts)
+
+    translation_opts = OptionGroup(parser, 'Translation Options',
+            ('These options control translation from nucleotide to amino acid '
+             'sequences.'))
+    translation_opts.add_option('--table',
+            type = 'choice',
+            choices = list(range(1, 7)) + list(range(9, 17)) + list(range(21, 26)),
+            default = 1,
+            help = ('The translation table to use for any options associated '
+                    'with translating nucleotide sequences to amino acids. '
+                    'Option should be the integer that corresponds to the '
+                    'desired translation table according to NCBI '
+                    '(http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi). '
+                    'The default is 1 (the "standard" code).'))
+    translation_opts.add_option('--allow-partial',
+        default = False,
+        action = 'store_true',
+        help = ('Allow partial reading frames at the beginning (no start '
+                'codon) and end (no stop codon) of sequences.'))
+    translation_opts.add_option('--read-after-stop',
+        default = False,
+        action = 'store_true',
+        help = ('A new reading frame begins immediately after a stop codon. '
+                'The default is to start reading frame at next start codon '
+                'after a stop codon. This option might be useful for exons.'))
+    parser.add_option_group(translation_opts)
     (options, args) = parser.parse_args()
     
     if len(args) == 1:
@@ -161,6 +210,13 @@ def main():
                        data_type = data_type)
         sys.exit(0)
 
+    if ((options.rev_comp or options.fix_rev_comp_by) and
+            (data_type.lower() not in ['dna', 'rna'])):
+        _LOG.error("You have selected an option for reverse complementing\n"
+                   "sequences but the data type is not DNA or RNA.")
+        sys.stderr.write(str(parser.print_help()))
+        sys.exit(1)
+
     seqs = get_buffered_seq_iter(in_file_path,
             format = in_format,
             data_type = data_type)
@@ -174,6 +230,27 @@ def main():
         seqs = column_filter(seqs,
                 character_list = list(options.missing_characters),
                 max_frequency = options.missing_column_proportion)
+
+    if options.rev_comp:
+        _LOG.info('Reverse complementing all sequences...')
+        seqs = seqmod.reverse_complement(seqs)
+    elif options.fix_rev_comp_by == 'first':
+        _LOG.info('Reverse complementing to match first sequence...')
+        seqs = seqmod.reverse_complement_to_first_seq(seqs,
+                per_site = False,
+                aligned = False,
+                ignore_gaps = True,
+                alphabet = None,
+                aligner_tools = ['muscle', 'mafft'],
+                log_frequency = 100)
+    elif options.fix_rev_comp_by == 'read':
+        _LOG.info('Reverse complementing to longest reading frame...')
+        seqs = seqmod.reverse_complement_to_longest_reading_frame(seqs,
+                gap_characters=['-'],
+                table = options.table,
+                allow_partial = options.allow_partial,
+                require_start_after_stop = (not options.read_after_stop),
+                log_frequency = 100)
 
     SeqIO.write(seqs,
                 handle = out_file_path,
