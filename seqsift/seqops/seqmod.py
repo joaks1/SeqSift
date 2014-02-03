@@ -42,6 +42,7 @@ def reverse_complement_to_first_seq(seq_iter,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
         if drc < d:
+            _LOG.info('Reverse complementing sequence {0!r}'.format(seq2.id))
             yield sequtils.get_reverse_complement(seq2)
             continue
         yield seq2
@@ -69,8 +70,10 @@ def reverse_complement_to_longest_reading_frame(seq_iter,
         if len(p2) == 0:
             yield s
         elif len(p1) == 0:
+            _LOG.info('Reverse complementing sequence {0!r}'.format(rc.id))
             yield rc
         elif len(p2[0].seq) > len(p1[0].seq):
+            _LOG.info('Reverse complementing sequence {0!r}'.format(rc.id))
             yield rc
         else:
             yield s
