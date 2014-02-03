@@ -48,7 +48,7 @@ def reverse_complement_to_first_seq(seq_iter,
 
 def reverse_complement_to_longest_reading_frame(seq_iter,
         gap_characters=['-'],
-        table = "Standard",
+        table = 1,
         allow_partial = True,
         require_start_after_stop = True,
         log_frequency = 0):

@@ -42,7 +42,7 @@ def get_translation(seq_record, **kwargs):
     return copy_seq_metadata(seq_record,
             new_seq = s.translate(**kwargs))
 
-def get_longest_reading_frames(seq_record, table = "Standard",
+def get_longest_reading_frames(seq_record, table = 1,
         allow_partial = True,
         require_start_after_stop = True):
     lrf = []

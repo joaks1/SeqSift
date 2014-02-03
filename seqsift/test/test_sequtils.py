@@ -21,7 +21,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = False,
                 require_start_after_stop = False)
         self.assertEqual(len(lrf), 1)
@@ -33,7 +33,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = False,
                 require_start_after_stop = True)
         self.assertEqual(len(lrf), 1)
@@ -45,7 +45,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = True,
                 require_start_after_stop = False)
         self.assertEqual(len(lrf), 1)
@@ -57,7 +57,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = True,
                 require_start_after_stop = True)
         self.assertEqual(len(lrf), 1)
@@ -69,14 +69,14 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
     def test_no_partial(self):
         seq = SeqRecord(Seq('AAGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = False,
                 require_start_after_stop = True)
         self.assertEqual(lrf, [])
         seq = SeqRecord(Seq('ATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = False,
                 require_start_after_stop = True)
         self.assertEqual(len(lrf), 1)
@@ -88,7 +88,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
     def test_partial(self):
         seq = SeqRecord(Seq('AAGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = True,
                 require_start_after_stop = True)
         exp = SeqRecord(Seq('AGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
@@ -102,7 +102,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = True,
                 require_start_after_stop = True)
         self.assertEqual(len(lrf), 1)
@@ -114,7 +114,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = False,
                 require_start_after_stop = True)
         self.assertEqual(len(lrf), 1)
@@ -126,7 +126,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATAGAAATTGGCCATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = True,
                 require_start_after_stop = False)
         self.assertEqual(len(lrf), 1)
@@ -138,7 +138,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
         seq = SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1')
         exp = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')
         lrf = sequtils.get_longest_reading_frames(seq,
-                table = "Standard",
+                table = 1,
                 allow_partial = False,
                 require_start_after_stop = False)
         self.assertEqual(len(lrf), 1)
