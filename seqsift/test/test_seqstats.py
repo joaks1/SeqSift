@@ -11,7 +11,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
 from seqsift.seqops import seqstats
-from seqsift.utils import dataio
+from seqsift.utils import dataio, alphabets
 from seqsift.utils import functions, errors
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
@@ -689,6 +689,23 @@ class GetDifferencesTestCase(unittest.TestCase):
         self.assertEqual(diffs, e)
         self.assertEqual(l, 15)
 
+    def test_aligned_aa(self):
+        seq1 = SeqRecord(Seq('AC--DEFGI-LBATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-DEFGI--DATT'), id='2')
+        e = {14:('R', 'T')}
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = True,
+                alphabet = alphabets.ProteinAlphabet())
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 11)
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = True,
+                alphabet = alphabets.ProteinAlphabet(),
+                ignore_gaps = False)
+        e = {14: ('R', 'T'),
+             2:  ('-', 'N'),
+             10: ('L', '-')}
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 15)
+
     def test_unaligned(self):
         seq1 = SeqRecord(Seq('AC--GTNAC-TYATR'), id='1')
         seq2 = SeqRecord(Seq('ACN-GTAAC--CATT'), id='2')
@@ -745,6 +762,34 @@ class GetDifferencesTestCase(unittest.TestCase):
         self.assertEqual(diffs, {1: ('T', '-')})
         self.assertEqual(l, 6)
 
+    def test_unaligned_mafft_aa(self):
+        seq1 = SeqRecord(Seq('AC--DEFGI-LBATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-DEFGI--DATT'), id='2')
+        # 'AC-DEFGILBATR'
+        # 'ACNDEFGIDATT-'
+        e = {2:  ('-', 'N'),
+             8:  ('L', 'D'),
+             9:  ('B', 'A'),
+             10: ('A', 'T'),
+             12: ('R', '-'),
+             }
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                alphabet = alphabets.ProteinAlphabet(),
+                ignore_gaps = False,
+                aligner_tools = ['mafft'])
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 13)
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                alphabet = alphabets.ProteinAlphabet(),
+                ignore_gaps = True,
+                aligner_tools = ['mafft'])
+        e = {8:  ('L', 'D'),
+             9:  ('B', 'A'),
+             10: ('A', 'T'),
+             }
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 11)
+
     def test_unaligned_muscle(self):
         if not functions.which('muscle'):
             _LOG.warning('muscle not found... skipping tests.')
@@ -775,6 +820,31 @@ class GetDifferencesTestCase(unittest.TestCase):
                 aligner_tools = ['muscle'])
         self.assertEqual(diffs, {1: ('T', '-')})
         self.assertEqual(l, 6)
+
+    def test_unaligned_muscle_aa(self):
+        seq1 = SeqRecord(Seq('AC--DEFGI-LBATR'), id='1')
+        seq2 = SeqRecord(Seq('ACN-DEFGI--DATT'), id='2')
+        # 'AC-DEFGILBATR'
+        # 'ACNDEFGI-DATT'
+        e = {2:  ('-', 'N'),
+             8:  ('L', '-'),
+             12: ('R', 'T'),
+             }
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                alphabet = alphabets.ProteinAlphabet(),
+                ignore_gaps = False,
+                aligner_tools = ['muscle'])
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 13)
+        diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
+                alphabet = alphabets.ProteinAlphabet(),
+                ignore_gaps = True,
+                aligner_tools = ['muscle'])
+        e = {
+             12: ('R', 'T'),
+             }
+        self.assertEqual(diffs, e)
+        self.assertEqual(l, 11)
 
 class ColumnFrequenciesTestCase(SeqSiftTestCase):
     def setUp(self):
