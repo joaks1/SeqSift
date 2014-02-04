@@ -122,4 +122,21 @@ class DnaAlphabet(ResidueAlphabet):
                         '?': ('A', 'C', 'G', 'T', '-'),
                         })
 
+class ProteinAlphabet(ResidueAlphabet):
+    def __init__(self):
+        ResidueAlphabet.__init__(self,
+                states = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
+                    'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y', '*',
+                    '-'),
+                gap = '-',
+                ambiguity_codes = {
+                        'B': ('D', 'N'),
+                        'Z': ('E', 'Q'),
+                        'X': ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
+                            'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+                            'Y', '*'),
+                        '?': ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
+                            'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+                            'Y', '*', '-'),
+                        })
 
