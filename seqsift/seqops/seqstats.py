@@ -174,13 +174,13 @@ def distance(seq1, seq2,
         ignore_gaps = True,
         alphabet = None,
         aligner_tools = ['mafft', 'muscle']):
-    diffs, l  = get_differences(seq1 = seq1, seq2 = seq2,
+    diffs, n  = get_differences(seq1 = seq1, seq2 = seq2,
             aligned = aligned,
             ignore_gaps = ignore_gaps,
             alphabet = alphabet,
             aligner_tools = aligner_tools)
     if per_site:
-        return len(diffs) / float(l)
+        return len(diffs) / float(n)
     return len(diffs)
 
 def get_differences(seq1, seq2,
@@ -196,16 +196,21 @@ def get_differences(seq1, seq2,
         raise AlignmentError('Sequences are not aligned')
     residue_codes = alphabet.all_residue_codes
     diffs = {}
+    num_comparisons = 0
     for i in range(len(seq1)):
-        if seq1[i].upper() == seq2[i].upper():
-            continue
         if (seq1[i] == alphabet.gap) or (seq2[i] == alphabet.gap):
-            if not ignore_gaps:
+            if ignore_gaps:
+                continue
+            num_comparisons += 1
+            if seq1[i].upper() != seq2[i].upper():
                 diffs[i] = (seq1[i].upper(), seq2[i].upper())
+            continue
+        num_comparisons += 1
+        if seq1[i].upper() == seq2[i].upper():
             continue
         s1 = set(residue_codes[seq1[i].upper()])
         s2 = set(residue_codes[seq2[i].upper()])
         if not s1.intersection(s2):
             diffs[i] = (seq1[i].upper(), seq2[i].upper())
-    return diffs, len(seq1)
+    return diffs, num_comparisons
 

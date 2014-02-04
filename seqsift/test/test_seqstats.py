@@ -306,10 +306,21 @@ class PairwiseDistanceIterTestCase(unittest.TestCase):
                 seq_iter = self.seqs,
                 per_site = True,
                 aligned = True,
-                ignore_gaps = True)
+                ignore_gaps = False)
         for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
             self.assertAlmostEqual(
                     self.expected[seq1.id][seq2.id] / 6.0,
+                    d)
+        self.assertEqual(i, 2)
+
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = self.seqs,
+                per_site = True,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
                     d)
         self.assertEqual(i, 2)
 
@@ -423,10 +434,22 @@ class SampleDistanceIterTestCase(unittest.TestCase):
                 sample_size = 2,
                 per_site = True,
                 aligned = True,
-                ignore_gaps = True)
+                ignore_gaps = False)
         for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
             self.assertAlmostEqual(
                     self.expected[seq1.id][seq2.id] / 6.0,
+                    d)
+        self.assertEqual(i, 5)
+
+        distance_iter = seqstats.sample_distance_iter(
+                seq_iter = self.seqs,
+                sample_size = 2,
+                per_site = True,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertAlmostEqual(
+                    self.expected[seq1.id][seq2.id] / 4.0,
                     d)
         self.assertEqual(i, 5)
 
@@ -524,7 +547,7 @@ class DistanceTestCase(unittest.TestCase):
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = True)
         self.assertEqual(d, 1)
         dps = seqstats.distance(seq1, seq2, per_site = True, aligned = True)
-        self.assertAlmostEqual(dps, 1 / float(15))
+        self.assertAlmostEqual(dps, 1 / float(11))
 
         d = seqstats.distance(seq1, seq2, per_site = False, aligned = True,
                 ignore_gaps = False)
@@ -645,7 +668,7 @@ class GetDifferencesTestCase(unittest.TestCase):
                 True)
         diffs, l = seqstats.get_differences(seq1, seq2)
         self.assertEqual(diffs, {})
-        self.assertEqual(l, 5)
+        self.assertEqual(l, 4)
         expected = {0: ('-', 'T')}
         diffs, l = seqstats.get_differences(seq1, seq2, ignore_gaps = False)
         self.assertEqual(diffs, expected)
@@ -657,7 +680,7 @@ class GetDifferencesTestCase(unittest.TestCase):
         e = {14:('R', 'T')}
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = True)
         self.assertEqual(diffs, e)
-        self.assertEqual(l, 15)
+        self.assertEqual(l, 11)
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = True,
                 ignore_gaps = False)
         e = {14: ('R', 'T'),
@@ -684,7 +707,7 @@ class GetDifferencesTestCase(unittest.TestCase):
                 ignore_gaps = True,
                 aligner_tools = None)
         self.assertEqual(diffs, {})
-        self.assertEqual(l, 6)
+        self.assertEqual(l, 5)
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
                 ignore_gaps = False,
                 aligner_tools = None)
@@ -715,7 +738,7 @@ class GetDifferencesTestCase(unittest.TestCase):
                 ignore_gaps = True,
                 aligner_tools = ['mafft'])
         self.assertEqual(diffs, {})
-        self.assertEqual(l, 6)
+        self.assertEqual(l, 5)
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
                 ignore_gaps = False,
                 aligner_tools = ['mafft'])
@@ -746,7 +769,7 @@ class GetDifferencesTestCase(unittest.TestCase):
                 ignore_gaps = True,
                 aligner_tools = ['muscle'])
         self.assertEqual(diffs, {})
-        self.assertEqual(l, 6)
+        self.assertEqual(l, 5)
         diffs, l = seqstats.get_differences(seq1, seq2, aligned = False,
                 ignore_gaps = False,
                 aligner_tools = ['muscle'])
