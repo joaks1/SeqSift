@@ -134,7 +134,7 @@ def main_cli():
     ##########################################################################
     ## package imports
 
-    from seqsift.utils import GLOBAL_RNG, dataio, functions
+    from seqsift.utils import GLOBAL_RNG, dataio, functions, alphabets
     from seqsift.seqops import seqstats
     from seqsift.utils.fileio import OpenFile
 
@@ -174,6 +174,9 @@ def main_cli():
 
     full_alignment_out_path = os.path.join(
                 args.output_dir, 'seqvet-msa.txt')
+    alphabet = alphabets.DnaAlphabet()
+    if args.data_type in ['aa', 'protein']:
+        alphabet = alphabets.ProteinAlphabet()
 
     ##########################################################################
     ## heavy lifting
@@ -188,6 +191,7 @@ def main_cli():
             per_site = True,
             aligned = args.aligned,
             ignore_gaps = True,
+            alphabet = alphabet,
             do_full_alignment = args.msa,
             full_alignment_out_path = full_alignment_out_path,
             aligner_tools = aligner_tools,
