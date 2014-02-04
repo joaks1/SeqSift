@@ -264,7 +264,7 @@ def main():
     elif options.fix_rev_comp_by == 'first':
         log.info('Reverse complementing to match first sequence...')
         seqs = seqmod.reverse_complement_to_first_seq(seqs,
-                per_site = False,
+                per_site = True,
                 aligned = False,
                 ignore_gaps = True,
                 alphabet = None,

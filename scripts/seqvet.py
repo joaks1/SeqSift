@@ -185,7 +185,7 @@ def main_cli():
     log.info('Calculating pairwise distances...')
     distances, rev_comp_errors = seqstats.summarize_distances(seqs,
             sample_size = args.num_samples,
-            per_site = False,
+            per_site = True,
             aligned = args.aligned,
             ignore_gaps = True,
             do_full_alignment = args.msa,
