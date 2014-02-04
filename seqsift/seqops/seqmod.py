@@ -42,8 +42,12 @@ def reverse_complement_to_first_seq(seq_iter,
                 ignore_gaps = ignore_gaps,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
+        _LOG.debug('{0}: distance {1}, rev comp distance {2}'.format(
+                seq2.id, d, drc))
         if drc < d:
-            _LOG.warning('Reverse complementing sequence {0!r}'.format(seq2.id))
+            _LOG.warning('Reverse complementing sequence {0!r} (length {1})\n\t'
+                    'rev comp distance ({2}) < current distance '
+                    '({3})'.format(seq2.id, len(seq2.seq), drc, d))
             yield sequtils.get_reverse_complement(seq2)
             continue
         yield seq2
@@ -68,6 +72,8 @@ def reverse_complement_to_longest_reading_frame(seq_iter,
                 table = table,
                 allow_partial = allow_partial,
                 require_start_after_stop = require_start_after_stop)
+        _LOG.debug('{0}: read length {1}, rev comp read length {2}'.format(
+                s.id, len(p1[0].seq), len(p2[0].seq)))
         if len(p2) == 0:
             yield s
         elif len(p1) == 0:
