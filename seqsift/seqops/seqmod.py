@@ -13,6 +13,29 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+def longest_reading_frames(seq_iter,
+        gap_characters=['-'],
+        table = 1,
+        allow_partial = True,
+        require_start_after_stop = True):
+    for i, s in enumerate(remove_gaps(seq_iter, gap_characters=gap_characters)):
+        yield sequtils.get_longest_reading_frames(s,
+                table = table,
+                allow_partial = allow_partial,
+                require_start_after_stop = require_start_after_stop)[0]
+
+def translate_longest_reading_frames(seq_iter,
+        gap_characters=['-'],
+        table = 1,
+        allow_partial = True,
+        require_start_after_stop = True):
+    frames = longest_reading_frames(seq_iter,
+            gap_characters = gap_characters,
+            table = table,
+            allow_partial = allow_partial,
+            require_start_after_stop = require_start_after_stop)
+    return translate_seqs(frames, table = table)
+
 def reverse_complement(seq_iter):
     for s in seq_iter:
         yield sequtils.get_reverse_complement(s)

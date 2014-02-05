@@ -17,6 +17,54 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+class LongestReadingFramesTestCase(SeqSiftTestCase):
+    def test_simple(self):
+        seqs = [
+                SeqRecord(Seq('--TAGAT-AGAT--AGA-ATTGG-CCA-TGAC-CAAC-TGA-ATA'), id='1'),
+                SeqRecord(Seq('T-AGA--TAGATAG-AAATTG-GCCAT--GAC-C-AA-GTGA-ATA-'), id='2'),
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTGAATA'), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('ATGACCAACTGA'), id='1'),
+                SeqRecord(Seq('ATGACCAAGTGA'), id='2'),
+                SeqRecord(Seq('ATGACAAACTGA'), id='3'),
+                ]
+        new_seqs = seqmod.longest_reading_frames(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
+class TranslateLongestReadingFramesTestCase(SeqSiftTestCase):
+    def test_simple(self):
+        seqs = [
+                SeqRecord(Seq('--TAGAT-AGAT--AGA-ATTGG-CCA-TGAC-CAAC-TGA-ATA'), id='1'),
+                SeqRecord(Seq('T-AGA--TAGATAG-AAATTG-GCCAT--GAC-C-AA-GTGA-ATA-'), id='2'),
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTGAATA'), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('MTN*'), id='1'),
+                SeqRecord(Seq('MTK*'), id='2'),
+                SeqRecord(Seq('MTN*'), id='3'),
+                ]
+        new_seqs = seqmod.translate_longest_reading_frames(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
+class LongestReadingFramesTestCase(SeqSiftTestCase):
+    def test_simple(self):
+        seqs = [
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACCAACTGAATA'), id='1'),
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACCAAGTGAATA'), id='2'),
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTGAATA'), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('ATGACCAACTGA'), id='1'),
+                SeqRecord(Seq('ATGACCAAGTGA'), id='2'),
+                SeqRecord(Seq('ATGACAAACTGA'), id='3'),
+                ]
+        new_seqs = seqmod.longest_reading_frames(seqs)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
 class ReverseComplementTestCase(SeqSiftTestCase):
     def test_simple(self):
         seqs = [
