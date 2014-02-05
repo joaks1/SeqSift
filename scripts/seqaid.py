@@ -147,6 +147,20 @@ def main():
                 'after a stop codon. This option might be useful for exons.'))
     parser.add_option_group(translation_opts)
 
+    distance_opts = OptionGroup(parser, 'Distance Options',
+            ('These options control how distances between sequences are '
+             'calculated.'))
+    distance_opts.add_option('-g', '--count-gaps',
+            default = False,
+            action = 'store_true',
+            help = ('Count gaps when calculating pairwise sequence distances. '
+                    'The default is to calculate (number of differences '
+                    'ignoring gaps / number of aligned sites ignoring sites '
+                    'with gaps) for each pairwise comparison. When this option '
+                    'is used, the distance is (number of differences including '
+                    'gap differences / total number of aligned sites).'))
+    parser.add_option_group(distance_opts)
+
     messaging_opts = OptionGroup(parser, 'Messaging Options',
             ('These options control verbosity of messaging.'))
     messaging_opts.add_option('--quiet',
@@ -266,7 +280,7 @@ def main():
         seqs = seqmod.reverse_complement_to_first_seq(seqs,
                 per_site = True,
                 aligned = False,
-                ignore_gaps = True,
+                ignore_gaps = (not options.count_gaps),
                 alphabet = None,
                 aligner_tools = ['muscle', 'mafft'],
                 log_frequency = 100)
