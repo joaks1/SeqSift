@@ -11,6 +11,7 @@ that have a smaller distance when reverse and complemented will be reported.
 
 import os
 import sys
+import random
 import argparse
 
 from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES, argparse_utils
@@ -29,7 +30,10 @@ def main_cli():
     parser.add_argument('input_file', metavar='INPUT-SEQ-FILE',
             type = argparse_utils.arg_is_file,
             help = ('Input sequence file to be vetted.'))
-    parser.add_argument('-n', '--num-samples',
+
+    comparison_args = parser.add_argument_group('Comparison Options',
+            'Options to control the number and nature of sequence comparisons')
+    comparison_args.add_argument('-n', '--num-samples',
             type = int,
             default = 0,
             help = ('The number of randomly sampled sequences to which each '
@@ -41,16 +45,46 @@ def main_cli():
                     'about half of the number of input sequences. If the '
                     'number you are considering is close to half of the number '
                     'sequences, you should probably specify zero and do all '
-                    'combinations. You should not specify a number greater '
+                    'combinations. You should not specify a number greater than '
                     'half the number of sequences, because it will take longer '
                     'and be less thorough than the default.'))
-    parser.add_argument('-a', '--aligned',
+    comparison_args.add_argument('--seed',
+            action = 'store',
+            type = int,
+            help = ('Random number seed to use for the analysis. This option '
+                    'is only revelant if a number greater than 0 is specified '
+                    'for the `-n/--num-samples` option.'))
+    comparison_args.add_argument('--compare-translated',
+            action = 'store_true',
+            help = ('Compare amino acid sequences encoded by the longest '
+                'reading frame found in each sequence. To use this option, '
+                '`data-type` must be dna or rna. See "Translation Options" '
+                'for controlling how the longest reading frame of each '
+                'sequence is determined and translated.'))
+    comparison_args.add_argument('--summarize-reading-frame-lengths',
+            action = 'store_true',
+            help = ('Report the length of the longest reading frame of '
+                    'each sequence. See "Translation Options" for controlling '
+                    'how reading frames are determined.'))
+    comparison_args.add_argument('-g', '--count-gaps',
+            action = 'store_true',
+            help = ('Count gaps when calculating pairwise sequence distances. '
+                    'The default is to calculate (number of differences '
+                    'ignoring gaps / number of aligned sites ignoring sites '
+                    'with gaps) for each pairwise comparison. When this option '
+                    'is used, the distance is (number of differences including '
+                    'gap differences / total number of aligned sites).'))
+
+    alignment_args = parser.add_argument_group('Alignment Options',
+            ('These options control if/how sequences are to be aligned prior '
+             'to calculating distances.'))
+    alignment_args.add_argument('-a', '--aligned',
             action = 'store_true',
             help = ('Treat input sequences as aligned. I.e., do not perform '
                     'pairwise alignment before calculating distances between '
                     'sequences (except when calculating distances for reverse '
                     'and complemented sequences).'))
-    parser.add_argument('--aligner',
+    alignment_args.add_argument('--aligner',
             type = argparse_utils.arg_is_executable,
             help = ('Path to alignment program executable to use for pairwise'
                     'alignments of sequences. '
@@ -60,7 +94,7 @@ def main_cli():
                     'specified, the aligner will still be used for pairwise '
                     'alignments when calculating distances of reverse and '
                     'complemented sequences.'))
-    parser.add_argument('--msa',
+    alignment_args.add_argument('--msa',
             action = 'store_true',
             help = ('Perform a full multiple sequence alignemnt prior to '
                     'comparing sequences. The default is to align each '
@@ -68,7 +102,7 @@ def main_cli():
                     'overruled by the `-a`/`--aligned` option. '
                     'If this option is used '
                     'the resulting alignment is written to file.'))
-    parser.add_argument('--msa-aligner',
+    alignment_args.add_argument('--msa-aligner',
             type = argparse_utils.arg_is_executable,
             help = ('Path to alignment program executable to use for full '
                     'multiple sequence alignment. '
@@ -78,7 +112,42 @@ def main_cli():
                     'you cannot use this option. '
                     'This option is only used if the `-a`/`--aligned` option '
                     'is not specified, and the `--msa` option is specified.'))
-    parser.add_argument('--format',
+
+    translation_args = parser.add_argument_group('Translation Options',
+            ('These options control translation from nucleotide to amino acid '
+             'sequences.'))
+    translation_args.add_argument('--table',
+            type = int,
+            choices = list(range(1, 7)) + list(range(9, 17)) + list(range(21, 26)),
+            default = 1,
+            help = ('The translation table to use for any options associated '
+                    'with translating nucleotide sequences to amino acids. '
+                    'Option should be the integer that corresponds to the '
+                    'desired translation table according to NCBI '
+                    '(http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi). '
+                    'The default is 1 (the "standard" code).'))
+    translation_args.add_argument('--allow-partial',
+            action = 'store_true',
+            default = False,
+            help = ('Allow partial reading frames at the beginning (no start '
+                'codon) and end (no stop codon) of sequences.'))
+    translation_args.add_argument('--read-after-stop',
+            action = 'store_true',
+            default = False,
+            help = ('A new reading frame begins immediately after a stop codon. '
+                    'The default is to start reading frame at next start codon '
+                    'after a stop codon. This option might be useful for exons.'))
+
+    data_args = parser.add_argument_group('Data Options',
+            ('Options specifying the input data type and format'))
+    data_args.add_argument('-d', '--data-type',
+            type = str,
+            choices = VALID_DATA_TYPES,
+            default='dna',
+            help = ('The type of sequence data. The default is dna. Valid '
+                    'options include: {0}.'.format(', '.join(
+                            VALID_DATA_TYPES))))
+    data_args.add_argument('--format',
             dest = 'input_format',
             type = str,
             choices = FILE_FORMATS.supported_formats,
@@ -88,32 +157,25 @@ def main_cli():
                     'provided, this option will always take precedence over '
                     'the file extension.'.format(
                           ', '.join(FILE_FORMATS.supported_formats))))
-    parser.add_argument('-d', '--data-type',
-            type = str,
-            choices = VALID_DATA_TYPES,
-            default='dna',
-            help = ('The type of sequence data. The default is dna. Valid '
-                    'options include: {0}.'.format(', '.join(
-                            VALID_DATA_TYPES))))
-    parser.add_argument('-o', '--output-dir',
+
+    output_args = parser.add_argument_group('Output Options',
+            'Options for controlling output of program')
+    output_args.add_argument('-o', '--output-dir',
             type = argparse_utils.arg_is_dir,
             help = ('The directory in which all output files will be written. '
                     'The default is to use the directory of the input file.'))
-    parser.add_argument('--seed',
-            action = 'store',
-            type = int,
-            help = ('Random number seed to use for the analysis. This option '
-                    'is only revelant if a number greater than 0 is specified '
-                    'for the `-n/--num-samples` option.'))
-    parser.add_argument('--log-frequency',
+
+    messaging_args = parser.add_argument_group('Messaging Options',
+            ('These options control verbosity of messaging.'))
+    messaging_args.add_argument('--log-frequency',
             type = argparse_utils.arg_is_nonnegative_int,
             default = 1000,
             help = ('The frequency at which to log progress. Default is to log '
                     'every 1000 sequence comparisons.'))
-    parser.add_argument('--quiet',
+    messaging_args.add_argument('--quiet',
             action = 'store_true',
             help = 'Run without verbose messaging.')
-    parser.add_argument('--debug',
+    messaging_args.add_argument('--debug',
             action = 'store_true',
             help = 'Run in debugging mode.')
 
@@ -135,7 +197,7 @@ def main_cli():
     ## package imports
 
     from seqsift.utils import GLOBAL_RNG, dataio, functions, alphabets
-    from seqsift.seqops import seqstats
+    from seqsift.seqops import seqsum, seqmod
     from seqsift.utils.fileio import OpenFile
 
     ##########################################################################
@@ -178,6 +240,18 @@ def main_cli():
     if args.data_type in ['aa', 'protein']:
         alphabet = alphabets.ProteinAlphabet()
 
+    if (args.summarize_reading_frame_lengths and 
+            (not args.data_type in ['dna', 'rna'])):
+        log.error("`--summarize-reading-frame-lengths` is only compatible "
+                   "with DNA or RNA.")
+        sys.stderr.write(str(parser.print_help()))
+        sys.exit(1)
+
+    if (args.compare_translated and (not args.data_type in ['dna', 'rna'])):
+        log.error("`-compare-translated` is only compatible with DNA or RNA.")
+        sys.stderr.write(str(parser.print_help()))
+        sys.exit(1)
+
     ##########################################################################
     ## heavy lifting
 
@@ -185,12 +259,37 @@ def main_cli():
             format = args.input_format,
             data_type = args.data_type)
 
+    if args.summarize_reading_frame_lengths:
+        log.info('Summarizing longest reading frame lengths...')
+        seqs = dataio.BufferedIter(seqs)
+        lengths = seqsum.summarize_longest_read_lengths(seqs,
+                table = args.table,
+                allow_partial = args.allow_partial,
+                require_start_after_stop = (not args.read_after_stop))
+        length_path = os.path.join(
+                args.output_dir, 'seqvet-reading-frame-lengths.txt')
+        log.info('Writing longest reading frame lengths to file...')
+        with OpenFile(length_path, 'w') as out:
+            out.write('seq_id\tlongest_reading_frame\n')
+            for (l, seq_id) in lengths:
+                out.write('{0}\t{1}\n'.format(seq_id, l))
+
+    if args.compare_translated:
+        log.info('Translating longest reading frames for distance '
+                 'calculations...')
+        seqs = seqmod.translate_longest_reading_frames(seqs,
+                table = args.table,
+                allow_partial = args.allow_partial,
+                require_start_after_stop = (not args.read_after_stop))
+        alphabet = alphabets.ProteinAlphabet()
+
+
     log.info('Calculating pairwise distances...')
-    distances, rev_comp_errors = seqstats.summarize_distances(seqs,
+    distances, rev_comp_errors = seqsum.summarize_distances(seqs,
             sample_size = args.num_samples,
             per_site = True,
             aligned = args.aligned,
-            ignore_gaps = True,
+            ignore_gaps = (not args.count_gaps),
             alphabet = alphabet,
             do_full_alignment = args.msa,
             full_alignment_out_path = full_alignment_out_path,
