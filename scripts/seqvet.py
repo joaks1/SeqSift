@@ -270,9 +270,9 @@ def main_cli():
                 args.output_dir, 'seqvet-reading-frame-lengths.txt')
         log.info('Writing longest reading frame lengths to file...')
         with OpenFile(length_path, 'w') as out:
-            out.write('seq_id\tlongest_reading_frame\n')
-            for (l, seq_id) in lengths:
-                out.write('{0}\t{1}\n'.format(seq_id, l))
+            out.write('seq_id\tlrf\trev_comp_lrf\n')
+            for (l, rc_l, seq_id) in lengths:
+                out.write('{0}\t{1}\t{2}\n'.format(seq_id, l, rc_l))
 
     if args.compare_translated:
         log.info('Translating longest reading frames for distance '
