@@ -30,6 +30,30 @@ class PairwiseDistanceIterTestCase(unittest.TestCase):
         self.expected['2'] = {'1': 1, '3': 3}
         self.expected['3'] = {'1': 2, '2': 3}
 
+    def test_amino_acid_seqs(self):
+        seqs = [
+                SeqRecord(Seq('MILV*XQP*'), id='1'),
+                SeqRecord(Seq('MILV*XQQ*'), id='2'),
+                SeqRecord(Seq('MILV*XPP*'), id='3'),
+                ]
+        expected = {}
+        expected['1'] = {'2': 1, '3': 1}
+        expected['2'] = {'1': 1, '3': 2}
+        expected['3'] = {'1': 1, '2': 2}
+
+        distance_iter = seqstats.pairwise_distance_iter(
+                seq_iter = seqs,
+                alphabet = alphabets.ProteinAlphabet(),
+                per_site = False,
+                aligned = True,
+                ignore_gaps = True)
+        for i, (seq1, seq2, d, drc) in enumerate(distance_iter):
+            self.assertEqual(drc, None)
+            self.assertEqual(
+                    expected[seq1.id][seq2.id],
+                    d)
+        self.assertEqual(i, 2)
+
     def test_aligned(self):
         distance_iter = seqstats.pairwise_distance_iter(
                 seq_iter = self.seqs,

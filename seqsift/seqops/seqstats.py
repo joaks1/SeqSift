@@ -8,7 +8,7 @@ from seqsift.align import align, align_pair
 from seqsift.utils import functions
 from seqsift.utils.dataio import BufferedIter
 from seqsift.utils.errors import AlignmentError
-from seqsift.utils.alphabets import DnaAlphabet
+from seqsift.utils import alphabets
 from seqsift.seqops import sequtils
 from seqsift.utils.messaging import get_logger
 
@@ -93,14 +93,22 @@ def get_distances(seq1, seq2,
                 ignore_gaps = ignore_gaps,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
-        drc = distance(
-                seq1 = sequtils.get_reverse_complement(seq1),
-                seq2 = seq2,
-                per_site = per_site,
-                aligned = False,
-                ignore_gaps = ignore_gaps,
-                alphabet = alphabet,
-                aligner_tools = aligner_tools)
+        rc = None
+        drc = None
+        if (not alphabet) or (not alphabet.has_state('M')):
+            try:
+                rc = sequtils.get_reverse_complement(seq1),
+            except:
+                pass
+        if rc:
+            drc = distance(
+                    seq1 = sequtils.get_reverse_complement(seq1),
+                    seq2 = seq2,
+                    per_site = per_site,
+                    aligned = False,
+                    ignore_gaps = ignore_gaps,
+                    alphabet = alphabet,
+                    aligner_tools = aligner_tools)
         return d, drc
 
 def distance(seq1, seq2,
@@ -124,7 +132,7 @@ def get_differences(seq1, seq2,
         alphabet = None,
         aligner_tools = ['mafft', 'muscle']):
     if not alphabet:
-        alphabet = DnaAlphabet()
+        alphabet = alphabets.DnaAlphabet()
     if not aligned:
         seq1, seq2 = align_pair(seq1, seq2, aligner_tools)
     if len(seq1) != len(seq2):
