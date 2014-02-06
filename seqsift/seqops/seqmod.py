@@ -19,10 +19,15 @@ def longest_reading_frames(seq_iter,
         allow_partial = True,
         require_start_after_stop = True):
     for i, s in enumerate(remove_gaps(seq_iter, gap_characters=gap_characters)):
-        yield sequtils.get_longest_reading_frames(s,
+        lrf = sequtils.get_longest_reading_frames(s,
                 table = table,
                 allow_partial = allow_partial,
-                require_start_after_stop = require_start_after_stop)[0]
+                require_start_after_stop = require_start_after_stop)
+        if lrf:
+            yield lrf[0]
+        else:
+            yield sequtils.copy_seq_metadata(s, '')
+
 
 def translate_longest_reading_frames(seq_iter,
         gap_characters=['-'],
