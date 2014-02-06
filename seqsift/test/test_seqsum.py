@@ -17,21 +17,39 @@ from seqsift.utils.messaging import get_logger
 _LOG = get_logger(__name__)
 
 class SummarizeLongestReadLengthsTestCase(unittest.TestCase):
-    def test_simple(self):
+    def test_default(self):
         seqs = [
                 SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTCCTCCTGAATA'), id='1'),
                 SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTCCTCCTCCTGAATA'), id='2'),
                 SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTGAATA'), id='3'),
                 ]
         exp = [
-                (12, '3'),
-                (18, '1'),
-                (21, '2'),
+                (12, 35, '3'),
+                (18, 41, '1'),
+                (21, 44, '2'),
                 ]
         lengths = seqsum.summarize_longest_read_lengths(seqs,
                 gap_characters=['-'],
                 table = 1,
                 allow_partial = True,
+                require_start_after_stop = True)
+        self.assertEqual(lengths, exp)
+
+    def test_no_partial(self):
+        seqs = [
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTCCTCCTGAATA'), id='1'),
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTCCTCCTCCTGAATA'), id='2'),
+                SeqRecord(Seq('TAGATAGATAGAAATTGGCCATGACAAACTGAATA'), id='3'),
+                ]
+        exp = [
+                (12, 0, '3'),
+                (18, 0, '1'),
+                (21, 0, '2'),
+                ]
+        lengths = seqsum.summarize_longest_read_lengths(seqs,
+                gap_characters=['-'],
+                table = 1,
+                allow_partial = False,
                 require_start_after_stop = True)
         self.assertEqual(lengths, exp)
 

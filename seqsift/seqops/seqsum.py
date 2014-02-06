@@ -6,7 +6,7 @@ import datetime
 
 from seqsift import align
 from seqsift.utils import stats
-from seqsift.seqops import seqstats, seqmod
+from seqsift.seqops import seqstats, seqmod, sequtils
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -17,12 +17,25 @@ def summarize_longest_read_lengths(seq_iter,
         allow_partial = True,
         require_start_after_stop = True):
     lengths = []
-    for seq in seqmod.longest_reading_frames(seq_iter,
-            gap_characters = gap_characters,
-            table = table,
-            allow_partial = allow_partial,
-            require_start_after_stop = require_start_after_stop):
-        lengths.append((len(seq.seq), seq.id))
+    for seq in seqmod.remove_gaps(seq_iter,
+            gap_characters = gap_characters):
+        l = 0
+        rcl = 0
+        lrf = sequtils.get_longest_reading_frames(
+                seq,
+                table = table,
+                allow_partial = allow_partial,
+                require_start_after_stop = require_start_after_stop)
+        if lrf:
+            l = len(lrf[0].seq)
+        rc_lrf = sequtils.get_longest_reading_frames(
+                sequtils.get_reverse_complement(seq),
+                table = table,
+                allow_partial = allow_partial,
+                require_start_after_stop = require_start_after_stop)
+        if rc_lrf:
+            rcl = len(rc_lrf[0].seq)
+        lengths.append((l, rcl, seq.id))
     return sorted(lengths)
 
 def summarize_distances(seq_iter,
