@@ -82,7 +82,7 @@ def summarize_distances(seq_iter,
             _LOG.info('{0}: Calulating distance for comparison {1}...'.format(
                     datetime.datetime.now(),
                     (i + 1)))
-        if drc < d:
+        if (drc != None) and (drc < d):
             _LOG.warning('reverse complement of {0} is more similar to '
                     '{1} ({2:.5f} vs {3:.5f})'.format(seq1.id, seq2.id, drc, d))
             rev_comp_errors.append((seq1.id, seq2.id, d, drc))
