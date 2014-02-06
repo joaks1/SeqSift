@@ -27,6 +27,9 @@ class ResidueAlphabet(object):
 
     states = property(_get_states, _set_states)
 
+    def has_state(self, state):
+        return (state in self.states)
+
     def _get_residues(self):
         return self.standardize_states(
                 [s for s in self.states if s != self.gap])
@@ -120,6 +123,26 @@ class DnaAlphabet(ResidueAlphabet):
                         'B': ('C', 'G', 'T'),
                         'N': ('A', 'C', 'G', 'T'),
                         '?': ('A', 'C', 'G', 'T', '-'),
+                        })
+
+class RnaAlphabet(ResidueAlphabet):
+    def __init__(self):
+        ResidueAlphabet.__init__(self,
+                states = ('A', 'C', 'G', 'U', '-'),
+                gap = '-',
+                ambiguity_codes = {
+                        'R': ('A', 'G'),
+                        'Y': ('C', 'U'),
+                        'K': ('G', 'U'),
+                        'M': ('A', 'C'),
+                        'S': ('C', 'G'),
+                        'W': ('A', 'U'),
+                        'V': ('A', 'C', 'G'),
+                        'H': ('A', 'C', 'U'),
+                        'D': ('A', 'G', 'U'),
+                        'B': ('C', 'G', 'U'),
+                        'N': ('A', 'C', 'G', 'U'),
+                        '?': ('A', 'C', 'G', 'U', '-'),
                         })
 
 class ProteinAlphabet(ResidueAlphabet):
