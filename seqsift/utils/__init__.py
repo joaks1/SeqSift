@@ -5,6 +5,9 @@ import os
 import random
 
 from seqsift.utils.errors import FileExtensionError
+from seqsift.utils.messaging import get_logger
+
+_LOG = get_logger(__name__)
 
 class FileFormats(dict):
     def __init__(self):
@@ -27,6 +30,15 @@ class FileFormats(dict):
                 '.sto': 'stockholm',
                 '.stockholm': 'stockholm',
             })
+        _extensions = {
+                'clustal': '.aln',
+                'fasta': '.fasta',
+                'fastq': '.fastq',
+                'genbank': '.gb',
+                'nexus': '.nex',
+                'phylip-relaxed': '.phy',
+                'phylip': '.phy',
+                'stockholm': '.sto'}
 
     def __str__(self):
         s = ''
@@ -50,6 +62,8 @@ class FileFormats(dict):
                             str(self)))
 
     def get_format_from_path(self, file_path):
+        if self.has_gzip_ext(file_path):
+            file_path = os.path.splitext(file_path)[0]
         ext = os.path.splitext(file_path)[-1]
         return self.get_format_from_extension(ext)
     
@@ -60,6 +74,20 @@ class FileFormats(dict):
             return self.get_format_from_path(file_obj.name)
         else:
             return None
+
+    def has_gzip_ext(self, file_path):
+        return (os.path.splitext(file_path)[-1].lower() == '.gz')
+
+    def get_ext(self, file_format, compressed = False):
+        ext = ''
+        try:
+            ext = self._extensions[file_format]
+        except KeyError as e:
+            _LOG.error('unsupported file format {0}'.format(file_format))
+            raise e
+        if compressed:
+            return ext + '.gz'
+        return ext
 
 FILE_FORMATS = FileFormats()
 
