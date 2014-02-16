@@ -14,6 +14,18 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+def get_duplicate_ids(seq_iter):
+    dups = set()
+    ids = [s.id for s in seq_iter]
+    if len(ids) == len(set(ids)):
+        return dups
+    id_set = set()
+    for i in ids:
+        if i in id_set:
+            dups.add(i)
+        id_set.add(i)
+    return sorted(list(dups))
+
 def column_frequencies(seq_iter, character_list=['-','?']):
     seqs = BufferedIter(seq_iter)
     char_list = [c.lower() for c in character_list]

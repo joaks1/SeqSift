@@ -19,6 +19,40 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+class GetDuplicateIdsTestCase(unittest.TestCase):
+    def test_two_dups(self):
+        seqs = [
+                SeqRecord(Seq('A--CGT'), id='a'),
+                SeqRecord(Seq('G--CGT'), id='a'),
+                ]
+        dups = seqstats.get_duplicate_ids(seqs)
+        self.assertEqual(dups, ['a'])
+
+    def test_three_dups(self):
+        seqs = [
+                SeqRecord(Seq('A--CGT'), id='a'),
+                SeqRecord(Seq('G--CGT'), id='a'),
+                SeqRecord(Seq('C--CGT'), id='a'),
+                ]
+        dups = seqstats.get_duplicate_ids(seqs)
+        self.assertEqual(dups, ['a'])
+
+    def test_mult_dups(self):
+        seqs = [
+                SeqRecord(Seq('A--CGT'), id='c'),
+                SeqRecord(Seq('A--CGT'), id='b'),
+                SeqRecord(Seq('A--CGT'), id='a'),
+                SeqRecord(Seq('G--CGT'), id='a'),
+                SeqRecord(Seq('G--CGT'), id='b'),
+                SeqRecord(Seq('C--CGT'), id='a'),
+                SeqRecord(Seq('A--CGT'), id='c'),
+                SeqRecord(Seq('A--CGT'), id='c'),
+                SeqRecord(Seq('A--CGT'), id='d'),
+                SeqRecord(Seq('A--CGT'), id='e'),
+                ]
+        dups = seqstats.get_duplicate_ids(seqs)
+        self.assertEqual(dups, ['a', 'b', 'c'])
+
 class PairwiseDistanceIterTestCase(unittest.TestCase):
     def setUp(self):
         self.seqs = [
