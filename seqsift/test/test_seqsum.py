@@ -195,6 +195,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertEqual(len(e), 11)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+        self.assertEqual(len(d), 12)
 
     def test_rev_comp_error_muscle_sample(self):
         if not functions.which('muscle'):
@@ -212,6 +213,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertTrue(len(e) >= 5)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+        self.assertEqual(len(d), 12)
 
     def test_rev_comp_error_muscle_full(self):
         if not functions.which('muscle'):
@@ -229,6 +231,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertEqual(len(e), 11)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+        self.assertEqual(len(d), 12)
 
     def test_rev_comp_error_mafft(self):
         if not functions.which('mafft'):
@@ -246,6 +249,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertEqual(len(e), 11)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+        self.assertEqual(len(d), 12)
 
     def test_rev_comp_error_mafft_sample(self):
         if not functions.which('mafft'):
@@ -263,6 +267,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertTrue(len(e) >= 5)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+        self.assertEqual(len(d), 12)
 
     def test_rev_comp_error_mafft_full(self):
         if not functions.which('mafft'):
@@ -280,6 +285,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertEqual(len(e), 11)
         for rce in e:
             self.assertTrue('Homo_sapiens' in rce)
+        self.assertEqual(len(d), 12)
 
     def test_rev_comp_gappy_muscle(self):
         if not functions.which('muscle'):
@@ -295,6 +301,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 aligner_tools = ['muscle'],
                 full_aligner_tools = None)
         self.assertTrue(len(e) < 1)
+        self.assertEqual(len(d), 31)
 
     def test_rev_comp_error_gappy_muscle(self):
         if not functions.which('muscle'):
@@ -312,6 +319,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         self.assertTrue(len(e) >= 5)
         for rce in e:
             self.assertTrue('JF924943_Dibrachys_pelos' in rce)
+        self.assertEqual(len(d), 31)
 
 if __name__ == '__main__':
     unittest.main()
