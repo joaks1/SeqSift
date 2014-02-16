@@ -16,6 +16,22 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+class SequencesAreEqualTestCase(SeqSiftTestCase):
+    def setUp(self):
+        self.seq = SeqIO.read(
+                package_paths.data_path('JF314862.gb'),
+                format='gb',
+                alphabet=IUPAC.ambiguous_dna)
+
+    def test_copy(self):
+        seq2 = SeqIO.read(
+                package_paths.data_path('JF314862.gb'),
+                format='gb',
+                alphabet=IUPAC.ambiguous_dna)
+        self.assertTrue(sequtils.sequences_are_equal(self.seq, seq2))
+        seq2.name += 'a'
+        self.assertFalse(sequtils.sequences_are_equal(self.seq, seq2))
+
 class GetLongestReadingFrameTestCase(SeqSiftTestCase):
     def test_cds(self):
         seq = SeqRecord(Seq('ATGACCAACTGA', IUPAC.ambiguous_dna), id='1')

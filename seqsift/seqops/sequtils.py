@@ -24,6 +24,17 @@ def copy_seq_metadata(seq_record, new_seq=''):
             features = seq_record.features,
             dbxrefs = seq_record.dbxrefs)
 
+def sequences_are_equal(seq_record1, seq_record2):
+    if seq_record1.id != seq_record2.id:
+        return False
+    if seq_record1.name != seq_record2.name:
+        return False
+    if seq_record1.description != seq_record2.description:
+        return False
+    if str(seq_record1.seq) != str(seq_record2.seq):
+        return False
+    return True
+
 def get_reverse_complement(seq_record):
     return copy_seq_metadata(seq_record,
             new_seq = str(seq_record.seq.reverse_complement()))
