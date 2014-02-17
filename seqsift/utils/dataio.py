@@ -4,6 +4,7 @@ import sys
 import os
 import tempfile
 import cPickle
+from itertools import islice, chain
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO, AlignIO
@@ -16,17 +17,26 @@ from seqsift.utils.errors import FileExtensionError
 
 _LOG = get_logger(__name__)
 
-
 class BufferedIter(object):
-    def __init__(self, obj_iter):
-        self._tmp = tempfile.TemporaryFile()
+    def __init__(self, obj_iter = None):
+        self._tmp = tempfile.TemporaryFile(mode = 'a+b')
         self._pickler = cPickle.Pickler(self._tmp)
         self._unpickler = cPickle.Unpickler(self._tmp)
+        if obj_iter:
+            self.extend(obj_iter)
+
+    def extend(self, obj_iter):
         for obj in obj_iter:
-            self._pickler.dump(obj)
+            self.append(obj)
+
+    def append(self, obj):
+        self._pickler.dump(obj)
+
+    def seek(self, idx = 0):
+        self._tmp.seek(idx)
 
     def __iter__(self):
-        self._tmp.seek(0)
+        self.seek()
         while True:
             try:
                 yield self._unpickler.load()
@@ -91,11 +101,25 @@ def get_seq_iter(file_obj, format=None, data_type='dna', ambiguities=True):
             format=format,
             alphabet=get_state_alphabet(data_type, ambiguities))
 
+def seq_iter(file_objs, format = None, data_type = 'dna', ambiguities = True):
+    for f in file_obj:
+        seqs = get_seq_iter(f, format=format, data_type=data_type,
+                ambiguities=ambiguities)
+        for s in seqs:
+            yield s
+
 def get_buffered_seq_iter(file_obj, format=None, data_type='dna',
         ambiguities=True):
     if format == None:
         format = FILE_FORMATS.get_format_from_file_object(file_obj)
     return BufferedIter(get_seq_iter(file_obj,
+            format=format,
+            data_type=data_type,
+            ambiguities=ambiguities))
+
+def buffered_seq_iter(file_objs, format=None, data_type='dna',
+        ambiguities=True):
+    return BufferedIter(seq_iter(file_objs,
             format=format,
             data_type=data_type,
             ambiguities=ambiguities))
@@ -154,3 +178,27 @@ def convert_format(in_file, out_file,
             out_format=out_format,
             alphabet=get_state_alphabet(data_type, ambiguities))
     return nseqs
+
+# def seq_batch_iter():
+#     total = 0
+#     seq_idx = 0
+#     file_idx = 1
+#     for fp in args.input_files:
+#         with OpenFile(fp, 'r') as file_stream:
+#             seqs = dataio.get_seq_iter(file_stream,
+#                     format = args.input_format,
+#                     data_type = args.data_type)
+#             if (seq_index == 0) or (seq_idx >= args.num_seqs_per_file):
+#                 seq_idx = 0
+#                 file_idx += 1
+#                 out_path = '{0}_{1:0>4}{2}'.format(args.prefix, file_idx, out_ext)
+#                 if os.path.exists(out_path):
+#                     log.error('ERROR: File {0} already exists!')
+#                     sys.exit(1)
+#                 out = OpenFile(out_path, compresslevel = compresslevel)
+#             for s in seqs:
+#                 seq_idx += 1
+#                 total += 1
+#                 if total % args.log_frequencey == 0:
+#                     log.info('Processing sequence # {0}...'.format(total))
+#     (
