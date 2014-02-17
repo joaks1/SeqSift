@@ -61,6 +61,9 @@ def main_cli():
                 '`data-type` must be dna or rna. See "Translation Options" '
                 'for controlling how the longest reading frame of each '
                 'sequence is determined and translated.'))
+    comparison_args.add_argument('--check-ids',
+            action = 'store_true',
+            help = ('Check sequence IDs for duplicates.'))
     comparison_args.add_argument('--summarize-reading-frame-lengths',
             action = 'store_true',
             help = ('Report the length of the longest reading frame of '
@@ -197,7 +200,7 @@ def main_cli():
     ## package imports
 
     from seqsift.utils import GLOBAL_RNG, dataio, functions, alphabets
-    from seqsift.seqops import seqsum, seqmod
+    from seqsift.seqops import seqsum, seqmod, seqstats
     from seqsift.utils.fileio import OpenFile
 
     ##########################################################################
@@ -261,7 +264,8 @@ def main_cli():
 
     if args.summarize_reading_frame_lengths:
         log.info('Summarizing longest reading frame lengths...')
-        seqs = dataio.BufferedIter(seqs)
+        if not isinstance(seqs, dataio.BufferedIter):
+            seqs = dataio.BufferedIter(seqs)
         lengths = seqsum.summarize_longest_read_lengths(seqs,
                 table = args.table,
                 allow_partial = args.allow_partial,
@@ -283,6 +287,21 @@ def main_cli():
                 require_start_after_stop = (not args.read_after_stop))
         alphabet = alphabets.ProteinAlphabet()
 
+    if args.check_ids:
+        log.info('Checking sequence IDs...')
+        if not isinstance(seqs, dataio.BufferedIter):
+            seqs = dataio.BufferedIter(seqs)
+            dups = seqstats.get_duplicate_ids(seqs)
+            if len(dups) > 0:
+                dup_path = functions.get_new_path(os.path.join(args.output_dir,
+                        'seqvet-duplicate-ids.txt'))
+                log.warning('Duplicate IDs found! Writing them to '
+                        '{0}'.format(dup_path))
+                with OpenFile(dup_path, 'w') as out:
+                    for dup in dups:
+                        out.write('{0}\n'.format(dup))
+            else:
+                log.info('No duplicate sequence IDs were found.')
 
     log.info('Calculating pairwise distances...')
     distances, rev_comp_errors = seqsum.summarize_distances(seqs,
