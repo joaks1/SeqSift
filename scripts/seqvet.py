@@ -340,15 +340,22 @@ def main_cli():
             out.write('{0}\t{1}\n'.format(seq_id, dist.maximum))
 
     if rev_comp_errors:
-        rce = [sorted([s1, s2]) for (s1, s2, d, drc) in rev_comp_errors]
-        rce = sorted(set([(s1, s2) for (s1, s2) in rce]))
+        rev_comp_errors = sorted(rev_comp_errors)
+        rce_set = set()
+        rce = []
+        for (s1, s2, d, drc) in rev_comp_errors:
+            pair = tuple(sorted([s1, s2]))
+            if pair in rce_set:
+                continue
+            rce_set.add(pair)
+            rce.append((pair[0], pair[1], d, drc))
         log.info('Writing potential reverse-complement errors to file...')
         path = functions.get_new_path(os.path.join(args.output_dir, 
                 'seqvet-reverse-complement-warnings.txt'))
         with OpenFile(path, 'w') as out:
-            out.write('seq1\tseq2\n')
-            for (seq1, seq2) in rce:
-                out.write('{0}\t{1}\n'.format(seq1, seq2))
+            out.write('seq1\tseq2\tdistance\trev_comp_distance\n')
+            for (seq1, seq2, d, drc) in rce:
+                out.write('{0}\t{1}\t{2}\t{3}\n'.format(seq1, seq2, d, drc))
 
 if __name__ == '__main__':
     main_cli()
