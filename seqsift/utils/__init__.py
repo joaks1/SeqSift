@@ -30,7 +30,7 @@ class FileFormats(dict):
                 '.sto': 'stockholm',
                 '.stockholm': 'stockholm',
             })
-        _extensions = {
+        self._extensions = {
                 'clustal': '.aln',
                 'fasta': '.fasta',
                 'fastq': '.fastq',
