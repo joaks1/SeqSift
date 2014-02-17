@@ -5,10 +5,7 @@ import sys
 import argparse
 
 from Bio import SeqIO
-from seqsift.seqops.seqfilter import column_filter, row_filter
-from seqsift.utils.dataio import get_buffered_seq_iter, convert_format
-from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES
-from seqsift.utils.messaging import get_logger
+from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES, argparse_utils
 
 _program_info = {
     'name': 'seq-file-slice',
@@ -21,62 +18,30 @@ _program_info = {
         'WARRANTY. You are free to change and redistribute it in accord with '
         'the GPL. See the GNU General Public License for more details.'),}
 
-_LOG = get_logger(__name__, 'INFO')
-
-def arg_is_path(path):
-    try:
-        if not os.path.exists(path):
-            raise
-    except:
-        msg = 'path {0!r} does not exist'.format(path)
-        raise argparse.ArgumentTypeError(msg)
-    return expand_path(path)
-
-def arg_is_file(path):
-    try:
-        if not is_file(path):
-            raise
-    except:
-        msg = '{0!r} is not a file'.format(path)
-        raise argparse.ArgumentTypeError(msg)
-    return expand_path(path)
-
-def arg_is_dir(path):
-    try:
-        if not is_dir(path):
-            raise
-    except:
-        msg = '{0!r} is not a directory'.format(path)
-        raise argparse.ArgumentTypeError(msg)
-    return expand_path(path)
-
-
 def main_cli():
     description = '{name} {version}'.format(**_program_info)
     parser = argparse.ArgumentParser(description = description)
     parser.add_argument('input_files', metavar='INPUT-SEQ-FILE',
             nargs = '+',
-            type = arg_is_file,
-            help = ('Input sequence file(s) to be sliced up into smaller '
-                    'output files.'))
-    parser.add_argument('-f', '--from',
-            dest = 'from_format',
+            type = argparse_utils.arg_is_file,
+            help = ('Input sequence file(s) to be output into files with '
+                    '`-n` sequences per file.'))
+    parser.add_argument('-n', '--num-seqs-per-file',
+            type = int,
+            required = True,
+            default = 4000000,
+            help = ('The maximum number of sequences to put in each output '
+                    'file.'))
+    parser.add_argument('--format',
+            dest = 'input_format',
             type = str,
             choices = FILE_FORMATS.supported_formats,
-            help = ('The format of the input sequence file. Valid options '
+            help = ('The format of the input sequence file(s). Valid options '
                     'include: {0}. By default, the format is guessed based on '
                     'the extension of the first input file. However, if '
                     'provided, this option will always take precedence over '
                     'the file extension.'.format(
                           ', '.join(FILE_FORMATS.supported_formats))))
-    parser.add_argument('-t', '--to',
-            dest = 'to_format',
-            type = str,
-            choices = FILE_FORMATS.supported_formats,
-            help = ('The desired format of the output sequence file. Valid '
-                    'options include: {0}. By default, output files will use '
-                    'the same format as the input file(s)'.format(
-                            ', '.join(FILE_FORMATS.supported_formats))))
     parser.add_argument('-d', '--data-type',
             type = str,
             choices = VALID_DATA_TYPES,
@@ -84,29 +49,58 @@ def main_cli():
             help = ('The type of sequence data. The default is dna. Valid '
                     'options include: {0}.'.format(', '.join(
                             VALID_DATA_TYPES))))
-    parser.add_argument('-n', '--num-seqs-per-file',
-            type = int,
-            required = True,
-            help = ('The maximum number of sequences to put in each output '
-                    'file.'))
+    parser.add_argument('-c', '--compress',
+            action = 'store_true',
+            help = 'Compress (gzip) output files.')
     parser.add_argument('-o', '--output-dir',
-            type = arg_is_dir,
+            type = argparse_utils.arg_is_dir,
             help = ('The directory in which all output files will be written. '
                     'The default is to use the directory of the input file.'))
     parser.add_argument('-p', '--prefix',
             action = 'store',
             type = str,
-            default = '',
             help = ('Prefix to use at beginning of output files. The default '
-                    'is to use the input file name.'))
+                    'is to use the first input file name.'))
+    parser.add_argument('--log-frequency',
+            type = argparse_utils.arg_is_nonnegative_int,
+            default = 100000,
+            help = ('The frequency at which to log progress. Default is to log '
+                    'every 100000 sequences.'))
+    parser.add_argument('--quiet',
+            action = 'store_true',
+            help = 'Run without verbose messaging.')
+    parser.add_argument('--debug',
+            action = 'store_true',
+            help = 'Run in debugging mode.')
 
     args = parser.parse_args()
 
-    if not args.from_format:
-        args.from_format = FILE_FORMATS.get_format_from_file_object(
+    ##########################################################################
+    ## set up logging
+
+    from seqsift.utils.messaging import get_logger, LOGGING_LEVEL_ENV_VAR
+
+    os.environ[LOGGING_LEVEL_ENV_VAR] = "INFO"
+    if args.quiet:
+        os.environ[LOGGING_LEVEL_ENV_VAR] = "WARNING"
+    if args.debug:
+        os.environ[LOGGING_LEVEL_ENV_VAR] = "DEBUG"
+    log = get_logger(name = __name__)
+
+    ##########################################################################
+    ## package imports
+
+    from seqsift.utils import dataio
+    from seqsift.utils.fileio import OpenFile
+
+    ##########################################################################
+    ## handle args
+
+    if not args.input_format:
+        args.input_format = FILE_FORMATS.get_format_from_file_object(
                 args.input_files[0])
-    if not args.from_format:
-        _LOG.error("Could not determine input format.\n"
+    if not args.input_format:
+        log.error("Could not determine input format.\n"
                    "You must either provide the input format\n"
                    "using the '--from' option or have a recognizable\n"
                    "file extension on the first input file.\n"
@@ -114,16 +108,29 @@ def main_cli():
                         str(FILE_FORMATS)))
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
-    if not args.to_format:
-        args.to_format = args.from_format
 
-    _LOG.error('Sorry, this script is not fully implemented yet')
-    sys.stderr.write(str(parser.print_help()))
-    sys.exit(1)
+    if not args.prefix:
+        args.prefix = os.path.splitext(args.input_files[0])[0]
+    out_ext = FILE_FORMATS.get_ext(args.input_format, compressed = args.compress)
 
-    for fp in args.input_files:
-        with open(fp, 'w'):
-            pass
+    compresslevel = None
+    if args.compress:
+        compresslevel = 9
+
+    batch_iter = dataio.get_seq_batch_iter_from_files(
+            file_objs = args.input_files,
+            number_per_batch = args.num_seqs_per_file,
+            format = args.input_format,
+            data_type = args.data_type)
+
+    for batch_idx, seq_iter in enumerate(batch_iter):
+        out_path = '{0}_{1:0>4}{2}'.format(args.prefix, batch_idx + 1, out_ext)
+        if os.path.exists(out_path):
+            log.error('ERROR: File {0} already exists!')
+            sys.exit(1)
+        SeqIO.write(seq_iter,
+                handle = out_path,
+                format = args.input_format)
 
 if __name__ == '__main__':
     main_cli()
