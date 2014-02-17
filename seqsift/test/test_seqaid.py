@@ -34,13 +34,17 @@ class SeqAidTestCase(SeqSiftTestCase):
                         letter_annotations={'phred_quality': [1,1,1,1,1]}),
                 SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='5',
                         letter_annotations={'phred_quality': [1,1,1,1,1]})]
+        self.simple_alignment_path = None
+        self.write_alignment()
+        self.from_formats = copy.deepcopy(FILE_FORMATS)
+        self.to_formats = {
+                k: v for k, v in FILE_FORMATS.iteritems() if v != 'fastq'}
+
+    def write_alignment(self):
         stream, self.simple_alignment_path = self.getTestStream(
                 'simple_alignment.fasta')
         SeqIO.write(self.simple_alignment, stream, format='fasta')
         stream.close()
-        self.from_formats = copy.deepcopy(FILE_FORMATS)
-        self.to_formats = {
-                k: v for k, v in FILE_FORMATS.iteritems() if v != 'fastq'}
 
     def exe_seqaid(self, arg_list, return_code=0, stdout=None, stderr=None):
         if isinstance(arg_list, str):
@@ -110,6 +114,46 @@ class SeqAidTestCase(SeqSiftTestCase):
                 seqs_out = SeqIO.parse(out_path, format=out_format,
                         alphabet=IUPAC.extended_protein)
                 self.assertSameSequenceData(seqs_in, seqs_out, aligned=True)
+
+    def test_remove_duplicates_error(self):
+        self.simple_alignment = [
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='a'),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='b'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='c'),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='a'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='d'),
+                ]
+        self.write_alignment()
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-duplicates',],
+                return_code = 1)
+
+    def test_remove_duplicates(self):
+        self.simple_alignment = [
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='a'),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='b'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='c'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='a'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='d'),
+                ]
+        self.write_alignment()
+        out_path = self.getTestFile('test.fasta')
+        self.exe_seqaid([
+                self.simple_alignment_path,
+                out_path,
+                '--remove-duplicates',])
+        results = SeqIO.parse(out_path, format='fasta',
+                alphabet=IUPAC.ambiguous_dna)
+        expected = [
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='a'),
+                SeqRecord(Seq('ACGT-', alphabet=IUPAC.ambiguous_dna), id='b'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='c'),
+                SeqRecord(Seq('ACGT?', alphabet=IUPAC.ambiguous_dna), id='d'),
+                ]
+        self.assertSameSequences(results, expected, aligned=True)
 
     def test_remove_missing_column(self):
         out_path = self.getTestFile('test.fasta')

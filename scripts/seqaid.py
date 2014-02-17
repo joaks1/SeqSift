@@ -50,6 +50,14 @@ def main():
 
     filter_opts = OptionGroup(parser, 'Filter Options',
             'These options allow filtering of data by columns or sequences.')
+    filter_opts.add_option('--remove-duplicates',
+            dest='remove_duplicates',
+            default=False,
+            action='store_true',
+            help = ('Remove duplicate sequences (i.e., sequences with the same '
+                    'ID and sequence). If a duplicate ID is found associated '
+                    'with a different sequence, the program will exit with an '
+                    'error.'))
     filter_opts.add_option('--remove-missing-columns',
             dest='remove_missing_columns',
             default=False,
@@ -188,9 +196,8 @@ def main():
     ##########################################################################
     ## package imports
 
-    from seqsift.seqops import seqmod
-    from seqsift.seqops.seqfilter import column_filter, row_filter
-    from seqsift.utils.dataio import get_buffered_seq_iter, convert_format
+    from seqsift.seqops import seqmod, seqfilter
+    from seqsift.utils import dataio
 
     ##########################################################################
     ## handle args
@@ -244,7 +251,7 @@ def main():
     data_type = opt_dict.pop('data_type')
 
     if len(opt_dict) == 0:
-        convert_format(in_file = in_file_path,
+        dataio.convert_format(in_file = in_file_path,
                        out_file = out_file_path,
                        in_format = in_format,
                        out_format = out_format,
@@ -258,19 +265,22 @@ def main():
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
 
-    seqs = get_buffered_seq_iter(in_file_path,
+    seqs = dataio.get_seq_iter(in_file_path,
             format = in_format,
             data_type = data_type)
 
     if options.remove_missing_sequences:
-        seqs = row_filter(seqs,
+        seqs = seqfilter.row_filter(seqs,
                 character_list = list(options.missing_characters),
                 max_frequency = options.missing_sequence_proportion)
 
     if options.remove_missing_columns:
-        seqs = column_filter(seqs,
+        seqs = seqfilter.column_filter(seqs,
                 character_list = list(options.missing_characters),
                 max_frequency = options.missing_column_proportion)
+
+    if options.remove_duplicates:
+        seqs = seqfilter.duplicate_id_filter(seqs)
 
     if options.rev_comp:
         log.info('Reverse complementing all sequences...')
