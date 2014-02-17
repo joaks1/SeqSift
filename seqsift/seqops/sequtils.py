@@ -7,6 +7,8 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
+from seqsift.utils.dataio import BufferedIter
+
 def copy_seq_metadata(seq_record, new_seq=''):
     if isinstance(new_seq, Seq):
         s = new_seq
@@ -96,3 +98,15 @@ def get_longest_reading_frames(seq_record, table = 1,
                     continue
     return lrf
 
+def seq_batch_iter(seq_iter, number_per_batch):
+    seq_idx = 0
+    batch = BufferedIter()
+    for i, seq in enumerate(seq_iter):
+        if (i > 0) and (i % number_per_batch == 0):
+            yield batch
+            batch = BufferedIter()
+            seq_idx = 0
+        batch.append(seq)
+        seq_idx += 1
+    # if seq_idx > 1:
+    yield batch

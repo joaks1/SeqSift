@@ -2,6 +2,7 @@
 
 import os
 import sys
+import types
 import unittest
 
 from Bio.Seq import Seq
@@ -9,12 +10,106 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO
 
+import seqsift
 from seqsift.seqops import sequtils
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
+
+class SeqBatchIterTestCase(SeqSiftTestCase):
+    def test_even(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGA'), id='1'),
+                SeqRecord(Seq('ATGACCAACTGT'), id='2'),
+                SeqRecord(Seq('ATGACCAACTGC'), id='3'),
+                SeqRecord(Seq('ATGACCAACTGG'), id='4'),
+                SeqRecord(Seq('ATGACCAACTAT'), id='5'),
+                SeqRecord(Seq('ATGACCAACTAC'), id='6'),
+                ]
+        batch_iter = sequtils.seq_batch_iter(seqs, 2)
+        self.assertIsInstance(batch_iter, types.GeneratorType)
+        batch_iter = list(batch_iter)
+        self.assertEqual(len(batch_iter), 3)
+        new_seqs = []
+        for seq_iter in batch_iter:
+            self.assertIsInstance(seq_iter, seqsift.utils.dataio.BufferedIter)
+            for s in seq_iter:
+                new_seqs.append(s)
+        self.assertSameData(seqs, new_seqs)
+
+    def test_odd(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGA'), id='1'),
+                SeqRecord(Seq('ATGACCAACTGT'), id='2'),
+                SeqRecord(Seq('ATGACCAACTGC'), id='3'),
+                SeqRecord(Seq('ATGACCAACTGG'), id='4'),
+                SeqRecord(Seq('ATGACCAACTAT'), id='5'),
+                SeqRecord(Seq('ATGACCAACTAC'), id='6'),
+                SeqRecord(Seq('TTGACCAACTAC'), id='7'),
+                ]
+        batch_iter = sequtils.seq_batch_iter(seqs, 3)
+        self.assertIsInstance(batch_iter, types.GeneratorType)
+        batch_iter = list(batch_iter)
+        self.assertEqual(len(batch_iter), 3)
+        new_seqs = []
+        for seq_iter in batch_iter:
+            self.assertIsInstance(seq_iter, seqsift.utils.dataio.BufferedIter)
+            for s in seq_iter:
+                new_seqs.append(s)
+        self.assertSameData(seqs, new_seqs)
+
+        batch_iter = sequtils.seq_batch_iter(seqs, 4)
+        self.assertIsInstance(batch_iter, types.GeneratorType)
+        batch_iter = list(batch_iter)
+        self.assertEqual(len(batch_iter), 2)
+        new_seqs = []
+        for seq_iter in batch_iter:
+            self.assertIsInstance(seq_iter, seqsift.utils.dataio.BufferedIter)
+            for s in seq_iter:
+                new_seqs.append(s)
+        self.assertSameData(seqs, new_seqs)
+
+    def test_one_even(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGA'), id='1'),
+                SeqRecord(Seq('ATGACCAACTGT'), id='2'),
+                SeqRecord(Seq('ATGACCAACTGC'), id='3'),
+                SeqRecord(Seq('ATGACCAACTGG'), id='4'),
+                SeqRecord(Seq('ATGACCAACTAT'), id='5'),
+                SeqRecord(Seq('ATGACCAACTAC'), id='6'),
+                ]
+        batch_iter = sequtils.seq_batch_iter(seqs, 6)
+        self.assertIsInstance(batch_iter, types.GeneratorType)
+        batch_iter = list(batch_iter)
+        self.assertEqual(len(batch_iter), 1)
+        new_seqs = []
+        for seq_iter in batch_iter:
+            self.assertIsInstance(seq_iter, seqsift.utils.dataio.BufferedIter)
+            for s in seq_iter:
+                new_seqs.append(s)
+        self.assertSameData(seqs, new_seqs)
+
+    def test_one_odd(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGA'), id='1'),
+                SeqRecord(Seq('ATGACCAACTGT'), id='2'),
+                SeqRecord(Seq('ATGACCAACTGC'), id='3'),
+                SeqRecord(Seq('ATGACCAACTGG'), id='4'),
+                SeqRecord(Seq('ATGACCAACTAT'), id='5'),
+                SeqRecord(Seq('ATGACCAACTAC'), id='6'),
+                ]
+        batch_iter = sequtils.seq_batch_iter(seqs, 10)
+        self.assertIsInstance(batch_iter, types.GeneratorType)
+        batch_iter = list(batch_iter)
+        self.assertEqual(len(batch_iter), 1)
+        new_seqs = []
+        for seq_iter in batch_iter:
+            self.assertIsInstance(seq_iter, seqsift.utils.dataio.BufferedIter)
+            for s in seq_iter:
+                new_seqs.append(s)
+        self.assertSameData(seqs, new_seqs)
 
 class SequencesAreEqualTestCase(SeqSiftTestCase):
     def setUp(self):
