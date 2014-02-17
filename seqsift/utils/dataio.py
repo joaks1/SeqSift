@@ -11,7 +11,8 @@ from Bio import SeqIO, AlignIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-from seqsift.utils import VALID_DATA_TYPES, FILE_FORMATS
+from seqsift.seqops import sequtils
+from seqsift.utils import VALID_DATA_TYPES, FILE_FORMATS, functions
 from seqsift.utils.messaging import get_logger
 from seqsift.utils.errors import FileExtensionError
 
@@ -102,7 +103,7 @@ def get_seq_iter(file_obj, format=None, data_type='dna', ambiguities=True):
             alphabet=get_state_alphabet(data_type, ambiguities))
 
 def seq_iter(file_objs, format = None, data_type = 'dna', ambiguities = True):
-    for f in file_obj:
+    for f in file_objs:
         seqs = get_seq_iter(f, format=format, data_type=data_type,
                 ambiguities=ambiguities)
         for s in seqs:
@@ -179,26 +180,12 @@ def convert_format(in_file, out_file,
             alphabet=get_state_alphabet(data_type, ambiguities))
     return nseqs
 
-# def seq_batch_iter():
-#     total = 0
-#     seq_idx = 0
-#     file_idx = 1
-#     for fp in args.input_files:
-#         with OpenFile(fp, 'r') as file_stream:
-#             seqs = dataio.get_seq_iter(file_stream,
-#                     format = args.input_format,
-#                     data_type = args.data_type)
-#             if (seq_index == 0) or (seq_idx >= args.num_seqs_per_file):
-#                 seq_idx = 0
-#                 file_idx += 1
-#                 out_path = '{0}_{1:0>4}{2}'.format(args.prefix, file_idx, out_ext)
-#                 if os.path.exists(out_path):
-#                     log.error('ERROR: File {0} already exists!')
-#                     sys.exit(1)
-#                 out = OpenFile(out_path, compresslevel = compresslevel)
-#             for s in seqs:
-#                 seq_idx += 1
-#                 total += 1
-#                 if total % args.log_frequencey == 0:
-#                     log.info('Processing sequence # {0}...'.format(total))
-#     (
+def get_seq_batch_iter_from_files(file_objs,
+        number_per_batch,
+        format = None,
+        data_type = 'dna',
+        ambiguities = True):
+    seqs = seq_iter(file_objs, format = format, data_type = data_type,
+            ambiguities = ambiguities)
+    return sequtils.seq_batch_iter(seqs, number_per_batch)
+
