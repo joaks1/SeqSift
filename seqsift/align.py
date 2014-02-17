@@ -240,7 +240,7 @@ class MafftAligner(object):
                 self.out_path = functions.get_new_path(self.out_path)
                 with OpenFile(self.out_path, 'w') as out:
                     out.write(stdout)
-        return dataio.get_buffered_seq_iter(StringIO(stdout), format='fasta')
+        return dataio.get_buffered_seq_iter([StringIO(stdout)], format='fasta')
 
 class MuscleAligner(object):
     count = 0
@@ -274,7 +274,7 @@ class MuscleAligner(object):
                 _LOG.debug('{0}: Executing command {1!r}'.format(self.name,
                         self.cmd))
                 stdout, stderr = muscle_command()
-                results = dataio.get_buffered_seq_iter(tmp_out_path,
+                results = dataio.get_buffered_seq_iter([tmp_out_path],
                         format='fasta')
                 if self.out_path:
                     self.out_path = functions.get_new_path(self.out_path)

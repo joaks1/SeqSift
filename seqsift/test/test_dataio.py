@@ -142,7 +142,7 @@ class GetSeqIterTestCase(SeqSiftTestCase):
         self.ids = [str(x) + '.1' for x in self.names]
 
     def test_genbank(self):
-        seq_iter = get_seq_iter(self.gb_path, format='gb', data_type='dna')
+        seq_iter = get_seq_iter([self.gb_path], format='gb', data_type='dna')
         names = []
         ids = []
         for seq in seq_iter:
@@ -155,7 +155,7 @@ class GetSeqIterTestCase(SeqSiftTestCase):
                 sorted(self.ids))
 
     def test_fasta(self):
-        seq_iter = get_seq_iter(self.fasta_path, format='fasta',
+        seq_iter = get_seq_iter([self.fasta_path], format='fasta',
                 data_type='dna')
         names = []
         for seq in seq_iter:
@@ -166,19 +166,19 @@ class GetSeqIterTestCase(SeqSiftTestCase):
         self.assertEqual(sorted(names), sorted(self.ids))
 
     def test_genbank_fasta(self):
-        si1 = get_seq_iter(self.gb_path, format='gb', data_type='dna')
-        si2 = get_seq_iter(self.fasta_path, format='fasta', data_type='dna')
+        si1 = get_seq_iter([self.gb_path], format='gb', data_type='dna')
+        si2 = get_seq_iter([self.fasta_path], format='fasta', data_type='dna')
         self.assertSameSequenceData(si1, si2)
 
     def test_guess_format(self):
-        si1 = get_seq_iter(self.gb_path, format=None, data_type='dna')
-        si2 = get_seq_iter(self.fasta_path, format=None, data_type='dna')
+        si1 = get_seq_iter([self.gb_path], format=None, data_type='dna')
+        si2 = get_seq_iter([self.fasta_path], format=None, data_type='dna')
         self.assertSameSequenceData(si1, si2)
 
 class GetBufferedSeqIterTestCase(SeqSiftTestCase):
     def setUp(self):
         self.gb_path = package_paths.data_path('JF314863-JF314866.gb')
-        self.seqs = get_buffered_seq_iter(self.gb_path, format='gb',
+        self.seqs = get_buffered_seq_iter([self.gb_path], format='gb',
                 data_type='dna')
 
     def test_buffer(self):
@@ -187,7 +187,7 @@ class GetBufferedSeqIterTestCase(SeqSiftTestCase):
         self.assertSameData(s1, s2)
 
     def test_guess_format(self):
-        sequences = get_buffered_seq_iter(self.gb_path)
+        sequences = get_buffered_seq_iter([self.gb_path])
         seq_list = [s for s in sequences]
         self.assertSameSequences(seq_list, self.seqs)
 

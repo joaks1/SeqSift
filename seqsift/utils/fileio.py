@@ -3,7 +3,7 @@
 import os
 import sys
 import tempfile
-from gzip import GzipFile
+import gzip
 
 from seqsift.utils.messaging import get_logger
 

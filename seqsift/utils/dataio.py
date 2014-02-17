@@ -12,7 +12,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 from seqsift.seqops import sequtils
-from seqsift.utils import VALID_DATA_TYPES, FILE_FORMATS, functions
+from seqsift.utils import VALID_DATA_TYPES, FILE_FORMATS, functions, fileio
 from seqsift.utils.messaging import get_logger
 from seqsift.utils.errors import FileExtensionError
 
@@ -91,7 +91,8 @@ def read_seq(file_obj, format=None, data_type='dna', ambiguities=True):
             format=format,
             alphabet=get_state_alphabet(data_type, ambiguities))
 
-def get_seq_iter(file_obj, format=None, data_type='dna', ambiguities=True):
+def get_seq_iter_from_file(file_obj, format=None, data_type='dna',
+        ambiguities=True):
     """
     Returns a SeqRecord iterator from a sequence file.
     """
@@ -102,25 +103,31 @@ def get_seq_iter(file_obj, format=None, data_type='dna', ambiguities=True):
             format=format,
             alphabet=get_state_alphabet(data_type, ambiguities))
 
-def seq_iter(file_objs, format = None, data_type = 'dna', ambiguities = True):
+def get_seq_iter(file_objs, format = None, data_type = 'dna', ambiguities = True):
     for f in file_objs:
-        seqs = get_seq_iter(f, format=format, data_type=data_type,
+        close = False
+        if isinstance(f, str):
+            f = fileio.OpenFile(f, 'r')
+            close = True
+        seqs = get_seq_iter_from_file(f, format=format, data_type=data_type,
                 ambiguities=ambiguities)
         for s in seqs:
             yield s
+        if close:
+            f.close()
 
-def get_buffered_seq_iter(file_obj, format=None, data_type='dna',
+def get_buffered_seq_iter_from_file(file_obj, format=None, data_type='dna',
         ambiguities=True):
     if format == None:
         format = FILE_FORMATS.get_format_from_file_object(file_obj)
-    return BufferedIter(get_seq_iter(file_obj,
+    return BufferedIter(get_seq_iter_from_file(file_obj,
             format=format,
             data_type=data_type,
             ambiguities=ambiguities))
 
-def buffered_seq_iter(file_objs, format=None, data_type='dna',
+def get_buffered_seq_iter(file_objs, format=None, data_type='dna',
         ambiguities=True):
-    return BufferedIter(seq_iter(file_objs,
+    return BufferedIter(get_seq_iter(file_objs,
             format=format,
             data_type=data_type,
             ambiguities=ambiguities))
@@ -152,7 +159,7 @@ def get_seq_dict(file_obj, format=None, data_type='dna', ambiguities=True):
     """
     if format == None:
         format = FILE_FORMATS.get_format_from_file_object(file_obj)
-    return SeqIO.to_dict(get_seq_iter(file_obj,
+    return SeqIO.to_dict(get_seq_iter([file_obj],
             format=format,
             data_type=data_type,
             ambiguities=ambiguities))
@@ -185,7 +192,7 @@ def get_seq_batch_iter_from_files(file_objs,
         format = None,
         data_type = 'dna',
         ambiguities = True):
-    seqs = seq_iter(file_objs, format = format, data_type = data_type,
+    seqs = get_seq_iter(file_objs, format = format, data_type = data_type,
             ambiguities = ambiguities)
     return sequtils.seq_batch_iter(seqs, number_per_batch)
 

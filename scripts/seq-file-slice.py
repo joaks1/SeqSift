@@ -128,9 +128,11 @@ def main_cli():
         if os.path.exists(out_path):
             log.error('ERROR: File {0} already exists!')
             sys.exit(1)
+        out = OpenFile(out_path, mode = 'w', compresslevel = compresslevel)
         SeqIO.write(seq_iter,
-                handle = out_path,
+                handle = out,
                 format = args.input_format)
+        out.close()
 
 if __name__ == '__main__':
     main_cli()

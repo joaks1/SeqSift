@@ -258,7 +258,7 @@ def main_cli():
     ##########################################################################
     ## heavy lifting
 
-    seqs = dataio.get_seq_iter(args.input_file,
+    seqs = dataio.get_seq_iter([args.input_file],
             format = args.input_format,
             data_type = args.data_type)
 

@@ -265,7 +265,7 @@ def main():
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
 
-    seqs = dataio.get_seq_iter(in_file_path,
+    seqs = dataio.get_seq_iter([in_file_path],
             format = in_format,
             data_type = data_type)
 

@@ -183,7 +183,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('muscle'):
             _LOG.warning('muscle not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 0,
                 per_site = False,
@@ -201,7 +201,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('muscle'):
             _LOG.warning('muscle not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 5,
                 per_site = False,
@@ -219,7 +219,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('muscle'):
             _LOG.warning('muscle not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 0,
                 per_site = False,
@@ -237,7 +237,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('mafft'):
             _LOG.warning('mafft not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 0,
                 per_site = False,
@@ -255,7 +255,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('mafft'):
             _LOG.warning('mafft not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 5,
                 per_site = False,
@@ -273,7 +273,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('mafft'):
             _LOG.warning('mafft not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 0,
                 per_site = False,
@@ -291,7 +291,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('muscle'):
             _LOG.warning('muscle not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.gappy_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.gappy_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 5,
                 per_site = False,
@@ -307,7 +307,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
         if not functions.which('muscle'):
             _LOG.warning('muscle not found... skipping tests.')
             return
-        self.rc_seqs = dataio.get_buffered_seq_iter(self.rc_gappy_path)
+        self.rc_seqs = dataio.get_buffered_seq_iter([self.rc_gappy_path])
         d, e = seqsum.summarize_distances(self.rc_seqs,
                 sample_size = 5,
                 per_site = False,

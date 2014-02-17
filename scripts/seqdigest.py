@@ -19,7 +19,8 @@ from Bio.Alphabet import IUPAC
 
 from seqsift.utils.functions import mkdr
 from seqsift.digest import Fragment, RecognitionSeq, DigestSummary
-from seqsift.utils.dataio import get_seq_iter
+from seqsift.utils import dataio
+from seqsift.utils.fileio import OpenFile
 from seqsift.utils.entrez import (parse_accession_numbers, parse_gi_numbers,
         fetch_gb_seqs)
 from seqsift.utils.messaging import get_logger
@@ -214,17 +215,17 @@ def main():
                 max_mem = max([max_mem, proc.get_memory_info().rss])
     for file_path in args:
         try:
-            f = open(file_path, 'rU')
-        except IOError, e:
+            f = OpenFile(file_path, 'r')
+        except:
             _LOG.error("Could not open file {0}... skipping!".format(
                     file_path))
             continue
         if not options.format:
             format = EXTENSIONS[file_path.split('.')[-1].strip().lower()]
-        seq_iter = get_seq_iter(file_obj=f,
-                                format=format,
-                                data_type='dna',
-                                ambiguities=True)
+        seq_iter = dataio.get_seq_iter_from_file(f,
+                format=format,
+                data_type='dna',
+                ambiguities=True)
         for seq in seq_iter:
             if seq.id in digested:
                 _LOG.warning(

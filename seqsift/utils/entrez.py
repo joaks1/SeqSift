@@ -136,7 +136,8 @@ def get_gb_handle(gi_list, db, rettype, retmode='text', tmp_file=False):
     else:
         return h
 
-def fetch_gb_seqs(gi_list, data_type, parse_function=dataio.get_seq_iter):
+def fetch_gb_seqs(gi_list, data_type,
+        parse_function=dataio.get_seq_iter_from_file):
     db = get_entrez_database(data_type)
     file_obj = get_gb_handle(gi_list, db=db, rettype='gb', retmode='text')
     return parse_function(file_obj, format='gb', data_type=data_type)
