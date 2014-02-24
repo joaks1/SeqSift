@@ -291,17 +291,17 @@ def main_cli():
         log.info('Checking sequence IDs...')
         if not isinstance(seqs, dataio.BufferedIter):
             seqs = dataio.BufferedIter(seqs)
-            dups = seqstats.get_duplicate_ids(seqs)
-            if len(dups) > 0:
-                dup_path = functions.get_new_path(os.path.join(args.output_dir,
-                        'seqvet-duplicate-ids.txt'))
-                log.warning('Duplicate IDs found! Writing them to '
-                        '{0}'.format(dup_path))
-                with OpenFile(dup_path, 'w') as out:
-                    for dup in dups:
-                        out.write('{0}\n'.format(dup))
-            else:
-                log.info('No duplicate sequence IDs were found.')
+        dups = seqstats.get_duplicate_ids(seqs)
+        if len(dups) > 0:
+            dup_path = functions.get_new_path(os.path.join(args.output_dir,
+                    'seqvet-duplicate-ids.txt'))
+            log.warning('Duplicate IDs found! Writing them to '
+                    '{0}'.format(dup_path))
+            with OpenFile(dup_path, 'w') as out:
+                for dup in dups:
+                    out.write('{0}\n'.format(dup))
+        else:
+            log.info('No duplicate sequence IDs were found.')
 
     log.info('Calculating pairwise distances...')
     distances, rev_comp_errors = seqsum.summarize_distances(seqs,
