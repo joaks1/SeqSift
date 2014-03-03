@@ -4,8 +4,8 @@ Overview
 SeqSift is a python package for vetting, manipulating, and converting molecular
 sequence data. 
 
-The package is written by Jamie Oaks of the University of Kansas Department of
-Ecology and Evolutionary Biology.
+The package is written by [Jamie Oaks](http://www.phyletica.com) of the
+University of Kansas Department of Ecology and Evolutionary Biology.
 
 Requirements
 ============
