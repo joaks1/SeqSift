@@ -4,7 +4,6 @@ import sys
 import os
 import tempfile
 import cPickle
-from itertools import islice, chain
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO, AlignIO
@@ -23,6 +22,7 @@ class BufferedIter(object):
         self._tmp = tempfile.TemporaryFile(mode = 'a+b')
         self._pickler = cPickle.Pickler(self._tmp)
         self._unpickler = cPickle.Unpickler(self._tmp)
+        self.n = 0
         if obj_iter:
             self.extend(obj_iter)
 
@@ -32,6 +32,7 @@ class BufferedIter(object):
 
     def append(self, obj):
         self._pickler.dump(obj)
+        self.n += 1
 
     def seek(self, idx = 0):
         self._tmp.seek(idx)
