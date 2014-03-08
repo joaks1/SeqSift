@@ -51,3 +51,12 @@ def arg_is_nonnegative_int(i):
         raise argparse.ArgumentTypeError(msg)
     return int(i)
 
+def arg_is_positive_float(i):
+    try:
+        if float(i) <= 0.0:
+            raise
+    except:
+        msg = '{0!r} is not a positive real number'.format(i)
+        raise argparse.ArgumentTypeError(msg)
+    return float(i)
+
