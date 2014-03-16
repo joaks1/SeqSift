@@ -111,28 +111,46 @@ def main_cli():
 
     if not args.prefix:
         args.prefix = os.path.splitext(args.input_files[0])[0]
-    out_ext = FILE_FORMATS.get_ext(args.input_format, compressed = args.compress)
+    out_ext = FILE_FORMATS.get_ext(args.input_format,
+            compressed = args.compress)
 
     compresslevel = None
     if args.compress:
         compresslevel = 9
 
-    batch_iter = dataio.get_seq_batch_iter_from_files(
-            file_objs = args.input_files,
-            number_per_batch = args.num_seqs_per_file,
-            format = args.input_format,
-            data_type = args.data_type)
+    # handle sequential formats on the fly
+    if FILE_FORMATS.is_sequential(args.input_format):
+        seq_iter = dataio.get_seq_iter(
+                file_objs = args.input_files,
+                format = args.input_format,
+                data_type = args.data_type)
 
-    for batch_idx, seq_iter in enumerate(batch_iter):
-        out_path = '{0}_{1:0>4}{2}'.format(args.prefix, batch_idx + 1, out_ext)
-        if os.path.exists(out_path):
-            log.error('ERROR: File {0} already exists!')
-            sys.exit(1)
-        out = OpenFile(out_path, mode = 'w', compresslevel = compresslevel)
-        SeqIO.write(seq_iter,
-                handle = out,
-                format = args.input_format)
-        out.close()
+        dataio.write_seqs_to_files(seq_iter,
+                max_num_seqs_per_file = args.num_seqs_per_file,
+                format = args.input_format,
+                compresslevel = compresslevel,
+                prefix = args.prefix,
+                force = False)
+
+    # use SeqIO for non-sequential formats
+    else:
+        batch_iter = dataio.get_seq_batch_iter_from_files(
+                file_objs = args.input_files,
+                number_per_batch = args.num_seqs_per_file,
+                format = args.input_format,
+                data_type = args.data_type)
+
+        for batch_idx, seq_iter in enumerate(batch_iter):
+            out_path = '{0}_{1:0>4}{2}'.format(args.prefix, batch_idx + 1,
+                    out_ext)
+            if os.path.exists(out_path):
+                log.error('ERROR: File {0} already exists!')
+                sys.exit(1)
+            out = OpenFile(out_path, mode = 'w', compresslevel = compresslevel)
+            SeqIO.write(seq_iter,
+                    handle = out,
+                    format = args.input_format)
+            out.close()
 
 if __name__ == '__main__':
     main_cli()
