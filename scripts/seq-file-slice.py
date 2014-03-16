@@ -66,6 +66,9 @@ def main_cli():
             default = 100000,
             help = ('The frequency at which to log progress. Default is to log '
                     'every 100000 sequences.'))
+    parser.add_argument('--force',
+            action = 'store_true',
+            help = ('Overwrite files if they already exist.'))
     parser.add_argument('--quiet',
             action = 'store_true',
             help = 'Run without verbose messaging.')
@@ -90,7 +93,7 @@ def main_cli():
     ##########################################################################
     ## package imports
 
-    from seqsift.utils import dataio
+    from seqsift.utils import dataio, errors
     from seqsift.utils.fileio import OpenFile
 
     ##########################################################################
@@ -125,12 +128,21 @@ def main_cli():
                 format = args.input_format,
                 data_type = args.data_type)
 
-        dataio.write_seqs_to_files(seq_iter,
-                max_num_seqs_per_file = args.num_seqs_per_file,
-                format = args.input_format,
-                compresslevel = compresslevel,
-                prefix = args.prefix,
-                force = False)
+        try:
+            dataio.write_seqs_to_files(seq_iter,
+                    max_num_seqs_per_file = args.num_seqs_per_file,
+                    format = args.input_format,
+                    compresslevel = compresslevel,
+                    prefix = args.prefix,
+                    force = args.force)
+        except errors.PathExistsError as e:
+            log.error('ERROR:\n'
+                    'Output files already exist! You can specify a different\n'
+                    'prefix or use the `--force` option to overwrite the\n'
+                    'existing files. Here is the stack trace:\n\n{0}\n'.format(
+                            e))
+            sys.exit(1)
+
 
     # use SeqIO for non-sequential formats
     else:
@@ -143,8 +155,11 @@ def main_cli():
         for batch_idx, seq_iter in enumerate(batch_iter):
             out_path = '{0}_{1:0>4}{2}'.format(args.prefix, batch_idx + 1,
                     out_ext)
-            if os.path.exists(out_path):
-                log.error('ERROR: File {0} already exists!')
+            if os.path.exists(out_path) and (not args.force):
+                log.error('ERROR:\n'
+                        'Output files already exist! You can specify a '
+                        'different\nprefix or use the `--force` option to '
+                        'overwrite the\nexisting files.')
                 sys.exit(1)
             out = OpenFile(out_path, mode = 'w', compresslevel = compresslevel)
             SeqIO.write(seq_iter,
