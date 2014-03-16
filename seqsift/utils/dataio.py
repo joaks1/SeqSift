@@ -11,9 +11,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 from seqsift.seqops import sequtils
-from seqsift.utils import VALID_DATA_TYPES, FILE_FORMATS, functions, fileio
+from seqsift.utils import (VALID_DATA_TYPES, FILE_FORMATS, functions, fileio,
+        errors)
 from seqsift.utils.messaging import get_logger
-from seqsift.utils.errors import FileExtensionError
 
 _LOG = get_logger(__name__)
 
@@ -216,7 +216,8 @@ def write_seqs_to_files(seqs,
             file_idx += 1
             path = '{0}_{1:0>4}{2}'.format(prefix, file_idx, ext)
             if os.path.exists(path) and (not force):
-                raise Exception('File {0} already exists'.format(path))
+                raise errors.PathExistsError('File {0} already exists'.format(
+                        path))
             file_stream = fileio.OpenFile(path, mode = 'w',
                     compresslevel = compresslevel)
         file_stream.write('{0}'.format(seq.format(format)))
