@@ -11,3 +11,7 @@ class FileExtensionError(Exception):
 class ExternalToolNotFoundError(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
+
+class PathExistsError(Exception):
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)
