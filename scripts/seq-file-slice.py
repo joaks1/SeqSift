@@ -114,6 +114,9 @@ def main_cli():
 
     if not args.prefix:
         args.prefix = os.path.splitext(args.input_files[0])[0]
+    if args.output_dir:
+        args.prefix = os.path.join(args.output_dir, os.path.basename(args.prefix))
+
     out_ext = FILE_FORMATS.get_ext(args.input_format,
             compressed = args.compress)
 
