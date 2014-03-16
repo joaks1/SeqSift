@@ -197,3 +197,29 @@ def get_seq_batch_iter_from_files(file_objs,
             ambiguities = ambiguities)
     return sequtils.seq_batch_iter(seqs, number_per_batch)
 
+def write_seqs_to_files(seqs,
+        max_num_seqs_per_file = float('inf'),
+        format = 'fasta',
+        compresslevel = None,
+        prefix = '',
+        force = False):
+    compress = False
+    if compresslevel:
+        compress = True
+    ext = FILE_FORMATS.get_ext(format, compress)
+    file_idx = 0
+    file_stream = None
+    for seq_idx, seq in enumerate(seqs):
+        if seq_idx % max_num_seqs_per_file == 0:
+            if file_stream:
+                file_stream.close()
+            file_idx += 1
+            path = '{0}_{1:0>4}{2}'.format(prefix, file_idx, ext)
+            if os.path.exists(path) and (not force):
+                raise Exception('File {0} already exists'.format(path))
+            file_stream = fileio.OpenFile(path, mode = 'w',
+                    compresslevel = compresslevel)
+        file_stream.write('{0}'.format(seq.format(format)))
+    if file_stream and (not file_stream.closed):
+        file_stream.close()
+
