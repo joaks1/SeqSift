@@ -10,6 +10,7 @@ from seqsift.utils.messaging import get_logger
 _LOG = get_logger(__name__)
 
 class FileFormats(dict):
+    sequential = ['fasta', 'fastq']
     def __init__(self):
         dict.__init__(self, {
                 '.aln': 'clustal',
@@ -88,6 +89,9 @@ class FileFormats(dict):
         if compressed:
             return ext + '.gz'
         return ext
+
+    def is_sequential(self, format):
+        return format.lower() in self.sequential
 
 FILE_FORMATS = FileFormats()
 
