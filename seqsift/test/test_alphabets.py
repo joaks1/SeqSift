@@ -4,7 +4,7 @@ import os
 import sys
 import unittest
 
-from seqsift.utils import alphabets
+from seqsift.utils import alphabets, iteritems
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -64,7 +64,7 @@ class TestDnaAlphabet(unittest.TestCase):
                 '?': self.states,
                 }
         self.reverse_ambiguity_codes = {}
-        for k, v in self.ambiguity_codes.iteritems():
+        for k, v in iteritems(self.ambiguity_codes):
             self.reverse_ambiguity_codes[v] = k
         self.residue_ambiguity_codes = {
                 'R': ('A', 'G'),
@@ -85,7 +85,7 @@ class TestDnaAlphabet(unittest.TestCase):
                 'G': ('G',),
                 'T': ('T',),
                 }
-        for k, v in self.residue_ambiguity_codes.iteritems():
+        for k, v in iteritems(self.residue_ambiguity_codes):
             self.all_residue_codes[k] = v
 
     def test_dna_alphabet(self):

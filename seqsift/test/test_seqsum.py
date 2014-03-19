@@ -9,7 +9,7 @@ from Bio.SeqRecord import SeqRecord
 
 from seqsift.seqops import seqsum
 from seqsift.utils import dataio
-from seqsift.utils import functions, errors
+from seqsift.utils import functions, errors, iterkeys
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
@@ -79,7 +79,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 ignore_gaps = True)
         self.assertEqual(e, [])
         self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
-        for k in d.iterkeys():
+        for k in iterkeys(d):
             self.assertEqual(d[k].maximum, self.expected_maxs[k])
             self.assertAlmostEqual(d[k].mean, self.expected_means[k])
 
@@ -93,7 +93,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 aligner_tools = None)
         self.assertEqual(e, [])
         self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
-        for k in d.iterkeys():
+        for k in iterkeys(d):
             self.assertEqual(d[k].maximum, self.expected_maxs[k])
             self.assertAlmostEqual(d[k].mean, self.expected_means[k])
 
@@ -110,7 +110,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 aligner_tools = ['mafft'])
         self.assertEqual(e, [])
         self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
-        for k in d.iterkeys():
+        for k in iterkeys(d):
             self.assertEqual(d[k].maximum, self.expected_maxs[k])
             self.assertAlmostEqual(d[k].mean, self.expected_means[k])
 
@@ -127,7 +127,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 aligner_tools = ['muscle'])
         self.assertEqual(e, [])
         self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
-        for k in d.iterkeys():
+        for k in iterkeys(d):
             self.assertEqual(d[k].maximum, self.expected_maxs[k])
             self.assertAlmostEqual(d[k].mean, self.expected_means[k])
 
@@ -144,7 +144,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 aligner_tools = ['mafft'])
         self.assertEqual(e, [])
         self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
-        for k in d.iterkeys():
+        for k in iterkeys(d):
             self.assertEqual(d[k].maximum, self.expected_maxs[k])
             self.assertAlmostEqual(d[k].mean, self.expected_means[k])
 
@@ -161,7 +161,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 aligner_tools = ['muscle'])
         self.assertEqual(e, [])
         self.assertEqual(sorted(d.keys()), sorted(self.expected_means.keys()))
-        for k in d.iterkeys():
+        for k in iterkeys(d):
             self.assertEqual(d[k].maximum, self.expected_maxs[k])
             self.assertAlmostEqual(d[k].mean, self.expected_means[k])
 

@@ -10,6 +10,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import IUPAC
 
+from seqsift.utils import iterkeys
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
@@ -90,7 +91,7 @@ class SeqDigestTestCase(SeqSiftTestCase):
                             '-g', '354698776,354698778',
                             package_paths.data_path('JF314865-JF314866.gb')])
         results = {}
-        for k in expected.iterkeys():
+        for k in iterkeys(expected):
             result_file_path = os.path.join(self.test_dir,
                     ".".join([k, 'txt']))
             self.appendTestFile(result_file_path)
@@ -130,7 +131,7 @@ class SeqDigestTestCase(SeqSiftTestCase):
                             '-x', '10',
                             package_paths.data_path('JF314865-JF314866.gb')])
         results = {}
-        for k in expected.iterkeys():
+        for k in iterkeys(expected):
             result_file_path = os.path.join(self.test_dir,
                     ".".join([k, 'txt']))
             self.appendTestFile(result_file_path)
@@ -169,7 +170,7 @@ class SeqDigestTestCase(SeqSiftTestCase):
                             '-a', 'JF314863,JF314864',
                             package_paths.data_path('JF314865-JF314866.gb')])
         results = {}
-        for k in expected.iterkeys():
+        for k in iterkeys(expected):
             result_file_path = os.path.join(self.test_dir,
                     ".".join([k, 'txt']))
             self.appendTestFile(result_file_path)

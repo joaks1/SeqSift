@@ -9,6 +9,21 @@ from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
 
+# Add `iteritems`, `itervalues`, and `iterkeys` to the namespace that uses the
+# appropriate dict method for either Python 2 or 3
+try:
+    iteritems = dict.iteritems
+except AttributeError:
+    iteritems = dict.items
+try:
+    itervalues = dict.itervalues
+except AttributeError:
+    itervalues = dict.values
+try:
+    iterkeys = dict.iterkeys
+except AttributeError:
+    iterkeys = dict.keys
+
 class FileFormats(dict):
     sequential = ['fasta', 'fastq']
     def __init__(self):

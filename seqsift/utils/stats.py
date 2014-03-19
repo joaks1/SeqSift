@@ -13,9 +13,12 @@ import math
 import operator
 import decimal
 import fractions
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
-from seqsift.utils import GLOBAL_RNG
+from seqsift.utils import GLOBAL_RNG, iteritems, itervalues
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -29,9 +32,9 @@ def get_counts(elements):
 
 def get_freqs(elements):
     counts = get_counts(elements)
-    total = float(sum(counts.itervalues()))
+    total = float(sum(itervalues(counts)))
     freqs = {}
-    for k, v in counts.iteritems():
+    for k, v in iteritems(counts):
         freqs[k] = v / total
     return freqs
 
@@ -45,9 +48,9 @@ def median(samples):
         raise ValueError('empty samples')
     mdn = None
     if n % 2 == 0:
-        mdn = (s[((n / 2) - 1)] + s[(n / 2)]) / 2
+        mdn = (s[int((n / 2) - 1)] + s[int(n / 2)]) / 2
     else:
-        mdn = s[((n - 1) / 2)]
+        mdn = s[int((n - 1) / 2)]
     return mdn
 
 def has_floats(samples):
@@ -261,7 +264,7 @@ def mode_list(samples, bin_width = 'auto', zero_value = 'boundary'):
                 raise ValueError('unsupported `zero_value` argument: '
                         '{0!r}'.format(zero_value))
         counts[index] = counts.get(index, 0) + 1
-    count_tups = sorted(counts.iteritems(), key = operator.itemgetter(1),
+    count_tups = sorted(iteritems(counts), key = operator.itemgetter(1),
             reverse = True)
     max_count = count_tups[0][1]
     if discrete:

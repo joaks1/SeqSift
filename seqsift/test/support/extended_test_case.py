@@ -3,7 +3,10 @@
 import os
 import unittest
 import tempfile
-import cPickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 import re
 
 from seqsift.utils.dataio import BufferedIter
@@ -36,13 +39,13 @@ class SeqSiftTestCase(unittest.TestCase):
 
     def getBufferedIter(self, sequences):
         tmp = tempfile.TemporaryFile()
-        pickler = cPickle.Pickler(tmp)
+        pickler = pickle.Pickler(tmp)
         for seq in sequences:
             pickler.dump(seq)
 
         def seq_iter(sk=0):
             tmp.seek(sk)
-            unpickler = cPickle.Unpickler(tmp)
+            unpickler = pickle.Unpickler(tmp)
             while True:
                 try:
                     yield unpickler.load()

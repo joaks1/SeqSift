@@ -4,7 +4,7 @@ import unittest
 import os
 import math
 
-from seqsift.utils import GLOBAL_RNG
+from seqsift.utils import GLOBAL_RNG, iteritems
 from seqsift.utils.stats import *
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.test.support import package_paths
@@ -354,7 +354,7 @@ class GetFreqsTestCase(unittest.TestCase):
         expected = {0: 0.3, 1: 0.4, 2: 0.1, 3: 0.1, 4: 0.1}
         freqs = get_freqs(x)
         self.assertAlmostEqual(sum(freqs.values()), 1.0)
-        for k, v in freqs.iteritems():
+        for k, v in iteritems(freqs):
             self.assertAlmostEqual(v, expected[k])
 
 class MeanSquaredErrorTestCase(unittest.TestCase):

@@ -3,7 +3,10 @@
 import sys
 import os
 import tempfile
-import cPickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO, AlignIO
@@ -20,8 +23,8 @@ _LOG = get_logger(__name__)
 class BufferedIter(object):
     def __init__(self, obj_iter = None):
         self._tmp = tempfile.TemporaryFile(mode = 'a+b')
-        self._pickler = cPickle.Pickler(self._tmp)
-        self._unpickler = cPickle.Unpickler(self._tmp)
+        self._pickler = pickle.Pickler(self._tmp)
+        self._unpickler = pickle.Unpickler(self._tmp)
         self.n = 0
         if obj_iter:
             self.extend(obj_iter)

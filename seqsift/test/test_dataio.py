@@ -11,6 +11,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
 
 from seqsift.utils.dataio import *
+from seqsift.utils import iteritems
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
 from seqsift.utils.messaging import get_logger
@@ -216,7 +217,7 @@ class GetSeqDictTestCase(SeqSiftTestCase):
 
     def test_dict(self):
         self.assertIsInstance(self.seqs, dict)
-        for k, v in self.seqs.iteritems():
+        for k, v in iteritems(self.seqs):
             self.assertIsInstance(v, SeqRecord)
             self.assertEqual(v.id, k)
 
@@ -227,9 +228,9 @@ class ConvertFormatTestCase(SeqSiftTestCase):
     def test_primates(self):
         formats = {'fasta': '.fasta', 'phylip-relaxed': '.phylip',
                 'nexus': '.nexus'}
-        for in_format, in_ext in formats.iteritems():
+        for in_format, in_ext in iteritems(formats):
             in_file = package_paths.data_path('primates' + in_ext)
-            for out_format, out_ext in formats.iteritems():
+            for out_format, out_ext in iteritems(formats):
                 out_file = self.getTestFile('primates' + out_ext)
                 n = convert_format(in_file=in_file,
                         in_format=in_format,
@@ -246,9 +247,9 @@ class ConvertFormatTestCase(SeqSiftTestCase):
     def test_limnonectes(self):
         formats = {'fasta': '.fasta', 'phylip-relaxed': '.phylip',
                 'nexus': '.nexus'}
-        for in_format, in_ext in formats.iteritems():
+        for in_format, in_ext in iteritems(formats):
             in_file = package_paths.data_path('limnonectes' + in_ext)
-            for out_format, out_ext in formats.iteritems():
+            for out_format, out_ext in iteritems(formats):
                 out_file = self.getTestFile('limnonectes' + out_ext)
                 n = convert_format(in_file=in_file,
                         in_format=in_format,
@@ -265,9 +266,9 @@ class ConvertFormatTestCase(SeqSiftTestCase):
     def test_caenophidia(self):
         formats = {'fasta': '.fasta', 'phylip-relaxed': '.phylip',
                 'nexus': '.nexus'}
-        for in_format, in_ext in formats.iteritems():
+        for in_format, in_ext in iteritems(formats):
             in_file = package_paths.data_path('caenophidia' + in_ext)
-            for out_format, out_ext in formats.iteritems():
+            for out_format, out_ext in iteritems(formats):
                 out_file = self.getTestFile('caenophidia' + out_ext)
                 n = convert_format(in_file=in_file,
                         in_format=in_format,

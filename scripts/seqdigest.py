@@ -19,7 +19,7 @@ from Bio.Alphabet import IUPAC
 
 from seqsift.utils.functions import mkdr
 from seqsift.digest import Fragment, RecognitionSeq, DigestSummary
-from seqsift.utils import dataio
+from seqsift.utils import dataio, iterkeys
 from seqsift.utils.fileio import OpenFile
 from seqsift.utils.entrez import (parse_accession_numbers, parse_gi_numbers,
         fetch_gb_seqs)
@@ -67,7 +67,7 @@ def digest_seq(recognition_seq,
             ".".join([digest.molecule_name, 'txt']))
     out = open(out_file_path, 'w')
     out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
-    for l in sorted(digest.length_distribution.iterkeys()):
+    for l in sorted(iterkeys(digest.length_distribution)):
         f = digest.length_distribution[l]
         out.write("{0}\t{1}\n".format(l, f))
         digest_total += f
@@ -254,7 +254,7 @@ def main():
     out_file_path = os.path.join(out_dir, 'combined.txt')
     out = open(out_file_path, 'w')
     out.write("{0}\t{1}\n".format('fragment_length', 'frequency'))
-    for l in sorted(combined.iterkeys()):
+    for l in sorted(iterkeys(combined)):
         f = combined[l]
         out.write("{0}\t{1}\n".format(l, f))
     out.close()

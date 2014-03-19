@@ -14,7 +14,7 @@ from Bio import SeqIO
 
 from seqsift.test.support import package_paths
 from seqsift.test.support.extended_test_case import SeqSiftTestCase
-from seqsift.utils import FILE_FORMATS
+from seqsift.utils import FILE_FORMATS, iteritems
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -38,7 +38,7 @@ class SeqAidTestCase(SeqSiftTestCase):
         self.write_alignment()
         self.from_formats = copy.deepcopy(FILE_FORMATS)
         self.to_formats = {
-                k: v for k, v in FILE_FORMATS.iteritems() if v != 'fastq'}
+                k: v for k, v in iteritems(FILE_FORMATS) if v != 'fastq'}
 
     def write_alignment(self):
         stream, self.simple_alignment_path = self.getTestStream(
@@ -77,11 +77,11 @@ class SeqAidTestCase(SeqSiftTestCase):
         self.exe_seqaid(['one', 'two', 'three'], return_code=1)
 
     def test_format_conversion(self):
-        for in_ext, in_format in self.from_formats.iteritems():
+        for in_ext, in_format in iteritems(self.from_formats):
             test_stream, test_path = self.getTestStream('simple' + in_ext)
             SeqIO.write(self.simple_alignment, test_stream, format=in_format)
             test_stream.close()
-            for out_ext, out_format in self.to_formats.iteritems():
+            for out_ext, out_format in iteritems(self.to_formats):
                 if out_ext == in_ext:
                     continue
                 out_path = self.getTestFile(test_path.replace(in_ext, out_ext))
@@ -101,7 +101,7 @@ class SeqAidTestCase(SeqSiftTestCase):
             else:
                 in_format = in_ext.replace('.', '')
             in_path = package_paths.data_path(filename)
-            for out_ext, out_format in self.to_formats.iteritems():
+            for out_ext, out_format in iteritems(self.to_formats):
                 if out_ext == in_ext:
                     continue
                 if out_format == 'genbank':

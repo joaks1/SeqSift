@@ -2,7 +2,10 @@
 
 import os
 import shutil
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from Bio.Align.Applications import MafftCommandline, MuscleCommandline
 from Bio.Seq import Seq

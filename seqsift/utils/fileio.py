@@ -16,7 +16,7 @@ def is_gzipped(file_path):
     l = ''
     try:
         fs = open(expand_path(file_path), 'r')
-        l = fs.next()
+        l = next(fs)
     except:
         return False
     finally:
@@ -69,10 +69,10 @@ class OpenFile(object):
                     compresslevel = self.compresslevel)
         else:
             if self.buffering:
-                self.file_stream = open(name = self.name, mode = self.mode,
+                self.file_stream = open(self.name, mode = self.mode,
                         buffering = self.buffering)
             else:
-                self.file_stream = open(name = self.name, mode = self.mode)
+                self.file_stream = open(self.name, mode = self.mode)
         self.__class__.open_files.add(self.name)
 
     def close(self):
@@ -95,7 +95,7 @@ class OpenFile(object):
         self.file_stream.writelines(sequence_of_strings)
 
     def next(self):
-        return self.file_stream.next()
+        return next(self.file_stream)
 
     def read(self):
         return self.file_stream.read()

@@ -14,7 +14,8 @@ import sys
 import random
 import argparse
 
-from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES, argparse_utils
+from seqsift.utils import (FILE_FORMATS, VALID_DATA_TYPES, argparse_utils,
+        iteritems)
 
 _program_info = {
     'name': os.path.basename(__file__),
@@ -318,7 +319,7 @@ def main_cli():
     log.info('Done!')
 
     log.info('Writing mean distances to file...')
-    distances = sorted([(k, v) for k, v in distances.iteritems()],
+    distances = sorted([(k, v) for k, v in iteritems(distances)],
             key = lambda x: x[1].mean,
             reverse = True)
     mean_path = functions.get_new_path(os.path.join(args.output_dir, 

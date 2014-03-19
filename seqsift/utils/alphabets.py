@@ -2,6 +2,8 @@
 
 import copy
 
+from seqsift.utils import iteritems
+
 class ResidueAlphabet(object):
     def __init__(self,
             states,
@@ -56,7 +58,7 @@ class ResidueAlphabet(object):
     def _set_ambiguity_codes(self, symbol_to_states_dict):
         self._ambiguity_codes = {}
         self._reverse_ambiguity_codes = {}
-        for ambig, states in symbol_to_states_dict.iteritems():
+        for ambig, states in iteritems(symbol_to_states_dict):
             for s in states:
                 if not s in self.states:
                     raise ValueError('Ambiguity {0!r} maps to an invalid '

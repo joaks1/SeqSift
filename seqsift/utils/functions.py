@@ -21,10 +21,10 @@ def sample_iter(iterable, sample_size, exclude = [], exclude_attribute = None,
     samples = []
     iterator = iter(iterable)
     try:
-        for i in xrange(sample_size):
-            s = iterator.next()
+        for i in range(sample_size):
+            s = next(iterator)
             while get_attribute(s, exclude_attribute) in exclude:
-                s = iterator.next()
+                s = next(iterator)
             samples.append(s)
     except StopIteration:
         raise ValueError("Sample size {0} is larger than population".format(
@@ -44,7 +44,7 @@ def mkdr(path):
     """
     try:
         os.makedirs(path)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.EEXIST:
             pass
         else:
