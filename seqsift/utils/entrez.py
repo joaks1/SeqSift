@@ -99,15 +99,15 @@ def get_pure_gi_numbers(gi_list):
          _LOG.info('searching for gi numbers for accessions {0}'.format(accs))
     for a in accs:
         s = Entrez.read(Entrez.esearch(db='nuccore', term=a+"[accession]"))
-        if s.has_key('IdList') and len(s['IdList']) == 1:
+        if ('IdList' in s) and (len(s['IdList']) == 1):
             _LOG.info('found gi number ({0}) for {1}'.format(
                     s['IdList'][0], a))
             new_gis.append(s['IdList'][0])
-        elif s.has_key('IdList') and len(s['IdList']) > 1:
+        elif ('IdList' in s) and (len(s['IdList']) > 1):
             _LOG.warn('found multiple gi numbers ({0}) for {1}'.format(
                     s['IdList'], a))
             new_gis.extend(s['IdList'])
-        elif s.has_key('IdList') and len(s['IdList']) < 1:
+        elif ('IdList' in s) and (len(s['IdList']) < 1):
             _LOG.warn('could not find gi number for {0}'.format(a))
         else:
             _LOG.warn('could not find gi number for {0}'.format(a))

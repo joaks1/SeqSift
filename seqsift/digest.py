@@ -214,6 +214,6 @@ class DigestSummary(object):
                 l = fragment.length + fragment.overhang + extra_length
             else:
                 l = fragment.length + extra_length
-            if l not in self.length_distribution.keys():
+            if l not in self.length_distribution:
                 self.length_distribution[l] = 0
             self.length_distribution[l] += 1

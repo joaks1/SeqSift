@@ -59,7 +59,7 @@ def main():
         _LOG.error("You must provide GI or accession numbers")
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)
-    if not options.format.lower() in _FORMATS.keys():
+    if not options.format.lower() in _FORMATS:
         _LOG.error("Format {0} is not valid".format(options.format))
         sys.stderr.write(str(parser.print_help()))
         sys.exit(1)

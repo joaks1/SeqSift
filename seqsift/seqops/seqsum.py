@@ -87,16 +87,16 @@ def summarize_distances(seq_iter,
                     '{1} ({2:.5f} vs {3:.5f})'.format(seq1.id, seq2.id, drc, d))
             rev_comp_errors.append((seq1.id, seq2.id, d, drc))
         if sample_size > 0:
-            if not distances.has_key(seq1.id):
+            if not seq1.id in distances:
                 distances[seq1.id] = stats.SampleSummarizer(samples = [d])
                 continue
             distances[seq1.id].add_sample(d)
         else:
-            if not distances.has_key(seq1.id):
+            if not seq1.id in distances:
                 distances[seq1.id] = stats.SampleSummarizer(samples = [d])
             else:
                 distances[seq1.id].add_sample(d)
-            if not distances.has_key(seq2.id):
+            if not seq2.id in distances:
                 distances[seq2.id] = stats.SampleSummarizer(samples = [d])
             else:
                 distances[seq2.id].add_sample(d)

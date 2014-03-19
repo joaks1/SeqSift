@@ -45,7 +45,7 @@ class ResidueAlphabet(object):
         if not state in self.states:
             raise ValueError('Gap symbol {0!r} is not in state alphabet: '
                     '{1}'.format(state, self.states))
-        if state in self.ambiguity_codes.keys():
+        if state in self.ambiguity_codes:
             raise ValueError('Gap state symbol {0!r} is already used as '
                     'ambiguity')
         self._gap = state

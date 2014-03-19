@@ -142,10 +142,10 @@ def calculate_F_matrix(
     return fmatrix
 
 def match_score(base1, base2, similarity_matrix):
-    if (base1, base2) in similarity_matrix.keys():
+    if (base1, base2) in similarity_matrix:
         return similarity_matrix[base1, base2]
-    elif (base1 in DNA_AMBIGUITY_CODES.keys()) or \
-            (base2 in DNA_AMBIGUITY_CODES.keys()):
+    elif (base1 in DNA_AMBIGUITY_CODES) or \
+            (base2 in DNA_AMBIGUITY_CODES):
         possible_bases1 = DNA_AMBIGUITY_CODES.get(base1, base1)
         possible_bases2 = DNA_AMBIGUITY_CODES.get(base2, base2)
         total_score = 0
@@ -220,7 +220,7 @@ class MafftAligner(object):
                     'Cannot find mafft executable')
         _LOG.debug('{0}: Using exe {1!r}'.format(self.name, self.exe))
         self.kwargs = kwargs
-        if self.kwargs.has_key('input'):
+        if 'input' in self.kwargs:
             raise ValueError('MafftAligner does not accept the keyword '
                     'argument `input`.')
         if not self.kwargs:
@@ -256,7 +256,7 @@ class MuscleAligner(object):
                     'Cannot find muscle executable')
         _LOG.debug('{0}: Using exe {1!r}'.format(self.name, self.exe))
         self.kwargs = kwargs
-        if self.kwargs.has_key('input') or self.kwargs.has_key('out'):
+        if ('input' in self.kwargs) or ('out' in self.kwargs):
             raise ValueError('MuscleAligner does not accept keyword '
                     'arguments `input`/`out`.')
         if out_path:

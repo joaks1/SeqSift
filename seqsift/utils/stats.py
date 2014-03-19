@@ -48,9 +48,9 @@ def median(samples):
         raise ValueError('empty samples')
     mdn = None
     if n % 2 == 0:
-        mdn = (s[int((n / 2) - 1)] + s[int(n / 2)]) / 2
+        mdn = (s[((n // 2) - 1)] + s[(n // 2)]) / 2
     else:
-        mdn = s[int((n - 1) / 2)]
+        mdn = s[((n - 1) // 2)]
     return mdn
 
 def has_floats(samples):

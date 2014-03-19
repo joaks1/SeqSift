@@ -77,7 +77,7 @@ def digest_seq(recognition_seq,
         else:
             if l >= min_length:
                 digest_filter += f
-        if l not in append_dict.keys():
+        if l not in append_dict:
             append_dict[l] = 0
         append_dict[l] += f
     out.close()
