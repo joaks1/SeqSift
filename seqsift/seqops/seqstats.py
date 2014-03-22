@@ -5,8 +5,7 @@ import os
 import itertools
 
 from seqsift.align import align, align_pair
-from seqsift.utils import functions
-from seqsift.utils.dataio import BufferedIter
+from seqsift.utils import functions, stats, dataio
 from seqsift.utils.errors import AlignmentError
 from seqsift.utils import alphabets
 from seqsift.seqops import sequtils
@@ -27,7 +26,7 @@ def get_duplicate_ids(seq_iter):
     return sorted(list(dups))
 
 def column_frequencies(seq_iter, character_list=['-','?']):
-    seqs = BufferedIter(seq_iter)
+    seqs = dataio.BufferedIter(seq_iter)
     char_list = [c.lower() for c in character_list]
     column_counts = []
     align_length = None
@@ -51,7 +50,7 @@ def pairwise_distance_iter(seq_iter,
         ignore_gaps = True,
         alphabet = None,
         aligner_tools = ['mafft', 'muscle']):
-    seqs = BufferedIter(seq_iter)
+    seqs = dataio.BufferedIter(seq_iter)
     for seq1, seq2 in itertools.combinations(seqs, 2):
         d, drc = get_distances(
                 seq1 = seq1,
@@ -71,8 +70,8 @@ def sample_distance_iter(seq_iter,
         alphabet = None,
         aligner_tools = ['mafft', 'muscle'],
         rng = None):
-    seqs = BufferedIter(seq_iter)
-    seqs_to_sample = BufferedIter(seqs)
+    seqs = dataio.BufferedIter(seq_iter)
+    seqs_to_sample = dataio.BufferedIter(seqs)
     for seq1 in seqs:
         samples = functions.sample_iter(iterable = seqs_to_sample,
                 sample_size = sample_size,
@@ -168,4 +167,27 @@ def get_differences(seq1, seq2,
         if not s1.intersection(s2):
             diffs[i] = (seq1[i].upper(), seq2[i].upper())
     return diffs, num_comparisons
+
+def get_seq_summary(seqs):
+    return stats.SampleSummarizer((len(s) for s in seqs))
+
+def get_seq_summaries_from_files(paths, format = None, data_type = 'dna',
+        ambiguities = True, global_key = 'global'):
+    seq_iters = (dataio.SeqFileIter(p,
+            format = format,
+            data_type = data_type,
+            ambiguities = ambiguities
+            ) for p in paths)
+    sums = {}
+    sums[global_key] = stats.SampleSummarizer()
+    for i, seq_iter in enumerate(seq_iters):
+        key = seq_iter.name
+        if key == global_key:
+            raise Exception('{0} is the global key for the seq summary '
+                    'dict.\nSpecify alternative global key'.format(key))
+        sums[key] = stats.SampleSummarizer()
+        for seq in seq_iter:
+            sums[key].add_sample(len(seq))
+            sums[global_key].add_sample(len(seq))
+    return sums
 

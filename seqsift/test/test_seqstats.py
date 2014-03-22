@@ -701,6 +701,40 @@ class ColumnFrequenciesTestCase(SeqSiftTestCase):
                 expected_freqs)
         self.assertSameSequences(self.simple_alignment, seqs)
 
+class GetSeqSummariesTestCase(SeqSiftTestCase):
+    def test_basic(self):
+        seqs1 = [SeqRecord(Seq('ACGT'), id='1'),
+                          SeqRecord(Seq('ACGTAA'), id='2'),
+                          SeqRecord(Seq('ACGTA'), id='3'),
+                          SeqRecord(Seq('ACGT'), id='4'),
+                          SeqRecord(Seq('ACGT'), id='5')]
+        s = seqstats.get_seq_summary(seqs1)
+        self.assertEqual(s.n, 5)
+        self.assertEqual(s.maximum, 6)
+        self.assertEqual(s.minimum, 4)
+        self.assertAlmostEqual(s.mean, 23.0/5.0)
+
+class GetSeqSummariesFromFilesTestCase(SeqSiftTestCase):
+    def test_basic(self):
+        p1 = package_paths.data_path('primates.nexus')
+        p2 = package_paths.data_path('primates.fasta')
+        
+        l = 898
+        summaries = seqstats.get_seq_summaries_from_files([p1, p2])
+        g = summaries.pop('global')
+        self.assertEqual(g.n, 24)
+        self.assertEqual(g.maximum, l)
+        self.assertEqual(g.minimum, l)
+        self.assertAlmostEqual(g.mean, 898.0)
+        self.assertAlmostEqual(g.variance, 0.0)
+        for k, s in summaries.items():
+            self.assertTrue(k.endswith('primates.nexus') or k.endswith(
+                    'primates.fasta'))
+            self.assertEqual(s.maximum, l)
+            self.assertEqual(s.minimum, l)
+            self.assertAlmostEqual(s.mean, 898.0)
+            self.assertAlmostEqual(s.variance, 0.0)
+
 if __name__ == '__main__':
     unittest.main()
 
