@@ -48,6 +48,87 @@ class BufferedIter(object):
             except EOFError:
                 break
 
+class SeqFileIter(object):
+    count = 0
+    def __init__(self, file_obj,
+            format = None,
+            data_type = 'dna',
+            ambiguities = True):
+        self.__class__.count += 1
+        self.instance_name = '-'.join([self.__class__.__name__,
+                str(self.count)])
+        self.name = getattr(file_obj, 'name', self.instance_name)
+        self._close = False
+        self._file_obj = file_obj
+        if isinstance(file_obj, str):
+            self.name = file_obj
+            self._file_obj = fileio.OpenFile(file_obj, 'r')
+            self._close = True
+        if format == None:
+            format = FILE_FORMATS.get_format_from_file_object(file_obj)
+        self._seqs = SeqIO.parse(self._file_obj,
+                format=format,
+                alphabet=get_state_alphabet(data_type, ambiguities))
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        try:
+            return self._seqs.next()
+        except StopIteration as e:
+            if self._close:
+                self._file_obj.close()
+            raise e
+
+    @classmethod
+    def get_seq_iter_from_file(cls, file_obj,
+            format = None,
+            data_type = 'dna',
+            ambiguities = True):
+        """
+        Returns a SeqRecord iterator from a sequence file.
+        """
+        return cls(file_obj,
+                format = format,
+                data_type = data_type,
+                ambiguities = ambiguities)
+
+    @classmethod
+    def get_seq_iter(cls, file_objs,
+            format = None,
+            data_type = 'dna',
+            ambiguities = True):
+        for f in file_objs:
+            seqs = cls(f,
+                    format = format,
+                    data_type = data_type,
+                    ambiguities = ambiguities)
+            for s in seqs:
+                yield s
+
+
+get_seq_iter_from_file = SeqFileIter.get_seq_iter_from_file
+get_seq_iter = SeqFileIter.get_seq_iter
+
+def get_buffered_seq_iter_from_file(file_obj, format=None, data_type='dna',
+        ambiguities=True):
+    return BufferedIter(get_seq_iter_from_file(file_obj,
+            format=format,
+            data_type=data_type,
+            ambiguities=ambiguities))
+
+def get_buffered_seq_iter(file_objs, format=None, data_type='dna',
+        ambiguities=True):
+    return BufferedIter(get_seq_iter(file_objs,
+            format=format,
+            data_type=data_type,
+            ambiguities=ambiguities))
+
+
 def get_tmp_handle(file_obj=None, rewind=True):
     tmp = tempfile.TemporaryFile()
     if not file_obj:
@@ -95,46 +176,6 @@ def read_seq(file_obj, format=None, data_type='dna', ambiguities=True):
             format=format,
             alphabet=get_state_alphabet(data_type, ambiguities))
 
-def get_seq_iter_from_file(file_obj, format=None, data_type='dna',
-        ambiguities=True):
-    """
-    Returns a SeqRecord iterator from a sequence file.
-    """
-    if format == None:
-        format = FILE_FORMATS.get_format_from_file_object(file_obj)
-    _LOG.debug("parsing SeqRecord iterator from {0!r}".format(file_obj))
-    return SeqIO.parse(file_obj,
-            format=format,
-            alphabet=get_state_alphabet(data_type, ambiguities))
-
-def get_seq_iter(file_objs, format = None, data_type = 'dna', ambiguities = True):
-    for f in file_objs:
-        close = False
-        if isinstance(f, str):
-            f = fileio.OpenFile(f, 'r')
-            close = True
-        seqs = get_seq_iter_from_file(f, format=format, data_type=data_type,
-                ambiguities=ambiguities)
-        for s in seqs:
-            yield s
-        if close:
-            f.close()
-
-def get_buffered_seq_iter_from_file(file_obj, format=None, data_type='dna',
-        ambiguities=True):
-    if format == None:
-        format = FILE_FORMATS.get_format_from_file_object(file_obj)
-    return BufferedIter(get_seq_iter_from_file(file_obj,
-            format=format,
-            data_type=data_type,
-            ambiguities=ambiguities))
-
-def get_buffered_seq_iter(file_objs, format=None, data_type='dna',
-        ambiguities=True):
-    return BufferedIter(get_seq_iter(file_objs,
-            format=format,
-            data_type=data_type,
-            ambiguities=ambiguities))
 
 def get_indexed_seq_iter(file_path, format=None, data_type='dna',
         key_function=None,
