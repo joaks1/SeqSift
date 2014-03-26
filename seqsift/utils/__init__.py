@@ -34,6 +34,7 @@ class FileFormats(dict):
                 '.fas': 'fasta',
                 '.faa': 'fasta',
                 '.fastq': 'fastq',
+                '.fq': 'fastq',
                 '.gb': 'genbank',
                 '.gbk': 'genbank',
                 '.genbank': 'genbank',
