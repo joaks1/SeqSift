@@ -242,10 +242,12 @@ def get_seq_batch_iter_from_files(file_objs,
     return sequtils.seq_batch_iter(seqs, number_per_batch)
 
 def write_seqs(seqs, dest = None,
-        format = 'fasta'):
+        format = 'fasta',
+        compresslevel = None):
     if not dest:
         dest = sys.stdout
-    out, close = fileio.process_file_arg(dest)
+    out, close = fileio.process_file_arg(dest, mode = 'w',
+            compresslevel = compresslevel)
     for seq in seqs:
         out.write('{0}'.format(seq.format(format)))
     if close:
