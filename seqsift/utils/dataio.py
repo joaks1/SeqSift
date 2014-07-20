@@ -241,6 +241,16 @@ def get_seq_batch_iter_from_files(file_objs,
             ambiguities = ambiguities)
     return sequtils.seq_batch_iter(seqs, number_per_batch)
 
+def write_seqs(seqs, dest = None,
+        format = 'fasta'):
+    if not dest:
+        dest = sys.stdout
+    out, close = fileio.process_file_arg(dest)
+    for seq in seqs:
+        out.write('{0}'.format(seq.format(format)))
+    if close:
+        out.close()
+
 def write_seqs_to_files(seqs,
         max_num_seqs_per_file = float('inf'),
         format = 'fasta',
