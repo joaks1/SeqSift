@@ -242,7 +242,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 sample_size = 0,
                 per_site = False,
                 aligned = False,
-                ignore_gaps = True,
+                ignore_gaps = False,
                 do_full_alignment = False,
                 aligner_tools = ['mafft'],
                 full_aligner_tools = None)
@@ -260,7 +260,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 sample_size = 5,
                 per_site = False,
                 aligned = False,
-                ignore_gaps = True,
+                ignore_gaps = False,
                 do_full_alignment = False,
                 aligner_tools = ['mafft'],
                 full_aligner_tools = None)
@@ -278,7 +278,7 @@ class SummarizeDistancesTestCase(unittest.TestCase):
                 sample_size = 0,
                 per_site = False,
                 aligned = False,
-                ignore_gaps = True,
+                ignore_gaps = False,
                 do_full_alignment = True,
                 aligner_tools = ['mafft'],
                 full_aligner_tools = ['mafft'])
