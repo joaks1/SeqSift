@@ -1,0 +1,11 @@
+Version 0.1.1
+=============
+
+New Features
+------------
+  - ``seqvet.py`` now allows names of aligner (mafft/muscle) executables that
+    are in path, rather than requiring full paths, for aligner-tool options.
+
+Changes
+-------
+  - New functions added for checking and handling paths to external tools.

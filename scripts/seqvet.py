@@ -20,7 +20,7 @@ from seqsift.utils import (FILE_FORMATS, VALID_DATA_TYPES, argparse_utils,
 _program_info = {
     'name': os.path.basename(__file__),
     'author': 'Jamie Oaks',
-    'version': 'Version 0.1.0',
+    'version': 'Version 0.1.1',
     'description': __doc__,
     'copyright': 'Copyright (C) 2013 Jamie Oaks',
     'license': 'GNU GPL version 3 or later',}
