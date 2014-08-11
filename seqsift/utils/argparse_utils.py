@@ -4,7 +4,7 @@ import os
 import argparse
 
 from seqsift.utils.fileio import expand_path
-from seqsift.utils.functions import is_executable
+from seqsift.utils import functions
 
 def arg_is_path(path):
     try:
@@ -35,12 +35,10 @@ def arg_is_dir(path):
 
 def arg_is_executable(path):
     try:
-        if not is_executable(path):
-            raise
+        return functions.get_external_tool(path)
     except:
         msg = '{0!r} is not an executable'.format(path)
         raise argparse.ArgumentTypeError(msg)
-    return expand_path(path)
 
 def arg_is_nonnegative_int(i):
     try:
