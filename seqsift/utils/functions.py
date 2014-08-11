@@ -4,6 +4,7 @@ import sys
 import os
 import random
 import errno
+import subprocess
 
 from seqsift.utils import GLOBAL_RNG
 
@@ -50,6 +51,30 @@ def mkdr(path):
         else:
             raise
 
+def get_external_tool(exe_file):
+    """
+    Uses `subprocess.Popen` to check system for `exe_file`. If found,
+    `exe_file` is returned, else `None` is returned.
+
+    """
+    try:
+        p = subprocess.Popen([exe_file],
+                stdout = subprocess.PIPE,
+                stderr = subprocess.PIPE)
+        p.terminate()
+    except subprocess.CalledProcessError:
+        return exe_file
+    except OSError:
+        raise Exception('Unable to find executable '
+            '{0!r}'.format(exe_file))
+    return exe_file
+
+def get_tool_full_path(name):
+    p = get_external_tool(name)
+    if os.path.isfile(p):
+        return p
+    return which(name)
+
 def get_new_path(path, max_attempts = 1000):
     path = os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
     if not os.path.exists(path):
@@ -68,16 +93,18 @@ def get_new_path(path, max_attempts = 1000):
         attempt += 1
 
 def is_executable(path):
-    return os.path.isfile(path) and os.access(path, os.X_OK)
+    return os.path.isfile(path) and bool(get_external_tool(path))
 
 def which(exe):
-    if is_executable(exe):
-        return exe
-    name = os.path.basename(exe)
-    for p in os.environ['PATH'].split(os.pathsep):
-        p = p.strip('"')
-        exe_path = os.path.join(p, name)
-        if is_executable(exe_path):
-            return exe_path
+    pth, name = os.path.split(exe)
+    if pth:
+        if is_executable(exe):
+            return exe
+    else:
+        for p in os.environ['PATH'].split(os.pathsep):
+            p = p.strip('"')
+            exe_path = os.path.join(p, exe)
+            if is_executable(exe_path):
+                return exe_path
     return None
 
