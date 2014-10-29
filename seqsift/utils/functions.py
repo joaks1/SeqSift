@@ -5,8 +5,13 @@ import os
 import random
 import errno
 import subprocess
+import string
 
 from seqsift.utils import GLOBAL_RNG
+
+def random_str(length=8,
+        char_pool=string.ascii_letters + string.digits):
+    return ''.join(random.choice(char_pool) for i in range(length))
 
 def sample_iter(iterable, sample_size, exclude = [], exclude_attribute = None,
         rng = None):
