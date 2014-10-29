@@ -287,7 +287,7 @@ class LociFileIter(object):
     dna_symbols = ''.join(set(
             [x.upper() for x in dna_alphabet.get_valid_symbols()] +
             [x.lower() for x in dna_alphabet.get_valid_symbols()]))
-    seq_pattern = re.compile(r'^>(?P<name>\S+)\s+(?P<seq>[{0}]+)$'.format(dna_symbols))
+    seq_pattern = re.compile(r'^>(?P<name>.+)\s+(?P<seq>[{0}]+)$'.format(dna_symbols))
     inter_locus_pattern = re.compile(r'^//.*$')
 
     def __init__(self, file_obj):
@@ -319,20 +319,22 @@ class LociFileIter(object):
     def _next_locus(self):
         seqs = []
         for line in self._file_obj:
-            m = self.seq_pattern.match(line)
-            x = self.inter_locus_pattern.match(line)
+            l = line.strip()
+            m = self.seq_pattern.match(l)
+            x = self.inter_locus_pattern.match(l)
             if m:
                 s = Seq(m.group('seq'), alphabet = get_state_alphabet('dna',
                         ambiguities = True))
+                name = m.group('name').strip()
                 seqs.append(SeqRecord(
                         seq = s,
-                        id = m.group('name'),
-                        name = m.group('name'))
+                        id = name,
+                        name = name)
                         )
             elif x:
                 yield seqs
             else:
                 raise Exception('unexpected format of line in loci-formatted '
-                        'file {0}:\n{1}\n'.format(self.name, line.strip()))
+                        'file {0}:\n{1}\n'.format(self.name, l))
 
 
