@@ -3,6 +3,7 @@
 import sys
 import os
 import tempfile
+import re
 try:
     import cPickle as pickle
 except ImportError:
@@ -15,7 +16,7 @@ from Bio.SeqRecord import SeqRecord
 
 from seqsift.seqops import sequtils
 from seqsift.utils import (VALID_DATA_TYPES, FILE_FORMATS, functions, fileio,
-        errors)
+        errors, alphabets)
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -279,4 +280,60 @@ def write_seqs_to_files(seqs,
         file_stream.write('{0}'.format(seq.format(format)))
     if file_stream and (not file_stream.closed):
         file_stream.close()
+
+class LociFileIter(object):
+    count = 0
+    dna_alphabet = alphabets.DnaAlphabet()
+    dna_symbols = ''.join(set(
+            [x.upper() for x in dna_alphabet.get_valid_symbols()] +
+            [x.lower() for x in dna_alphabet.get_valid_symbols()]))
+    seq_pattern = re.compile(r'^>(?P<name>\S+)\s+(?P<seq>[{0}]+)$'.format(dna_symbols))
+    inter_locus_pattern = re.compile(r'^//.*$')
+
+    def __init__(self, file_obj):
+        self.__class__.count += 1
+        self.instance_name = '-'.join([self.__class__.__name__,
+                str(self.count)])
+        self.name = getattr(file_obj, 'name', self.instance_name)
+        self._close = False
+        self._file_obj = file_obj
+        if isinstance(file_obj, str):
+            self.name = file_obj
+            self._file_obj = fileio.OpenFile(file_obj, 'r')
+            self._close = True
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        try:
+            return self._next_seq()
+        except StopIteration as e:
+            print "DONE"
+            if self._close:
+                self._file_obj.close()
+            raise e
+
+    def _next_seq(self):
+        # for idx, line in enumerate(self._file_obj):
+        while True:
+            line = self._file_obj.next()
+            m = self.seq_pattern.match(line)
+            x = self.inter_locus_pattern.match(line)
+            if m:
+                s = Seq(m.group('seq'), alphabet = get_state_alphabet('dna',
+                        ambiguities = True))
+                yield SeqRecord(
+                        seq = s,
+                        id = m.group('name'),
+                        name = m.group('name'))
+            elif x:
+                return
+            else:
+                raise Exception('unexpected format of line in loci-formatted '
+                        'file {0}:\n{1}\n'.format(self.name, line.strip()))
+
 
