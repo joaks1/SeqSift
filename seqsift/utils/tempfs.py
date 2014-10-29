@@ -15,7 +15,7 @@ class TempFileSystem(object):
     A temporary file system that protects against deleting any directories
     or files that are not created by an instance of this class.
     """
-    def __init__(self, parent, prefix='pymsbayes-temp-'):
+    def __init__(self, parent, prefix='seqsift-temp-'):
         """
         Create TempFileSystem instance.
 
