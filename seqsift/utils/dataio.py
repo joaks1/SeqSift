@@ -310,28 +310,27 @@ class LociFileIter(object):
 
     def next(self):
         try:
-            return self._next_seq()
+            return self._next_locus().next()
         except StopIteration as e:
-            print "DONE"
             if self._close:
                 self._file_obj.close()
             raise e
 
-    def _next_seq(self):
-        # for idx, line in enumerate(self._file_obj):
-        while True:
-            line = self._file_obj.next()
+    def _next_locus(self):
+        seqs = []
+        for line in self._file_obj:
             m = self.seq_pattern.match(line)
             x = self.inter_locus_pattern.match(line)
             if m:
                 s = Seq(m.group('seq'), alphabet = get_state_alphabet('dna',
                         ambiguities = True))
-                yield SeqRecord(
+                seqs.append(SeqRecord(
                         seq = s,
                         id = m.group('name'),
                         name = m.group('name'))
+                        )
             elif x:
-                return
+                yield seqs
             else:
                 raise Exception('unexpected format of line in loci-formatted '
                         'file {0}:\n{1}\n'.format(self.name, line.strip()))
