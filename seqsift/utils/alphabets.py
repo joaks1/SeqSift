@@ -107,6 +107,9 @@ class ResidueAlphabet(object):
     def standardize_states(self, states):
         return tuple(sorted(states))
 
+    def get_valid_symbols(self):
+        return list(set(list(self.states) + list(self.ambiguity_codes.keys())))
+
 class DnaAlphabet(ResidueAlphabet):
     def __init__(self):
         ResidueAlphabet.__init__(self,
