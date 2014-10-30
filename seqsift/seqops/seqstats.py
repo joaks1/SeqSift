@@ -70,6 +70,7 @@ def average_number_of_pairwise_differences(seq_iter,
         aligner_tools = ['mafft', 'muscle']):
     sum_diffs = 0.0
     seqs = dataio.BufferedIter(seq_iter)
+    i = -1
     for i, (seq1, seq2) in enumerate(itertools.combinations(seqs, 2)):
         sum_diffs += distance(
                 seq1 = seq1,
@@ -79,6 +80,8 @@ def average_number_of_pairwise_differences(seq_iter,
                 ignore_gaps = ignore_gaps,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
+    if i < 0:
+        return None
     return sum_diffs / (i + 1)
 
 def sample_distance_iter(seq_iter,
