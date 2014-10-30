@@ -35,7 +35,7 @@ class Worker(object):
         self.error = None
         self.trace_back = None
         self.subprocess_kwargs = subprocess_kwargs
-        self expected_exit_code = expected_exit_code
+        self.expected_exit_code = expected_exit_code
         self.tag = tag
 
     def get_stderr(self):
@@ -155,7 +155,7 @@ class PaupWorker(GenericWorker):
             exe = 'paup'
         GenericWorker.__init__(self,
                 exe = exe,
-                args = ['-n', self.nex_path]
+                args = ['-n', self.nex_path],
                 stdout_path = stdout_path,
                 stderr_path = stderr_path,
                 append_stdout = append_stdout,
