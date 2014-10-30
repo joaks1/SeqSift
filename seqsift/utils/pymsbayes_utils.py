@@ -5,8 +5,9 @@ import sys
 import re
 from cStringIO import StringIO
 
-from seqsift.utils import dataio, stats, external_tools, tempfs
-from seqsift.seqops import seqstats
+from seqsift.utils import dataio, stats, external_tools, tempfs, alphabets
+from seqsift.utils.fileio import OpenFile
+from seqsift.seqops import seqstats, seqfilter
 from seqsift.utils.messaging import get_logger
 
 _LOG = get_logger(__name__)
@@ -23,8 +24,10 @@ paup_hky_pattern = re.compile(paup_hky_string, re.MULTILINE)
 
 class PyMsBayesComparisons(object):
     count = 0
+    alphabet = alphabets.DnaAlphabet()
     def __init__(self,
             comparisons,
+            name = None,
             locus = None):
         self.__class__.count += 1
         if not name:
@@ -33,7 +36,7 @@ class PyMsBayesComparisons(object):
         if not locus:
             locus = 'locus{0}'.format(self.count)
         self.locus = locus
-        self.comparisons
+        self.comparisons = comparisons
 
     def add_sequence(self, seq_record, strict = False):
         ret = None
@@ -72,8 +75,9 @@ class PyMsBayesComparisons(object):
 
     shortest_alignment = property(_get_shortest_alignment)
     
-    write_comparisons(self, fasta_dir, estimate_hky_parameters = False):
+    def write_comparisons(self, fasta_dir, estimate_hky_parameters = False):
         s = StringIO()
+        pi_s = StringIO()
         for comp in self.comparisons:
             if estimate_hky_parameters and (not comp.estimated_hky_parameters):
                 comp.estimate_hky_parameters()
@@ -83,29 +87,27 @@ class PyMsBayesComparisons(object):
             path = os.path.join(fasta_dir, '{0}-{1}.fasta'.format(
                     taxon, locus))
             comp.write_sequences(path)
-            out.write('{taxon}\t{locus}\t{ploidy_multiplier}\t'
+            s.write('{taxon}\t{locus}\t{ploidy_multiplier}\t'
                 '{rate_multiplier}\t{nsamples1}\t{nsamples2}\t{kappa}\t'
-                '{nsites}\t{a}\t{c}\t{g}\t{path}\n'.format({
-                    'taxon': taxon,
-                    'locus': locus,
-                    'ploidy_multiplier': comp.ploidy_multiplier,
-                    'rate_multiplier': comp.rate_multiplier,
-                    'nsamples1': nsamples[0],
-                    'nsamples2': nsamples[1],
-                    'kappa': comp.kappa,
-                    'a': comp.a,
-                    'c': comp.c,
-                    'g': comp.g,
-                    'path': path
-                    }))
+                '{nsites}\t{a}\t{c}\t{g}\t{path}\n'.format(
+                    taxon = taxon,
+                    locus = locus,
+                    ploidy_multiplier = comp.ploidy_multiplier,
+                    rate_multiplier = comp.rate_multiplier,
+                    nsamples1 = nsamples[0],
+                    nsamples2 = nsamples[1],
+                    kappa = comp.kappa,
+                    nsites = comp.alignment_length,
+                    a = comp.a,
+                    c = comp.c,
+                    g = comp.g,
+                    path = path))
             comp.estimate_pi()
-            pi_s = StringIO()
-            pi_s.write('{taxon}\t{locus}\t{pi1}\t{pi2}\n'.format({
-                    'taxon': taxon,
-                    'locus': locus,
-                    'pi1': comp.pi[0],
-                    'pi2': comp.pi[1],
-                    }))
+            pi_s.write('{taxon}\t{locus}\t{pi1}\t{pi2}\n'.format(
+                    taxon = taxon,
+                    locus = locus,
+                    pi1 = comp.pi[0],
+                    pi2 = comp.pi[1]))
         return s.getvalue(), pi_s.getvalue()
 
     @classmethod
@@ -113,13 +115,24 @@ class PyMsBayesComparisons(object):
             loci_file_obj,
             pop_id_maps,
             fasta_out_dir,
-            config_out_dir,
+            config_out_dir = None,
             minimum_sample_size = 2,
-            minimum_alignment_length = 50):
-        for i, locus in enumerate(LociFileIter(loci_file_obj)):
+            minimum_alignment_length = 50,
+            max_ambiguities_per_seq = 0.2,
+            require_shared_loci = False,
+            estimate_hky_parameters = False):
+        if not config_out_dir:
+            config_out_dir = fasta_out_dir
+        config_out_path = os.path.join(config_out_dir,
+                    'config-sample-table.txt')
+        pi_out_path = os.path.join(config_out_dir,
+                    'pi-estimates.txt')
+        config_stream = StringIO()
+        pi_stream = StringIO()
+        for i, locus in enumerate(dataio.LociFileIter(loci_file_obj)):
             comps = []
-            for id_map in pop_id_maps.iteritems():
-                assert(len(id_map == 2))
+            for id_map in pop_id_maps:
+                assert(len(id_map) == 2)
                 pop1, pop2 = sorted(id_map.keys())
                 c = Comparison(
                         population_1_ids = id_map[pop1],
@@ -127,13 +140,43 @@ class PyMsBayesComparisons(object):
                         population_1_name = pop1,
                         population_2_name = pop2,
                         )
-                c.extend_sequences(locus)
+                # remove rows with many ambiguities
+                seqs = seqfilter.row_filter(locus,
+                        character_list = (cls.alphabet.ambiguity_codes.keys() +
+                                [cls.alphabet.gap]),
+                        max_frequency = max_ambiguities_per_seq)
+                # remove all columns with ambiguities
+                seqs = seqfilter.column_filter(seqs,
+                        character_list = (cls.alphabet.ambiguity_codes.keys() +
+                                [cls.alphabet.gap]),
+                        max_frequency = 0.00001)
+                c.extend_sequences(seqs)
                 if ((c.alignment_length >= minimum_alignment_length) and
                         (c.smallest_sample_size >= minimum_sample_size)):
                     comps.append(c)
-            pymsbayes_comps = cls.(comparisons = comps,
+            if not comps:
+                continue
+            if require_shared_loci and (len(comps) < len(pop_id_maps)):
+                continue
+            pymsbayes_comps = cls(comparisons = comps,
                     locus = 'locus{0}'.format(i))
+            config_str, pi_str = pymsbayes_comps.write_comparisons(
+                    fasta_dir = fasta_out_dir,
+                    estimate_hky_parameters = estimate_hky_parameters)
+            config_stream.write(config_str)
+            pi_stream.write(pi_str)
+        with OpenFile(config_out_path, 'w') as out:
 
+            out.write('# taxon\tlocus\tploidy_multiplier\t'
+                'rate_multiplier\tnsamples1\tnsamples2\tkappa\t'
+                'nsites\ta\tc\tg\tpath\n')
+            out.write('BEGIN SAMPLE_TBL\n')
+            out.write(config_stream.getvalue())
+            out.write('END SAMPLE_TBL\n')
+        with OpenFile(pi_out_path, 'w') as out:
+            out.write('taxon\tlocus\tpi1\tpi2\n')
+            out.write(pi_stream.getvalue())
+        return i + 1
 
 
 class Comparison(object):
@@ -192,7 +235,7 @@ class Comparison(object):
             if not (seq_record.seq) != self.alignment_length:
                 raise Exception('sequence {0} is not length {1}: sequences must be '
                         'aligned'.format(seq_record.id, self.alignment_length))
-            return seq_record.id
+        return seq_record.id
         if strict:
             raise Exception('{0} not in population ids'.format(seq_record.id))
         else:
@@ -205,8 +248,9 @@ class Comparison(object):
     def write_sequences(self, dest = None):
         keys1 = sorted(self.population_1.sequences.keys())
         keys2 = sorted(self.population_2.sequences.keys())
-        dataio.write_seqs(seqs = ([self.population_1[k] for k in keys1] + 
-                [self.population_2[k] for k in keys2]),
+        dataio.write_seqs(seqs = (
+                [self.population_1.sequences[k] for k in keys1] + 
+                [self.population_2.sequences[k] for k in keys2]),
                 dest = dest,
                 format = 'fasta')
 
@@ -217,7 +261,7 @@ class Comparison(object):
     number_of_sequences = property(_get_number_of_sequences)
 
     def _get_smallest_number_of_sequences(self):
-        return = min(self.number_of_sequences)
+        return min(self.number_of_sequences)
 
     smallest_sample_size = property(_get_smallest_number_of_sequences)
 
