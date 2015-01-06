@@ -1,5 +1,15 @@
 #! /usr/bin/env python
 
+"""
+A CLI tool for bundling sequences into files.
+
+The program will take sequences from one or more files and output them into
+files with the desired number of sequences. This can be useful when a next-gen
+sequencing facility returns all your sequence reads in a single file, and you
+need to break up this file into multiple files, each with a maximum number of
+reads.
+"""
+
 import os
 import sys
 import argparse
@@ -8,9 +18,10 @@ from Bio import SeqIO
 from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES, argparse_utils
 
 _program_info = {
-    'name': 'seq-file-slice',
+    'name': os.path.basename(__file__),
     'author': 'Jamie Oaks',
     'version': 'Version 0.1.0',
+    'description': __doc__,
     'copyright': 'Copyright (C) 2012 Jamie Oaks.',
     'license': (
         'This is free software distributed under the GNU General Public '
@@ -19,8 +30,9 @@ _program_info = {
         'the GPL. See the GNU General Public License for more details.'),}
 
 def main_cli():
-    description = '{name} {version}'.format(**_program_info)
-    parser = argparse.ArgumentParser(description = description)
+    description = '{name} {version}\n\n{description}'.format(**_program_info)
+    parser = argparse.ArgumentParser(description = description,
+            formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument('input_files', metavar='INPUT-SEQ-FILE',
             nargs = '+',
             type = argparse_utils.arg_is_file,
