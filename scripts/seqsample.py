@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 
+"""
+A CLI tool for randomly sub-sampling sequences.
+
+The program will randomly sample sequences, without replacement, from all of
+the sequences provided in one or more sequence files. The random sample of
+sequences is output to standard output (or redirected file) in the same format
+as the first input file.
+"""
+
 import os
 import sys
 import random
@@ -12,6 +21,7 @@ _program_info = {
     'name': os.path.basename(__file__),
     'author': 'Jamie Oaks',
     'version': 'Version 0.1.0',
+    'description': __doc__,
     'copyright': 'Copyright (C) 2014 Jamie Oaks.',
     'license': (
         'This is free software distributed under the GNU General Public '
@@ -20,18 +30,18 @@ _program_info = {
         'the GPL. See the GNU General Public License for more details.'),}
 
 def main_cli():
-    description = '{name} {version}'.format(**_program_info)
-    parser = argparse.ArgumentParser(description = description)
+    description = '{name} {version}\n\n{description}'.format(**_program_info)
+    parser = argparse.ArgumentParser(description = description,
+            formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument('input_files', metavar='INPUT-SEQ-FILE',
             nargs = '+',
             type = argparse_utils.arg_is_file,
-            help = ('Input sequence file(s) to be output into files with '
-                    '`-n` sequences per file.'))
+            help = ('Input sequence file(s) from which to randomly sub-sample '
+                    'sequences (without replacement).'))
     parser.add_argument('-n', '--num-samples',
             type = int,
             required = True,
-            help = ('The maximum number of sequences to put in each output '
-                    'file.'))
+            help = ('The number of sequences to randomly sample.'))
     parser.add_argument('--format',
             dest = 'input_format',
             type = str,
