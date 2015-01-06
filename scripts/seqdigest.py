@@ -26,9 +26,10 @@ from seqsift.utils.entrez import (parse_accession_numbers, parse_gi_numbers,
 from seqsift.utils.messaging import get_logger
 
 _program_info = {
-    'name': 'SeqDigest',
+    'name': os.path.basename(__file__),
     'author': 'Jamie Oaks',
     'version': 'Version 0.1.0',
+    'description': __doc__,
     'copyright': 'Copyright (C) 2012 Jamie Oaks.',
     'license': (
         'This is free software distributed under the GNU General Public '
