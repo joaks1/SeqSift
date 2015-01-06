@@ -8,7 +8,7 @@ from optparse import OptionParser, OptionGroup
 from seqsift.utils import FILE_FORMATS, VALID_DATA_TYPES
 
 _program_info = {
-    'name': 'seqaid',
+    'name': os.path.basename(__file__),
     'author': 'Jamie Oaks',
     'version': 'Version 0.1.0',
     'copyright': 'Copyright (C) 2012 Jamie Oaks.',
@@ -58,6 +58,10 @@ def main():
                     'ID and sequence). If a duplicate ID is found associated '
                     'with a different sequence, the program will exit with an '
                     'error.'))
+    filter_opts.add_option('-x', '--ids-to-exclude',
+            dest='ids_to_exclude',
+            type='string',
+            help=('Comma-delimited list of the ids of sequences to exclude.'))
     filter_opts.add_option('--remove-missing-columns',
             dest='remove_missing_columns',
             default=False,
@@ -269,6 +273,13 @@ def main():
             format = in_format,
             data_type = data_type)
 
+    if options.ids_to_exclude:
+        to_exclude = [n.strip() for n in options.ids_to_exclude.split(',')]
+        seqs = seqfilter.id_filter(seqs, to_exclude)
+
+    if options.remove_duplicates:
+        seqs = seqfilter.duplicate_id_filter(seqs)
+
     if options.remove_missing_sequences:
         seqs = seqfilter.row_filter(seqs,
                 character_list = list(options.missing_characters),
@@ -278,9 +289,6 @@ def main():
         seqs = seqfilter.column_filter(seqs,
                 character_list = list(options.missing_characters),
                 max_frequency = options.missing_column_proportion)
-
-    if options.remove_duplicates:
-        seqs = seqfilter.duplicate_id_filter(seqs)
 
     if options.rev_comp:
         log.info('Reverse complementing all sequences...')
