@@ -170,3 +170,9 @@ def seq_mod(seq_iter,
         yield sequtils.copy_seq_metadata(seq,
                 new_seq=str(seq.seq).translate(table, del_chars))
 
+def dice(seq_iter,
+        slices_to_keep):
+    for seq in seq_iter:
+        yield sequtils.copy_seq_metadata(seq,
+                new_seq = ''.join((str(seq.seq[l:r]) for l,r in slices_to_keep)))
+

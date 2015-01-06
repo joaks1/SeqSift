@@ -222,6 +222,65 @@ class TranslateSeqsTestCase(SeqSiftTestCase):
         self.assertIsInstance(new_seqs, types.GeneratorType)
         self.assertSameData(new_seqs, exp)
 
+class DiceTestCase(SeqSiftTestCase):
+    def test_one_region(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTGACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ATGACCAACTGACCC', IUPAC.ambiguous_dna), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('CAACTGAA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('CAACTGAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('CAACTGAC', IUPAC.ambiguous_dna), id='3'),
+                ]
+        region = [(5, 13)]
+        new_seqs = seqmod.dice(seqs, region)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
+        region = [(0, len(seqs[0]))]
+        new_seqs = seqmod.dice(seqs, region)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, seqs)
+
+        region = [(5, -2)]
+        new_seqs = seqmod.dice(seqs, region)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
+    def test_two_regions(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTGACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ATGACCAACTGACCC', IUPAC.ambiguous_dna), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('GACCGAAT', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('GACCGACA', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('GACCGACC', IUPAC.ambiguous_dna), id='3'),
+                ]
+        region = [(2, 6), (10, 14)]
+        new_seqs = seqmod.dice(seqs, region)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
+    def test_two_regions_overlap(self):
+        seqs = [
+                SeqRecord(Seq('ATGACCAACTGAATA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('ATGACCAACTGACAC', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('ATGACCAACTGACCC', IUPAC.ambiguous_dna), id='3'),
+                ]
+        exp = [
+                SeqRecord(Seq('CCAAAACTGA', IUPAC.ambiguous_dna), id='1'),
+                SeqRecord(Seq('CCAAAACTGA', IUPAC.ambiguous_dna), id='2'),
+                SeqRecord(Seq('CCAAAACTGA', IUPAC.ambiguous_dna), id='3'),
+                ]
+        region = [(4, 8), (6, 12)]
+        new_seqs = seqmod.dice(seqs, region)
+        self.assertIsInstance(new_seqs, types.GeneratorType)
+        self.assertSameData(new_seqs, exp)
+
 if __name__ == '__main__':
     unittest.main()
 
