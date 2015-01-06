@@ -27,6 +27,12 @@ def duplicate_id_filter(seq_iter):
         ids.add(seq.id)
         yield seq
 
+def id_filter(seq_iter, ids_to_exclude):
+    for seq in seq_iter:
+        if seq.id in ids_to_exclude:
+            continue
+        yield seq
+
 def length_filter(seq_iter, min_length=0, max_length=None):
     if max_length and (max_length < min_length):
         raise ValueError("max_length cannot be smaller than min_length")
