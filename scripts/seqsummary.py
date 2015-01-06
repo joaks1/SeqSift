@@ -1,5 +1,12 @@
 #! /usr/bin/env python
 
+"""
+A CLI tool for summarizing sequence length information.
+
+The program will generate a brief summary (min, max, mean, variance) of the
+length of sequences found in one or more files.
+"""
+
 import os
 import sys
 import argparse
@@ -11,6 +18,7 @@ _program_info = {
     'name': os.path.basename(__file__),
     'author': 'Jamie Oaks',
     'version': 'Version 0.1.0',
+    'description': __doc__,
     'copyright': 'Copyright (C) 2014 Jamie Oaks.',
     'license': (
         'This is free software distributed under the GNU General Public '
@@ -28,8 +36,9 @@ def write_summary(name, summary_dict, stream = sys.stdout):
     stream.write('\tlength standard deviation = {0}\n'.format(summary_dict.std_deviation))
 
 def main_cli():
-    description = '{name} {version}'.format(**_program_info)
-    parser = argparse.ArgumentParser(description = description)
+    description = '{name} {version}\n\n{description}'.format(**_program_info)
+    parser = argparse.ArgumentParser(description = description,
+            formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument('input_files', metavar='INPUT-SEQ-FILE',
             nargs = '+',
             type = argparse_utils.arg_is_file,
