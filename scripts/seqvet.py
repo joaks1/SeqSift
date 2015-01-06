@@ -26,8 +26,9 @@ _program_info = {
     'license': 'GNU GPL version 3 or later',}
 
 def main_cli():
-    description = '{name} {version}'.format(**_program_info)
-    parser = argparse.ArgumentParser(description = description)
+    description = '{name} {version}\n\n{description}'.format(**_program_info)
+    parser = argparse.ArgumentParser(description = description,
+            formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument('input_file', metavar='INPUT-SEQ-FILE',
             type = argparse_utils.arg_is_file,
             help = ('Input sequence file to be vetted.'))
