@@ -81,7 +81,9 @@ class PyMsBayesComparisons(object):
 
     shortest_alignment = property(_get_shortest_alignment)
     
-    def write_comparisons(self, fasta_dir, estimate_hky_parameters = False):
+    def write_comparisons(self, fasta_dir,
+            config_dir = None,
+            estimate_hky_parameters = False):
         s = StringIO()
         pi_s = StringIO()
         for comp in self.comparisons:
@@ -91,6 +93,9 @@ class PyMsBayesComparisons(object):
             taxon = comp.comparison_str
             path = os.path.join(fasta_dir, '{0}-{1}.fasta'.format(
                     taxon, self.locus))
+            rel_path = path
+            if config_dir:
+                rel_path = os.path.relpath(path, config_dir)
             comp.write_sequences(path)
             s.write('{taxon}\t{locus}\t{ploidy_multiplier}\t'
                 '{rate_multiplier}\t{nsamples1}\t{nsamples2}\t{kappa}\t'
@@ -106,7 +111,7 @@ class PyMsBayesComparisons(object):
                     a = comp.a,
                     c = comp.c,
                     g = comp.g,
-                    path = path))
+                    path = rel_path))
             comp.estimate_pi()
             pi_s.write('{taxon}\t{locus}\t{pi1}\t{pi2}\n'.format(
                     taxon = taxon,
@@ -167,6 +172,7 @@ class PyMsBayesComparisons(object):
                     locus = 'locus{0}'.format(i))
             config_str, pi_str = pymsbayes_comps.write_comparisons(
                     fasta_dir = fasta_out_dir,
+                    config_dir = config_out_dir,
                     estimate_hky_parameters = estimate_hky_parameters)
             config_stream.write(config_str)
             pi_stream.write(pi_str)
@@ -236,6 +242,7 @@ class PyMsBayesComparisons(object):
                 pymsbayes_comps = cls(comparisons = [c])
                 config_str, pi_str = pymsbayes_comps.write_comparisons(
                         fasta_dir = fasta_out_dir,
+                        config_dir = config_out_dir,
                         estimate_hky_parameters = estimate_hky_parameters)
                 config_stream.write(config_str)
                 pi_stream.write(pi_str)
