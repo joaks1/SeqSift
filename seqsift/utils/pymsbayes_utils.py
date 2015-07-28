@@ -25,6 +25,12 @@ paup_hky_pattern = re.compile(paup_hky_string, re.MULTILINE)
 class PyMsBayesComparisons(object):
     count = 0
     alphabet = alphabets.DnaAlphabet()
+    sample_table_header = ('# taxon\tlocus\tploidy_multiplier\t'
+                'rate_multiplier\tnsamples1\tnsamples2\tkappa\t'
+                'nsites\ta\tc\tg\tpath\n'
+                'BEGIN SAMPLE_TBL\n')
+    sample_table_footer = 'END SAMPLE_TBL\n'
+    pi_header = 'taxon\tlocus\tpi1\tpi2\n'
     def __init__(self,
             comparisons,
             name = None,
@@ -83,15 +89,14 @@ class PyMsBayesComparisons(object):
                 comp.estimate_hky_parameters()
             nsamples = comp.number_of_sequences
             taxon = comp.comparison_str
-            locus = 'locus{0}'.format(self.count)
             path = os.path.join(fasta_dir, '{0}-{1}.fasta'.format(
-                    taxon, locus))
+                    taxon, self.locus))
             comp.write_sequences(path)
             s.write('{taxon}\t{locus}\t{ploidy_multiplier}\t'
                 '{rate_multiplier}\t{nsamples1}\t{nsamples2}\t{kappa}\t'
                 '{nsites}\t{a}\t{c}\t{g}\t{path}\n'.format(
                     taxon = taxon,
-                    locus = locus,
+                    locus = self.locus,
                     ploidy_multiplier = comp.ploidy_multiplier,
                     rate_multiplier = comp.rate_multiplier,
                     nsamples1 = nsamples[0],
@@ -105,7 +110,7 @@ class PyMsBayesComparisons(object):
             comp.estimate_pi()
             pi_s.write('{taxon}\t{locus}\t{pi1}\t{pi2}\n'.format(
                     taxon = taxon,
-                    locus = locus,
+                    locus = self.locus,
                     pi1 = comp.pi[0],
                     pi2 = comp.pi[1]))
         return s.getvalue(), pi_s.getvalue()
@@ -167,16 +172,82 @@ class PyMsBayesComparisons(object):
             pi_stream.write(pi_str)
         with OpenFile(config_out_path, 'w') as out:
 
-            out.write('# taxon\tlocus\tploidy_multiplier\t'
-                'rate_multiplier\tnsamples1\tnsamples2\tkappa\t'
-                'nsites\ta\tc\tg\tpath\n')
-            out.write('BEGIN SAMPLE_TBL\n')
+            out.write(cls.sample_table_header)
             out.write(config_stream.getvalue())
-            out.write('END SAMPLE_TBL\n')
+            out.write(cls.sample_table_footer)
         with OpenFile(pi_out_path, 'w') as out:
-            out.write('taxon\tlocus\tpi1\tpi2\n')
+            out.write(cls.pi_header)
             out.write(pi_stream.getvalue())
         return i + 1
+
+    @classmethod
+    def process_loci_files_as_pairs(cls,
+            loci_file_objects,
+            id_component_delimiter,
+            id_component_index,
+            fasta_out_dir,
+            config_out_dir = None,
+            minimum_sample_size = 2,
+            minimum_alignment_length = 50,
+            max_ambiguities_per_seq = 0.2,
+            estimate_hky_parameters = False):
+        if not config_out_dir:
+            config_out_dir = fasta_out_dir
+        config_out_path = os.path.join(config_out_dir,
+                    'config-sample-table.txt')
+        pi_out_path = os.path.join(config_out_dir,
+                    'pi-estimates.txt')
+        config_stream = StringIO()
+        pi_stream = StringIO()
+        locus_count = 0
+        for i, loci_file_obj in enumerate(loci_file_objects):
+            comparison_prefix = None
+            try:
+                comparison_prefix = os.path.basename(
+                        loci_file_obj).split('.')[0]
+            except:
+                try:
+                    comparison_prefix = os.path.basename(
+                            loci_file_obj.name).split('.')[0]
+                except:
+                    pass
+                pass
+            for j, locus in enumerate(dataio.LociFileIter(loci_file_obj)):
+                locus_count += 1
+                # remove rows with many ambiguities
+                seqs = seqfilter.row_filter(locus,
+                        character_list = (cls.alphabet.ambiguity_codes.keys() +
+                                [cls.alphabet.gap]),
+                        max_frequency = max_ambiguities_per_seq)
+                # remove all columns with ambiguities
+                seqs = seqfilter.column_filter(seqs,
+                        character_list = (cls.alphabet.ambiguity_codes.keys() +
+                                [cls.alphabet.gap]),
+                        max_frequency = 0.00001)
+                c = Comparison.get_comparison_from_seqs(
+                        sequences = seqs,
+                        id_component_delimiter = id_component_delimiter,
+                        id_component_index = id_component_index,
+                        comparison_prefix = comparison_prefix,
+                        )
+                if not ((c.alignment_length >= minimum_alignment_length) and
+                        (c.smallest_sample_size >= minimum_sample_size)):
+                    continue
+                pymsbayes_comps = cls(comparisons = [c])
+                config_str, pi_str = pymsbayes_comps.write_comparisons(
+                        fasta_dir = fasta_out_dir,
+                        estimate_hky_parameters = estimate_hky_parameters)
+                config_stream.write(config_str)
+                pi_stream.write(pi_str)
+        with OpenFile(config_out_path, 'w') as out:
+
+            out.write(cls.sample_table_header)
+            out.write(config_stream.getvalue())
+            out.write(cls.sample_table_footer)
+        with OpenFile(pi_out_path, 'w') as out:
+            out.write(cls.pi_header)
+            out.write(pi_stream.getvalue())
+        return locus_count
 
 
 class Comparison(object):
@@ -187,6 +258,7 @@ class Comparison(object):
             sequences = None,
             population_1_name = None,
             population_2_name = None,
+            comparison_prefix = None,
             name = None):
         self.__class__.count += 1
         if not name:
@@ -207,6 +279,8 @@ class Comparison(object):
         self.population_2 = Population(name = population_2_name)
         self.comparison_str = '{0}-{1}'.format(self.population_1.name,
                 self.population_2.name)
+        if comparison_prefix:
+            self.comparison_str = comparison_prefix + '-' + self.comparison_str
         self.alignment_length = None
         self.pi = (None, None)
         self.ploidy_multiplier = 1.0
@@ -218,6 +292,34 @@ class Comparison(object):
         self.estimated_hky_parameters = False
         if sequences:
             self.extend_sequences(sequences)
+
+    @classmethod
+    def get_comparison_from_seqs(cls,
+            sequences,
+            id_component_delimiter,
+            id_component_index,
+            comparison_prefix = None,
+            comparison_name = None):
+        seq_list = [s for s in sequences]
+        pops = {}
+        for seq in seq_list:
+            pop_id = seq.id.split(id_component_delimiter)[id_component_index]
+            if pop_id in pops:
+                pops[pop_id].append(seq.id)
+            else:
+                pops[pop_id] = [seq.id]
+        if len(pops) != 2:
+            raise Exception('Problem parsing populations from sequences:\n'
+                    '{0} populations found ({1})'.format(len(pops),
+                            ', '.join(pops.keys())))
+        pop_1_id, pop_2_id = pops.keys()
+        return cls(population_1_ids = pops[pop_1_id],
+                population_2_ids = pops[pop_2_id],
+                sequences = seq_list,
+                population_1_name = pop_1_id,
+                population_2_name = pop_2_id,
+                comparison_prefix = comparison_prefix,
+                name = comparison_name)
 
     def add_sequence(self, seq_record, strict = False):
         if seq_record.id in self.population_1_ids:
