@@ -44,6 +44,25 @@ def column_frequencies(seq_iter, character_list=['-','?']):
     column_freqs = [count / float(i + 1) for count in column_counts]
     return column_freqs, seqs
 
+def variable_columns(seq_iter):
+    seqs = dataio.BufferedIter(seq_iter)
+    ref_seq = None
+    align_length = None
+    is_variable = None
+    for i, seq_record in enumerate(seqs):
+        if align_length == None:
+            align_length = len(seq_record)
+            is_variable = [False] * align_length
+            ref_seq = seq_record
+            continue
+        elif len(seq_record) != align_length:
+            raise AlignmentError('Sequence {0} has unexpected '
+                    'length {1}.'.format(seq_record.name, len(seq_record)))
+        for j, character in enumerate(seq_record.seq):
+            if character.lower() != ref_seq.seq[j].lower():
+                is_variable[j] = True
+    return is_variable, seqs
+
 def pairwise_distance_iter(seq_iter,
         per_site = True,
         aligned = False,

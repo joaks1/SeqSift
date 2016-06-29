@@ -109,6 +109,11 @@ def main():
                   "evaluating columns/sequences to remove with the "
                   "--remove-missing-columns and --remove-missing-sequences "
                   "options. The default is '?-'."))
+    filter_opts.add_option('--remove-constant-columns',
+            dest='remove_constant_columns',
+            default=False,
+            action='store_true',
+            help=("Remove aligned columns with no variation."))
     parser.add_option_group(filter_opts)
 
     rev_comp_opts = OptionGroup(parser, 'Reverse Complement Options',
@@ -289,6 +294,9 @@ def main():
         seqs = seqfilter.column_filter(seqs,
                 character_list = list(options.missing_characters),
                 max_frequency = options.missing_column_proportion)
+
+    if options.remove_constant_columns:
+        seqs = seqfilter.constant_column_filter(seqs)
 
     if options.rev_comp:
         log.info('Reverse complementing all sequences...')

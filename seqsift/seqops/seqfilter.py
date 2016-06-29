@@ -52,6 +52,12 @@ def column_filter(seq_iter, character_list=['?','-'], max_frequency=1.0):
         new_seq = itertools.compress(str(seq.seq), cols_to_keep)
         yield sequtils.copy_seq_metadata(seq, new_seq=''.join(new_seq))
 
+def constant_column_filter(seq_iter):
+    cols_to_keep, seqs = seqstats.variable_columns(seq_iter)
+    for seq in seqs:
+        new_seq = itertools.compress(str(seq.seq), cols_to_keep)
+        yield sequtils.copy_seq_metadata(seq, new_seq=''.join(new_seq))
+
 def row_filter(seq_iter, character_list=['?','-'], max_frequency=1.0):
     char_list = [c.lower() for c in character_list]
     for seq in seq_iter:
