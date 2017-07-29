@@ -22,6 +22,11 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+from seqsift.utils import dataio
+from seqsift.utils import alphabets
+from seqsift.utils import stats
+from seqsift.utils import functions
+
 def _get_git_data(repo_path):
     try:
         import subprocess
