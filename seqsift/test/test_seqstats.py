@@ -735,6 +735,63 @@ class GetSeqSummariesFromFilesTestCase(SeqSiftTestCase):
             self.assertAlmostEqual(s.mean, 898.0)
             self.assertAlmostEqual(s.variance, 0.0)
 
+class DiversitySummaryTestCase(unittest.TestCase):
+    def test_per_seq(self):
+        seqs1 = [
+                SeqRecord(Seq('ACGTACGTAC'), id='1'),
+                SeqRecord(Seq('ACGTACGTAC'), id='2'),
+                SeqRecord(Seq('GCGTACGTAC'), id='3'),
+                SeqRecord(Seq('ATGTACGTAC'), id='4'),
+                ]
+        # pi = 0, 1, 1, 1, 1, 2 = 6 / 6 = 1
+        seqs2 = [
+                SeqRecord(Seq('ACGTACGTAT'), id='5'),
+                SeqRecord(Seq('ACGTACGTAT'), id='6'),
+                SeqRecord(Seq('ACATACGTAT'), id='7'),
+                SeqRecord(Seq('ACATACGTAT'), id='8'),
+                ]
+        # pi = 0, 1, 1, 1, 1, 0 = 4 / 6 = 2/3
+        #
+        # pi_b = 1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 3, 3 = 6, 6, 10, 10 = 32 / 16 = 2
+        # pi_w = (1 + 2/3) / 2 = (5/3) / 2 = (5/3) * (1/2) = 5/6
+        # pi_net = pi_b - pi_w = 2 - 5/6 = 12/6 - 5/6 = 7/6
+
+        s = seqstats.get_population_pair_diversity_summary(seqs1, seqs2,
+                per_site = False, aligned = True)
+        self.assertAlmostEqual(s["pi_1"], 1.0)
+        self.assertAlmostEqual(s["pi_2"], 2.0/3.0)
+        self.assertAlmostEqual(s["pi_within"], 5.0/6.0)
+        self.assertAlmostEqual(s["pi_between"], 2.0)
+        self.assertAlmostEqual(s["pi_net"], 7.0/6.0)
+
+    def test_per_site(self):
+        seqs1 = [
+                SeqRecord(Seq('ACGTACGTAC'), id='1'),
+                SeqRecord(Seq('ACGTACGTAC'), id='2'),
+                SeqRecord(Seq('GCGTACGTAC'), id='3'),
+                SeqRecord(Seq('ATGTACGTAC'), id='4'),
+                ]
+        # pi = 0, 1, 1, 1, 1, 2 = 6 / 6 = 1
+        seqs2 = [
+                SeqRecord(Seq('ACGTACGTAT'), id='5'),
+                SeqRecord(Seq('ACGTACGTAT'), id='6'),
+                SeqRecord(Seq('ACATACGTAT'), id='7'),
+                SeqRecord(Seq('ACATACGTAT'), id='8'),
+                ]
+        # pi = 0, 1, 1, 1, 1, 0 = 4 / 6 = 2/3
+        #
+        # pi_b = 1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 3, 3 = 6, 6, 10, 10 = 32 / 16 = 2
+        # pi_w = (1 + 2/3) / 2 = (5/3) / 2 = (5/3) * (1/2) = 5/6
+        # pi_net = pi_b - pi_w = 2 - 5/6 = 12/6 - 5/6 = 7/6
+
+        s = seqstats.get_population_pair_diversity_summary(seqs1, seqs2,
+                per_site = True, aligned = True)
+        self.assertAlmostEqual(s["pi_1"], 1.0 / 10.0)
+        self.assertAlmostEqual(s["pi_2"], (2.0/3.0) / 10.0)
+        self.assertAlmostEqual(s["pi_within"], (5.0/6.0) / 10.0)
+        self.assertAlmostEqual(s["pi_between"], 2.0 / 10.0)
+        self.assertAlmostEqual(s["pi_net"], (7.0/6.0) / 10.0)
+
 if __name__ == '__main__':
     unittest.main()
 

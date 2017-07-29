@@ -103,6 +103,53 @@ def average_number_of_pairwise_differences(seq_iter,
         return None
     return sum_diffs / (i + 1)
 
+def get_population_pair_diversity_summary(seq_iter1, seq_iter2,
+        per_site = True,
+        aligned = False,
+        ignore_gaps = True,
+        alphabet = None,
+        aligner_tools = ['mafft', 'muscle']):
+    sum_diffs = 0.0
+    seqs_1 = dataio.BufferedIter(seq_iter1)
+    seqs_2 = dataio.BufferedIter(seq_iter2)
+    pi_1 = average_number_of_pairwise_differences(seqs_1,
+            per_site = per_site,
+            aligned = aligned,
+            ignore_gaps = ignore_gaps,
+            alphabet = alphabet,
+            aligner_tools = aligner_tools)
+    pi_2 = average_number_of_pairwise_differences(seqs_2,
+            per_site = per_site,
+            aligned = aligned,
+            ignore_gaps = ignore_gaps,
+            alphabet = alphabet,
+            aligner_tools = aligner_tools)
+    assert pi_1 is not None
+    assert pi_2 is not None
+    n = 0
+    for seq1 in seqs_1:
+        for seq2 in seqs_2:
+            sum_diffs += distance(
+                    seq1 = seq1,
+                    seq2 = seq2,
+                    per_site = per_site,
+                    aligned = aligned,
+                    ignore_gaps = ignore_gaps,
+                    alphabet = alphabet,
+                    aligner_tools = aligner_tools)
+            n += 1
+    assert n > 0
+    pi_b = sum_diffs / n
+    pi_w = (pi_1 + pi_2) / 2.0
+    pi_net = pi_b - pi_w
+    return {
+            "pi_1": pi_1,
+            "pi_2": pi_2,
+            "pi_within": pi_w,
+            "pi_between": pi_b,
+            "pi_net": pi_net,
+            }
+
 def sample_distance_iter(seq_iter,
         sample_size,
         per_site = True,
