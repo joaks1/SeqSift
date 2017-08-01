@@ -149,7 +149,7 @@ class GetLongestReadingFrameTestCase(SeqSiftTestCase):
                 require_start_after_stop = True)
         self.assertEqual(len(lrf), 1)
         lrf = lrf[0]
-        self.assertNotEqual(lrf, seq)
+        self.assertFalse(lrf is seq)
         self.assertSameMetadata(lrf, seq)
         self.assertEqual(str(lrf.seq), str(exp.seq))
 
