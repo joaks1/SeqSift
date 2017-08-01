@@ -122,7 +122,7 @@ class LengthFilterTestCase(unittest.TestCase):
     def test_equal_min_max(self):
         filtrate = list(seqfilter.length_filter(self.seqs, 6, 6))
         self.assertEqual(len(filtrate), 1)
-        self.assertEqual(filtrate[0], self.seqs[2])
+        self.assertTrue(filtrate[0] is self.seqs[2])
     
     def test_empty_iter(self):
         filtrate = list(seqfilter.length_filter([]))
