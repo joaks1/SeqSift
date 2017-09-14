@@ -240,6 +240,8 @@ def get_differences(seq1, seq2,
     diffs = {}
     num_comparisons = 0
     for i in range(len(seq1)):
+        if (seq1[i] == alphabet.missing) or (seq2[i] == alphabet.missing):
+            continue
         if (seq1[i] == alphabet.gap) or (seq2[i] == alphabet.gap):
             if ignore_gaps:
                 continue
