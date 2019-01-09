@@ -2,6 +2,7 @@
 
 import sys
 import os
+import math
 import itertools
 
 from seqsift.align import align, align_pair
@@ -89,9 +90,9 @@ def average_number_of_pairwise_differences(seq_iter,
         aligner_tools = ['mafft', 'muscle']):
     sum_diffs = 0.0
     seqs = dataio.BufferedIter(seq_iter)
-    i = -1
+    n = 0
     for i, (seq1, seq2) in enumerate(itertools.combinations(seqs, 2)):
-        sum_diffs += distance(
+        d = distance(
                 seq1 = seq1,
                 seq2 = seq2,
                 per_site = per_site,
@@ -99,9 +100,13 @@ def average_number_of_pairwise_differences(seq_iter,
                 ignore_gaps = ignore_gaps,
                 alphabet = alphabet,
                 aligner_tools = aligner_tools)
-    if i < 0:
+        if math.isnan(d):
+            continue
+        sum_diffs += d
+        n += 1
+    if n < 1:
         return None
-    return sum_diffs / (i + 1)
+    return sum_diffs / n
 
 def get_population_pair_diversity_summary(seq_iter1, seq_iter2,
         per_site = True,
@@ -129,7 +134,7 @@ def get_population_pair_diversity_summary(seq_iter1, seq_iter2,
     n = 0
     for seq1 in seqs_1:
         for seq2 in seqs_2:
-            sum_diffs += distance(
+            d = distance(
                     seq1 = seq1,
                     seq2 = seq2,
                     per_site = per_site,
@@ -137,6 +142,9 @@ def get_population_pair_diversity_summary(seq_iter1, seq_iter2,
                     ignore_gaps = ignore_gaps,
                     alphabet = alphabet,
                     aligner_tools = aligner_tools)
+            if math.isnan(d):
+                continue
+            sum_diffs += d
             n += 1
     assert n > 0
     pi_b = sum_diffs / n
@@ -222,6 +230,8 @@ def distance(seq1, seq2,
             alphabet = alphabet,
             aligner_tools = aligner_tools)
     if per_site:
+        if n < 1:
+            return float("nan")
         return len(diffs) / float(n)
     return len(diffs)
 
