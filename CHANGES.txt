@@ -1,3 +1,12 @@
+Version 0.1.2
+=============
+
+New Features
+------------
+  - ``aligndicer.py`` tool for extracting columns form aligned sequences.
+  - API support for PyMsBayes; can automate preparing of input files.
+
+
 Version 0.1.1
 =============
 
